@@ -1,5 +1,6 @@
 define("m21theory/tests/interval", ["m21theory/section", "m21theory/random"], 
         function (section, random) {
+    
 	var ThisTest = function () {
 		section.Generic.call(this);
 		
@@ -178,7 +179,7 @@ define("m21theory/tests/interval", ["m21theory/section", "m21theory/random"],
 			s.append(n2);
 			s.autoBeam = false;
 			var nc = s.createCanvas();
-			var niceDiv = $("<div style='width: 180px; float: left; padding-bottom: 20px'></div>");
+			var niceDiv = $("<div style='width: 180px; float: left;'></div>");
 			niceDiv.append(nc);
 			if (i < this.practiceQs) {
 				niceDiv.append( $("<div style='padding-left: 50px; position: relative; top: 0px'>" + fullInterval.name + "</div>") );
@@ -191,7 +192,7 @@ define("m21theory/tests/interval", ["m21theory/section", "m21theory/random"],
 				inputBox[0].storedStream = s;
 				inputBox[0].storedAnswer = fullInterval.name;
 				inputBox[0].testHandler = this;
-				niceDiv.append( $("<div style='padding-left: 30px; position: relative; top: 10px'/>")
+				niceDiv.append( $("<div style='padding-left: 30px; position: relative; top: 0px'/>")
 								 .append(inputBox) );
 			}
 			return niceDiv;

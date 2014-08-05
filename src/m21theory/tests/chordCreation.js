@@ -141,8 +141,10 @@ define("m21theory/tests/chordCreation", ["m21theory/section", "m21theory/random"
 			d.append(buttonDiv);
 			d.append( $("<br clear='all'/>") );
 			s.renderOptions.events['click'] = s.canvasChangerFunction;
-			var can = s.appendNewCanvas(d);
-			$(can).css('height', '140px');
+			s.renderOptions.scaleFactor.x = 1.0;
+			s.renderOptions.scaleFactor.y = 1.0;            
+			s.appendNewCanvas(d); // var can = ...
+			
 			d.css('float', 'left');
 			
 			d.append(infoDiv);

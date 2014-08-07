@@ -22,6 +22,8 @@ define("m21theory/tests/noteIdentification", ["m21theory/section", "m21theory/ra
 
 		this.renderOneQ = function (i) {
 			var s = new music21.stream.Stream();
+			s.renderOptions.scaleFactor.x = 1.0;
+            s.renderOptions.scaleFactor.y = 1.0;
 			s.tempo = 80;
 			s.autoBeam = true;
 			s.clef = new music21.clef.Clef( random.choice(this.allowableClefs) );
@@ -78,7 +80,7 @@ define("m21theory/tests/noteIdentification", ["m21theory/section", "m21theory/ra
 			s.makeAccidentals();
 			var streamAnswer = answerList.join(' ');
 			s.renderOptions.events['click'] = undefined;
-			var nc = s.createCanvas({'height': '100px', 'width': 'auto'}, 400);
+			var nc = s.createCanvas(400);
 			var niceDiv = $("<div style='width: 420px; float: left; padding-bottom: 20px'></div>");
 			niceDiv.append(nc);
 									

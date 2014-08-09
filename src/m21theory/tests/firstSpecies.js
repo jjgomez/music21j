@@ -203,6 +203,7 @@ define("m21theory/tests/firstSpecies", ["m21theory/section", "m21theory/random"]
 			var thisSharps = random.randint(this.minSharps, this.maxSharps);
 			var thisCf = random.choice(this.cfs);
 			var s = new music21.stream.Score();
+			s.renderOptions.scaleFactor = {x: 1.0, y: 1.0};
 			var ks = new music21.key.KeySignature(thisSharps);
 			var pStudent = new music21.stream.Part();
 			var pCF = new music21.stream.Part();
@@ -235,7 +236,7 @@ define("m21theory/tests/firstSpecies", ["m21theory/section", "m21theory/random"]
 			s.timeSignature = '4/4';
 			s.keySignature = ks;
 			s.tempo = 200;
-			s.renderOptions.maxSystemWidth = 800;
+			s.renderOptions.maxSystemWidth = 500;
 			s.noteChanged = this.noteChanged;
 			s.renderOptions.events['click'] = s.canvasChangerFunction;
 			s.testHandler = this;

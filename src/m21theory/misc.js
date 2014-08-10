@@ -26,6 +26,8 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
 	    if (where === undefined) {
 	        where = document.body;
 	    }
+	    
+	    
 	    if (startDNN === undefined) {
 	        startDNN = 18;
 	    }

@@ -25,6 +25,27 @@ if (typeof (m21theory) === "undefined") {
 }
 m21theory.debug = false;
 
+require.config({
+    paths: {
+        'jquery': 'ext/jquery/jquery-2.1.1.min',
+        'jquery-ui': 'ext/jqueryPlugins/jqueryUI/jquery-ui.min',
+        'vexflow': 'ext/vexflow/vexflow-min',
+        'es6-shim': 'ext/es6-shim',
+        'vexflowMods': 'ext/vexflowMods',
+        'unpickler': 'ext/jsonpickle/unpickler',
+    },
+    shim: {
+        'jquery-ui': {
+            deps: [ 'jquery' ],
+            exports: 'jQuery.ui'
+        },
+        'vexflow': {
+            deps: [ 'jquery' ],
+            exports: 'Vex'
+        },
+    }
+});
+
 if ( typeof define === "function" && define.amd) {
     define( "m21theory", ['music21', 
                           'm21theory/userData', 'm21theory/random', 'm21theory/misc',

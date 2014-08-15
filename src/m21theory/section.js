@@ -330,6 +330,8 @@ define(['m21theory/random', 'm21theory/userData'],
 
 				if (this.studentFeedback === true) {
 					valueBox.className = 'correct';
+				} else {
+				    valueBox.className = 'answered';
 				}
 			} else { // incorrect
 				if (valueBox.answerStatus == 'unanswered') {
@@ -344,6 +346,8 @@ define(['m21theory/random', 'm21theory/userData'],
 
 				if (this.studentFeedback === true) {
 					valueBox.className = 'incorrect';
+				} else {
+                    valueBox.className = 'answered';
 				}
 			}
 			if (m21theory.debug) {

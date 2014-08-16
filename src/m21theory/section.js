@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/random', 'm21theory/userData'], 
-        function(random, userData) {
+define(['m21theory/random', 'm21theory/userData', 'm21theory/question'], 
+        function(random, userData, question) {
 	var section = {};
 
 
@@ -33,6 +33,11 @@ define(['m21theory/random', 'm21theory/userData'],
 		this.maxMistakes = 8;
 		
 		this.possibleOutcomes = {};
+		
+		this.questionClass = question.Question;
+        this.practiceQuestions = [];
+        this.questions = [];
+		
 		
 		// hidden variables masked by propreties
 		this._allowEarlySubmit = undefined;
@@ -262,6 +267,7 @@ define(['m21theory/random', 'm21theory/userData'],
 									.attr('class','testSectionInstructions') );
 
 			var testSectionBody = $("<div>").attr('class','testSectionBody');
+			this.testSectionBody = testSectionBody;
 			this.renderBody(testSectionBody);
 			testSectionBody.append( $("<br clear='all' />") );
 			newTestSection.append(testSectionBody);
@@ -282,13 +288,35 @@ define(['m21theory/random', 'm21theory/userData'],
 		};	
 
 		this.renderBody = function (testSectionBody) {
-			if (testSectionBody == undefined) {
-				throw("Cannot renderBody without testSectionBody -- a $('<div>') with class, testSectionBody");
+			if (testSectionBody === undefined) {
+			    if (this.testSectionBody === undefined) {
+	                throw("Cannot renderBody without testSectionBody -- a $('<div>') with class, testSectionBody");			        
+			    } else {
+			        testSectionBody = this.testSectionBody;
+			    }			    
+			} else if (this.testSectionBody === undefined) {
+			    this.testSectionBody = testSectionBody;
 			}
-			for (var i = 0; i < this.totalQs; i++) {
-				var questionDiv = this.renderOneQ(i);
-				testSectionBody.append(questionDiv);
-			 }
+			if (this.useAug2014System) {
+			    console.log('using new system');
+			    var q = undefined;
+			    for (var i = 0; i < this.totalQs; i++) {
+			        q = new this.questionClass(this, i);
+			        if (i < this.practiceQs) {
+			            q.isPractice = true;
+			            this.practiceQuestions.push(q);
+			        } else {
+	                     this.questions.push(q);
+			        }
+			        q.append();
+			    }
+			    lastQ = q; // global for testing.
+			} else {
+	            for (var i = 0; i < this.totalQs; i++) {
+	                var questionDiv = this.renderOneQ(i);
+	                testSectionBody.append(questionDiv);
+	             }		    
+			}
 		};
 
 		this.renderPostBody = function (newTestSection) {
@@ -303,10 +331,59 @@ define(['m21theory/random', 'm21theory/userData'],
 			return $("<div>Blank question " + i.toString() + "</div>");
 		}; 
 		
-		this.checkAnswer = function (storedAnswer, answerGiven) {
-			return (storedAnswer == answerGiven);
+		this.checkAnswer = function (storedAnswer, studentAnswer, question) {
+			return (storedAnswer == studentAnswer);
 		};
 
+		this.validateAnswerNew = function (question) {
+		    var studentAnswer = question.getStudentAnswer();
+		    var storedAnswer = question.storedAnswer;
+		    var correct = this.checkAnswer(storedAnswer, studentAnswer, question);
+            if (correct) {
+                if (question.answerStatus == 'unanswered') {
+                    this.numRight += 1;
+                } else if (question.answerStatus == 'incorrect') {
+                    // do not decrement numMistakes...
+                    this.numRight += 1;
+                    this.numWrong -= 1;
+                } 
+                question.answerStatus = 'correct';
+
+                if (this.studentFeedback === true) {
+                    question.$questionDiv.removeClass();
+                    question.$questionDiv.addClass("correct");
+                } else {
+                    question.$questionDiv.removeClass();
+                    question.$questionDiv.addClass("answered");
+                }
+            } else { // incorrect
+                if (question.answerStatus == 'unanswered') {
+                    this.numWrong += 1;
+                    this.numMistakes += 1;
+                } else if (question.answerStatus == 'correct') {
+                    this.numRight += -1;
+                    this.numWrong += 1;
+                    this.numMistakes += 1;
+                }
+                question.answerStatus = 'incorrect';
+
+                if (this.studentFeedback === true) {
+                    question.$questionDiv.removeClass();
+                    question.$questionDiv.addClass("incorrect");
+                } else {
+                    question.$questionDiv.removeClass();
+                    question.$questionDiv.addClass("answered");
+                }
+            }
+            if (m21theory.debug) {
+                console.log("Right " + this.numRight + " ; Wrong " + this.numWrong + 
+                            " ; Mistakes " + this.numMistakes);
+            }
+            this.checkEndCondition();
+            return correct;
+
+		};
+		
 		this.validateAnswer = function (valueBox, storedAnswer, answerGiven) {
 			if (answerGiven == undefined) {
 				if (valueBox.value != undefined) {

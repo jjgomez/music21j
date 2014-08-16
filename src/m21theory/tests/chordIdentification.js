@@ -1,7 +1,22 @@
-define("m21theory/tests/chordIdentification", ["m21theory/section", "m21theory/random"], 
-        function (section, random) {
-	var ThisTest = function () {
+define("m21theory/tests/chordIdentification", 
+        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
+        function (section, random, question) {
+
+    var CIQuestion = function (handler, index) {
+        question.Question.call(this, handler, index);   
+    };
+    CIQuestion.prototype = new question.Question();
+    CIQuestion.prototype.constructor = CIQuestion;
+
+    CIQuestion.prototype.render = function () {
+        
+    };
+    
+    var ThisTest = function () {
 		section.Generic.call(this);
+		this.questionClass = CIQuestion;
+		this.useAug2014System = true;
+		
 		this.assignmentId = 'chordIdentificationTest';
 		this.totalQs = 15;
 		this.practiceQs = 0;

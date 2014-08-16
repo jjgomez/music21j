@@ -1,9 +1,71 @@
-define("m21theory/tests/interval", ["m21theory/section", "m21theory/random"], 
-        function (section, random) {
+define("m21theory/tests/interval", 
+        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
+        function (section, random, question) {
+
+    var IntervalQuestion = function (handler, index) {
+        question.Question.call(this, handler, index);   
+    };
+    IntervalQuestion.prototype = new question.Question();
+    IntervalQuestion.prototype.constructor = IntervalQuestion;
     
+    IntervalQuestion.prototype.render = function () {
+        var _ = this.section.getRandomValidIntervalAndNotes(),
+            n1 = _[0],
+            n2 = _[1],
+            fullInterval = _[2];
+
+        var s = new music21.stream.Stream();
+        if (random.randint(0,1)) {
+            s.clef = new music21.clef.Clef('treble');
+        } else {
+            s.clef = new music21.clef.Clef('bass');
+            var octaveShift = 0;
+            if (n1.pitch.diatonicNoteNum > 32) {
+                octaveShift = -2;
+            } else {
+                octaveShift = -1;
+            }
+            n1.pitch.octave = n1.pitch.octave + octaveShift;
+            n2.pitch.octave = n2.pitch.octave + octaveShift;
+        }       
+        if (m21theory.debug) {
+            console.log("name1: " + n1.pitch.name);
+            console.log("octave: " + n1.pitch.octave);
+            console.log("name2: " + n2.pitch.name);
+            console.log("octave: " + n2.pitch.octave);
+        }
+        s.append(n1);
+        s.append(n2);
+        s.autoBeam = false;
+        this.stream = s;
+        
+        var nc = s.createCanvas();
+        var $questionDiv = $("<div style='width: 180px; float: left;'></div>");
+        $questionDiv.append(nc);
+        if (this.isPractice) {
+            $questionDiv.append( 
+                    $("<div style='padding-left: 50px; position: relative; top: 0px'>" + 
+                            fullInterval.name + "</div>") 
+                );
+        } else {
+            this.$inputBox = $("<input type='text' size='5' class='unanswered'/>")
+                             .change( this.checkTrigger )
+                             .focus( (function () { this.stream.playStream(); }).bind(this) )
+                             ;
+            this.storedAnswer = fullInterval.name;
+            $questionDiv.append( $("<div style='padding-left: 30px; position: relative; top: 0px'/>")
+                             .append(this.$inputBox) );
+        }
+        this.$questionDiv = $questionDiv;
+        return $questionDiv;
+        
+        
+    };
 	var ThisTest = function () {
 		section.Generic.call(this);
-		
+		this.useAug2014System = true;
+		this.questionClass = IntervalQuestion;
+
 		this.assignmentId = 'interval';
 		
 		this.noteNames = ['C','D','E','F','G','A','B'];
@@ -147,55 +209,6 @@ define("m21theory/tests/interval", ["m21theory/section", "m21theory/random"],
 			this.lastRenderedNote1 = n1.pitch.nameWithOctave;
 			this.lastRenderedNote2 = n2.pitch.nameWithOctave;
 			return [n1, n2, fullInterval];	
-		};
-
-		this.renderOneQ = function (i) {
-			var _ = this.getRandomValidIntervalAndNotes(),
-				n1 = _[0],
-				n2 = _[1],
-				fullInterval = _[2];
-		
-			var s = new music21.stream.Stream();
-			if (random.randint(0,1)) {
-				s.clef = new music21.clef.Clef('treble');
-			} else {
-				s.clef = new music21.clef.Clef('bass');
-				var octaveShift = 0;
-				if (n1.pitch.diatonicNoteNum > 32) {
-					octaveShift = -2;
-				} else {
-					octaveShift = -1;
-				}
-				n1.pitch.octave = n1.pitch.octave + octaveShift;
-				n2.pitch.octave = n2.pitch.octave + octaveShift;
-			}		
-			if (m21theory.debug) {
-				console.log("name1: " + n1.pitch.name);
-				console.log("octave: " + n1.pitch.octave);
-				console.log("name2: " + n2.pitch.name);
-				console.log("octave: " + n2.pitch.octave);
-			}
-			s.append(n1);
-			s.append(n2);
-			s.autoBeam = false;
-			var nc = s.createCanvas();
-			var niceDiv = $("<div style='width: 180px; float: left;'></div>");
-			niceDiv.append(nc);
-			if (i < this.practiceQs) {
-				niceDiv.append( $("<div style='padding-left: 50px; position: relative; top: 0px'>" + fullInterval.name + "</div>") );
-			} else {
-				var inputBox = $("<input type='text' size='5' class='unanswered'/>")
-								 .change( function () { this.testHandler.validateAnswer(this, this.storedAnswer); } )
-								 .focus( function () { this.storedStream.playStream(); } )
-								 ;
-				inputBox[0].answerStatus = "unanswered"; // separate from class
-				inputBox[0].storedStream = s;
-				inputBox[0].storedAnswer = fullInterval.name;
-				inputBox[0].testHandler = this;
-				niceDiv.append( $("<div style='padding-left: 30px; position: relative; top: 0px'/>")
-								 .append(inputBox) );
-			}
-			return niceDiv;
 		};
 	};
 

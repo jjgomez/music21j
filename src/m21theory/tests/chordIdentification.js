@@ -1,6 +1,6 @@
 define("m21theory/tests/chordIdentification", 
-        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", 'm21theory/question', 'music21/chord'], 
+        function (section, random, question, chord) {
 
     var CIQuestion = function (handler, index) {
         question.Question.call(this, handler, index);   
@@ -8,8 +8,55 @@ define("m21theory/tests/chordIdentification",
     CIQuestion.prototype = new question.Question();
     CIQuestion.prototype.constructor = CIQuestion;
 
+    CIQuestion.prototype.getStudentAnswer = function () {
+        return this.studentAnswer;
+    };
+    
     CIQuestion.prototype.render = function () {
+        var thisChordArr = this.section.chords[this.index % this.section.chords.length].split(" ");
+        //console.log(thisChordArr);
+        var thisChord = new chord.Chord(thisChordArr);
+        thisChord.duration.type = 'whole';
+        var storedAnswer = 'other';
+        if (this.section.subtype == 'majorMinor') {
+            if (thisChord.isMajorTriad()) {
+                storedAnswer = 'major';
+            } else if (thisChord.isMinorTriad()) {
+                storedAnswer = 'minor';
+            }
+        } else if (this.section.subtype == 'inversions') {
+            var dnnDiff = (thisChord.root().diatonicNoteNum - thisChord.bass().diatonicNoteNum) % 7;
+            if (dnnDiff == 0) {
+                storedAnswer = 'root';
+            } else if (dnnDiff == 5) {
+                storedAnswer = 'first inversion';
+            } else if (dnnDiff == 3) {
+                storedAnswer = 'second inversion';
+            }
+        }
+        this.storedAnswer = storedAnswer;
         
+        var myStream = new music21.stream.Stream();
+        myStream.clef = new music21.clef.Clef('bass');
+        myStream.append(thisChord);
+        
+        myStream.renderOptions.events['dblclick'] = 'play';
+        myStream.renderOptions.events['click'] = undefined;
+        this.stream = myStream;
+        
+        var nc = myStream.createCanvas();
+        nc.attr('class','draggableCanvas');
+        nc.draggable( {
+          containment: 'body',
+          stack: '.draggableCanvas canvas',
+          cursor: 'move',
+          revert: true} ).data('question', this);
+        var $questionDiv = $("<div style='width: 150px; float: left; padding-bottom: 20px'></div>");
+        $questionDiv.append(nc);
+
+        this.$feedbackDiv = nc;
+        this.$questionDiv = $questionDiv;                    
+        return $questionDiv;        
     };
     
     var ThisTest = function () {
@@ -35,52 +82,7 @@ define("m21theory/tests/chordIdentification",
 	                                           "C#4 E4 G#4",
 	                                           ]);
 
-		this.checkAnswer = function (storedAnswer, answerGiven) {
-			return (storedAnswer.toLowerCase().replace(/\s*/g, "") == answerGiven.toLowerCase().replace(/\s*/g, "") );
-		};
 
-		this.renderOneQ = function (i) {
-	        var thisChordArr = this.chords[i % this.chords.length].split(" ");
-	        //console.log(thisChordArr);
-	        var thisChord = new music21.chord.Chord(thisChordArr);
-			thisChord.duration.type = 'whole';
-			var storedAnswer = 'other';
-			if (this.subtype == 'majorMinor') {
-				if (thisChord.isMajorTriad()) {
-					storedAnswer = 'major';
-				} else if (thisChord.isMinorTriad()) {
-					storedAnswer = 'minor';
-				}
-			} else if (this.subtype == 'inversions') {
-				var dnnDiff = (thisChord.root().diatonicNoteNum - thisChord.bass().diatonicNoteNum) % 7;
-				if (dnnDiff == 0) {
-					storedAnswer = 'root';
-				} else if (dnnDiff == 5) {
-					storedAnswer = 'first inversion';
-				} else if (dnnDiff == 3) {
-					storedAnswer = 'second inversion';
-				}
-			}
-			var myStream = new music21.stream.Stream();
-	        myStream.clef = new music21.clef.Clef('bass');
-	        myStream.append(thisChord);
-	        
-	        myStream.renderOptions.events['dblclick'] = 'play';
-	        myStream.renderOptions.events['click'] = undefined;
-	        var nc = myStream.createCanvas();
-	        nc.attr('class','draggableCanvas');
-	        nc.draggable( {
-			  containment: 'body',
-			  stack: '.draggableCanvas canvas',
-			  cursor: 'move',
-			  revert: true} ).data('storedAnswer', storedAnswer).data('storedStream', myStream);
-			var niceDiv = $("<div style='width: 150px; float: left; padding-bottom: 20px'></div>");
-			niceDiv.append(nc);
-									
-			nc[0].answerStatus = "unanswered"; // separate from class
-			nc[0].testHandler = this;
-			return niceDiv;
-		};
 		this.renderPostBody = function (newTestSection) {
 			var display = '<div style="display: table">';
 			if (this.subtype == 'majorMinor') {
@@ -108,10 +110,10 @@ define("m21theory/tests/chordIdentification",
 			      hoverClass: 'hovered',
 			      drop:  function (event, ui) { 
 			    	  var draggedCanvas = ui.draggable;
-			    	  var containedStream = draggedCanvas.data('storedStream');
-			    	  var soughtType = $(this).attr('type');
-			    	  draggedCanvas[0].testHandler.validateAnswer(draggedCanvas[0], soughtType, draggedCanvas.data('storedAnswer'));
-			    	  containedStream.playStream();
+			    	  var q = draggedCanvas.data('question');
+			    	  q.studentAnswer = $(this).attr('type');			    	  
+			    	  q.validateAnswer();
+			    	  q.stream.playStream();
 			    	  //console.log('looking for: ' + soughtType);
 			      }
 		    } );

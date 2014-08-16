@@ -18,6 +18,8 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         this.answerStatus = 'unanswered';
         this.$inputBox = undefined; // for inputbox based questions.
         this.$questionDiv = undefined;
+        this._$feedbackDiv = undefined;
+        
         this.isPractice = false;
         
         if (section !== undefined) {
@@ -28,6 +30,23 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
             } 
         }
         this.checkTrigger = (function () { this.validateAnswer(); }).bind(this);
+        
+        Object.defineProperties(this, {
+            '$feedbackDiv': {
+                // a separate Div to change class to give students feedback on results.
+                get: function () {
+                    if (this._$feedbackDiv !== undefined) {
+                        return this._$feedbackDiv;
+                    } else {
+                        return this.$questionDiv;
+                    }
+                },
+                set: function ($fbd) {
+                    this._$feedbackDiv = $fbd;
+                }
+            },
+        });
+    
     };
 
     // function to define how to get the student's answer 

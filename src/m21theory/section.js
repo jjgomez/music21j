@@ -339,7 +339,9 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 		    var studentAnswer = question.getStudentAnswer();
 		    var storedAnswer = question.storedAnswer;
 		    var correct = this.checkAnswer(storedAnswer, studentAnswer, question);
-            if (correct) {
+
+		    var possibleClasses = 'correct incorrect answered unanswered';
+		    if (correct) {
                 if (question.answerStatus == 'unanswered') {
                     this.numRight += 1;
                 } else if (question.answerStatus == 'incorrect') {
@@ -350,11 +352,11 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
                 question.answerStatus = 'correct';
 
                 if (this.studentFeedback === true) {
-                    question.$questionDiv.removeClass();
-                    question.$questionDiv.addClass("correct");
+                    question.$feedbackDiv.removeClass(possibleClasses);
+                    question.$feedbackDiv.addClass("correct");
                 } else {
-                    question.$questionDiv.removeClass();
-                    question.$questionDiv.addClass("answered");
+                    question.$feedbackDiv.removeClass(possibleClasses);
+                    question.$feedbackDiv.addClass("answered");
                 }
             } else { // incorrect
                 if (question.answerStatus == 'unanswered') {
@@ -368,11 +370,11 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
                 question.answerStatus = 'incorrect';
 
                 if (this.studentFeedback === true) {
-                    question.$questionDiv.removeClass();
-                    question.$questionDiv.addClass("incorrect");
+                    question.$feedbackDiv.removeClass(possibleClasses);
+                    question.$feedbackDiv.addClass("incorrect");
                 } else {
-                    question.$questionDiv.removeClass();
-                    question.$questionDiv.addClass("answered");
+                    question.$feedbackDiv.removeClass(possibleClasses);
+                    question.$feedbackDiv.addClass("answered");
                 }
             }
             if (m21theory.debug) {

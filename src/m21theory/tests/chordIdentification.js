@@ -9,7 +9,7 @@ define("m21theory/tests/chordIdentification",
     CIQuestion.prototype.constructor = CIQuestion;
 
     CIQuestion.prototype.getStudentAnswer = function () {
-        return this.studentAnswer;
+        return this.studentAnswer; // don't search elsewhere...
     };
     
     CIQuestion.prototype.render = function () {

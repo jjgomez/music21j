@@ -13,12 +13,15 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         this.section = section;
         this.index = index;
         this.singlePointQuestion = true;
+        this.ignoreMistakes = false; // for things where many wrong answers will be given first.
+        
         this.storedAnswer = undefined; // for quick lookups;
         this.studentAnswer = undefined;
         this.answerStatus = 'unanswered';
         this.$inputBox = undefined; // for inputbox based questions.
         this.$questionDiv = undefined;
         this._$feedbackDiv = undefined;
+        this.incorrectAnswerAttempts = 0;
         
         this.isPractice = false;
         
@@ -29,6 +32,8 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
                 this.questionOffset = this.testSectionBody.offset; // function                
             } 
         }
+        
+        this.correctCallback = undefined; // callback for correct answers, such as playing.
         this.checkTrigger = (function () { this.validateAnswer(); }).bind(this);
         
         Object.defineProperties(this, {
@@ -59,10 +64,56 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         return sa;
     };
     
-    // returns true false..
-    question.GeneralQuestion.prototype.validateAnswer = function () {
-        return this.section.validateAnswerNew(this);
+    // to be overridden...
+    question.GeneralQuestion.prototype.getStoredAnswer = function () {
+        return this.storedAnswer;
     };
+    
+    // returns true false..
+    question.GeneralQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer) {        
+        return (studentAnswer == storedAnswer);
+    };
+    
+    question.GeneralQuestion.prototype.validateAnswer = function () {
+        var studentAnswer = this.getStudentAnswer();
+        var storedAnswer = this.getStoredAnswer();
+        var isCorrect = this.checkAnswer(studentAnswer, storedAnswer);
+        //console.log(studentAnswer, storedAnswer, isCorrect);
+        this.answerStatus = isCorrect ? "correct" : "incorrect";
+        if (isCorrect != true && this.ignoreMistakes == false) {
+            this.incorrectAnswerAttempts += 1;
+        }
+        this.section.questionStatusChanged(this.answerStatus, this);
+        this.changeStatusClass(isCorrect);
+        if (isCorrect && this.correctCallback !== undefined) {
+            this.correctCallback();
+        }
+    };
+
+    question.GeneralQuestion.prototype.changeStatusClass = function (isCorrect) {
+        var possibleClasses = 'correct incorrect answered unanswered';
+        if (isCorrect) {
+            if (this.section.studentFeedback === true) {
+                this.$feedbackDiv.removeClass(possibleClasses);
+                this.$feedbackDiv.addClass("correct");
+            } else {
+                this.$feedbackDiv.removeClass(possibleClasses);
+                this.$feedbackDiv.addClass("answered");
+            }
+        } else { // incorrect
+            if (this.section.studentFeedback === true) {
+                this.$feedbackDiv.removeClass(possibleClasses);
+                if (this.ignoreMistakes == false) {
+                    this.$feedbackDiv.addClass("incorrect");                    
+                }
+            } else {
+                this.$feedbackDiv.removeClass(possibleClasses);
+                this.$feedbackDiv.addClass("answered");
+            }
+        }
+    };
+
+    
     
     question.GeneralQuestion.prototype.render = function () {
         return $("<div>Blank question " + this.index.toString() + "</div>");

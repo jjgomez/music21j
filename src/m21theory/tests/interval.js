@@ -63,7 +63,6 @@ define("m21theory/tests/interval",
     };
 	var ThisTest = function () {
 		section.Generic.call(this);
-		this.useAug2014System = true;
 		this.questionClass = IntervalQuestion;
 
 		this.assignmentId = 'interval';

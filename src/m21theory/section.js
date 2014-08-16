@@ -297,26 +297,16 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			} else if (this.testSectionBody === undefined) {
 			    this.testSectionBody = testSectionBody;
 			}
-			if (this.useAug2014System) {
-			    console.log('using new system');
-			    var q = undefined;
-			    for (var i = 0; i < this.totalQs; i++) {
-			        q = new this.questionClass(this, i);
-			        if (i < this.practiceQs) {
-			            q.isPractice = true;
-			            this.practiceQuestions.push(q);
-			        } else {
-	                     this.questions.push(q);
-			        }
-			        q.append();
-			    }
-			    lastQ = q; // global for testing.
-			} else {
-	            for (var i = 0; i < this.totalQs; i++) {
-	                var questionDiv = this.renderOneQ(i);
-	                testSectionBody.append(questionDiv);
-	             }		    
-			}
+		    for (var i = 0; i < this.totalQs; i++) {
+		        var q = new this.questionClass(this, i);
+		        if (i < this.practiceQs) {
+		            q.isPractice = true;
+		            this.practiceQuestions.push(q);
+		        } else {
+                     this.questions.push(q);
+		        }
+		        q.append();
+		    }
 		};
 
 		this.renderPostBody = function (newTestSection) {
@@ -331,122 +321,41 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			return $("<div>Blank question " + i.toString() + "</div>");
 		}; 
 		
-		this.checkAnswer = function (storedAnswer, studentAnswer, question) {
-			return (storedAnswer == studentAnswer);
+		this.questionStatusChanged = function (new_status, changed_question) {		    
+		    // correct and question are currently unused;
+		    this.recalculateScore();
+            this.checkEndCondition();
 		};
-
-		this.validateAnswerNew = function (question) {
-		    var studentAnswer = question.getStudentAnswer();
-		    var storedAnswer = question.storedAnswer;
-		    var correct = this.checkAnswer(storedAnswer, studentAnswer, question);
-
-		    var possibleClasses = 'correct incorrect answered unanswered';
-		    if (correct) {
-                if (question.answerStatus == 'unanswered') {
-                    this.numRight += 1;
-                } else if (question.answerStatus == 'incorrect') {
-                    // do not decrement numMistakes...
-                    this.numRight += 1;
-                    this.numWrong -= 1;
-                } 
-                question.answerStatus = 'correct';
-
-                if (this.studentFeedback === true) {
-                    question.$feedbackDiv.removeClass(possibleClasses);
-                    question.$feedbackDiv.addClass("correct");
-                } else {
-                    question.$feedbackDiv.removeClass(possibleClasses);
-                    question.$feedbackDiv.addClass("answered");
-                }
-            } else { // incorrect
-                if (question.answerStatus == 'unanswered') {
-                    this.numWrong += 1;
-                    this.numMistakes += 1;
-                } else if (question.answerStatus == 'correct') {
-                    this.numRight += -1;
-                    this.numWrong += 1;
-                    this.numMistakes += 1;
-                }
-                question.answerStatus = 'incorrect';
-
-                if (this.studentFeedback === true) {
-                    question.$feedbackDiv.removeClass(possibleClasses);
-                    question.$feedbackDiv.addClass("incorrect");
-                } else {
-                    question.$feedbackDiv.removeClass(possibleClasses);
-                    question.$feedbackDiv.addClass("answered");
-                }
-            }
+		
+		this.recalculateScore = function () {
+		    this.numRight = 0;
+		    this.numWrong = 0;
+		    this.numMistakes = 0;
+		    for (var i = 0; i < this.questions.length; i++) {
+		        var question = this.questions[i];
+		        if (question.answerStatus == 'correct') {
+		            this.numRight += 1;
+		        } else if (question.answerStatus == 'incorrect') {
+		            this.numWrong += 1;
+		        }
+		        this.numMistakes += question.incorrectAnswerAttempts;
+		    }
             if (m21theory.debug) {
                 console.log("Right " + this.numRight + " ; Wrong " + this.numWrong + 
                             " ; Mistakes " + this.numMistakes);
-            }
-            this.checkEndCondition();
-            return correct;
-
+            }  
 		};
-		
-		this.validateAnswer = function (valueBox, storedAnswer, answerGiven) {
-			if (answerGiven == undefined) {
-				if (valueBox.value != undefined) {
-					answerGiven = valueBox.value;				
-				} else {
-					answerGiven = valueBox; 
-				}
-			}
-			//console.log(storedAnswer);
-			//console.log(answerGiven);
-			var correct = this.checkAnswer(storedAnswer, answerGiven);
-			if (correct) {
-				if (valueBox.answerStatus == 'unanswered') {
-					this.numRight += 1;
-				} else if (valueBox.answerStatus == 'incorrect') {
-					// do not decrement numMistakes...
-					this.numRight += 1;
-					this.numWrong -= 1;
-				} 
-				valueBox.answerStatus = 'correct';
-
-				if (this.studentFeedback === true) {
-					valueBox.className = 'correct';
-				} else {
-				    valueBox.className = 'answered';
-				}
-			} else { // incorrect
-				if (valueBox.answerStatus == 'unanswered') {
-					this.numWrong += 1;
-					this.numMistakes += 1;
-				} else if (valueBox.answerStatus == 'correct') {
-					this.numRight += -1;
-					this.numWrong += 1;
-					this.numMistakes += 1;
-				}
-				valueBox.answerStatus = 'incorrect';
-
-				if (this.studentFeedback === true) {
-					valueBox.className = 'incorrect';
-				} else {
-                    valueBox.className = 'answered';
-				}
-			}
-			if (m21theory.debug) {
-				console.log("Right " + this.numRight + " ; Wrong " + this.numWrong + 
-							" ; Mistakes " + this.numMistakes);
-			}
-			this.checkEndCondition();
-			return correct;
-		};
-		
+		    		
 		this.currentOutcome = undefined;
 		this.checkEndCondition = function () {
 			if (this.numRight == this.totalQs - this.practiceQs) {
-				console.log("end condition met...");
+				//console.log("end condition met...");
 				var outcome = undefined;
 				if (this.studentFeedback === true) {
 					if (this.numMistakes <= this.maxMistakes) {
 						outcome = 'success';
 					} else {
-						console.log('more work needed');
+						//console.log('more work needed');
 						outcome = 'moreWork';
 					}
 				} else {

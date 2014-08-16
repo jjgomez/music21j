@@ -1,7 +1,107 @@
-define("m21theory/tests/chordCreation", ["m21theory/section", "m21theory/random"], 
-        function (section, random) {
+define("m21theory/tests/chordCreation", 
+        ["m21theory/section", "m21theory/random", "m21theory/question", 'music21/key', 'music21/chord'], 
+        function (section, random, question, key, chord) {
+    var CCQuestion = function (handler, index) {
+        question.Question.call(this, handler, index);  
+        this.ignoreMistakes = true;
+        this.correctCallback = function () { this.stream.playStream(); };
+    };
+    CCQuestion.prototype = new question.Question();
+    CCQuestion.prototype.constructor = CCQuestion;
+    CCQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
+        //m21theory.debug = true;
+        if (m21theory.debug) {
+            var answerStr = "";
+            for (var j =0; j < storedAnswer.length; j++ ) {
+                answerStr += storedAnswer[j].name + " ";
+            }
+            console.log(answerStr);
+        }
+        var correct = true;
+        for (var i = 0; i < storedAnswer.length; i++) {
+            var foundIt = false;
+            for (var j = 0; j < studentAnswer.length; j++) {
+                if (storedAnswer[i].name == studentAnswer[j].name) {
+                    foundIt = true;
+                    break;
+                }
+            }
+            if (foundIt != true) {
+                correct = false;
+                break;
+            }
+        }
+        if (correct) { // possible correct 
+            //find bass note -- for inversion, etc...
+            var givenChord = new music21.chord.Chord(studentAnswer);
+            var storedChord = new music21.chord.Chord(storedAnswer);
+            var givenBass = givenChord.bass();
+            var storedBass = storedChord.bass();
+            if (givenBass.name != storedBass.name) {
+                correct = false;
+            }
+        }
+        return correct;
+    };
+    
+    
+    CCQuestion.prototype.getStudentAnswer = function () {
+        var givenAnswer = [];
+        var s = this.stream;
+        for (var i = 0; i < s.length; i++) {
+            givenAnswer.push(s.get(i).pitch);
+        }
+        return givenAnswer;
+    };
+    
+    
+    CCQuestion.prototype.render = function () {
+        var section = this.section;
+        var chordRN = section.getRomanNumeral();
+        var $infoDiv = section.getDisplayForRN(chordRN);            
+        var chordPitches = chordRN.pitches;
+        var s = section.getStream(chordPitches.length);
+
+        this.stream = s;
+        this.storedAnswer = new chord.Chord(chordPitches).pitches;
+    
+        var d = $("<div/>").css('text-align','left').css('position','relative');
+        var buttonDivPlay = s.getPlayToolbar();
+        buttonDivPlay.css('top', '0px');
+        d.append(buttonDivPlay);
+        d.append( $("<br clear='all'/>") );
+        var buttonDiv = s.getAccidentalToolbar();
+        buttonDiv.css('top', '15px');
+        d.append(buttonDiv);
+        d.append( $("<br clear='all'/>") );
+        s.appendNewCanvas(d); // var can = ...
+
+        s.changedCallbackFunction = (function () { this.validateAnswer(); }).bind(this);
+        
+        d.css('float', 'left');
+        
+        d.append($infoDiv);
+        this.$questionDiv = d;
+        
+        
+        if (m21theory.debug) {
+            var answerStr = "";
+            for (var j =0; j < chordPitches.length; j++ ) {
+                answerStr += chordPitches[j].nameWithOctave + " ";
+            }
+            console.log(answerStr);
+        }
+        
+        // store answers, etc. on Stream!
+        return d;
+    };
+
+    
 	var ThisTest = function () {
 		section.Generic.call(this);
+		
+		this.questionClass = CCQuestion;
+
 		this.assignmentId = 'chordCreationTest';
 		this.totalQs = 9;
 		this.practiceQs = 0;
@@ -54,194 +154,103 @@ define("m21theory/tests/chordCreation", ["m21theory/section", "m21theory/random"
 
 		this.usedKeySignatures = [];
 			
-		this.renderOneQ = function (i) {
-			if (this.usedKeySignatures.length == (this.maxSharps - this.minSharps)) {
-				this.usedKeySignatures = []; // clear for new work.
-			}
-			var keySignatureSharps = undefined;
-			while (keySignatureSharps == undefined) {
-				keySignatureSharps = random.randint(this.minSharps, this.maxSharps);
-				for (var j = 0; j < this.usedKeySignatures.length; j++) {
-					if (this.usedKeySignatures[j] == keySignatureSharps) {
-						keySignatureSharps = undefined;
-					}
-				}
-			}
-			this.usedKeySignatures.push(keySignatureSharps);
-			var mode = random.choice(this.modeChoices);
-			
-			var ks = new music21.key.KeySignature(keySignatureSharps);
-			var tonic;
-			if (mode == 'major') {
-				tonic = ks.majorName();
-			} else {
-				tonic = ks.minorName();
-			}
-			var key = new music21.key.Key(tonic, mode);
-			var modalChoices = this.chordChoicesMode[mode];
-			var chordRNstr = random.choice(modalChoices);
-			var displayType = random.choice(this.displayChoices);
-
-			var chordRN = new music21.roman.RomanNumeral(chordRNstr, key);	
-			var inversionName = "";
-			if (this.inversionChoices != undefined) {
-				var thisInversion = random.choice(this.inversionChoices);
-				if (thisInversion != 0) {
-					if (thisInversion == 1) {
-						chordRN.pitches[0].octave += 1;
-						if (displayType == 'roman') {
-							inversionName = '6';
-						} else {
-							inversionName = ' (first inversion)';
-						}
-					} else if (thisInversion == 2) {
-						chordRN.pitches[0].octave += 1;
-						chordRN.pitches[1].octave += 1;
-						if (displayType == 'roman') {
-							inversionName = '64';
-						} else {
-							inversionName = ' (second inversion)';
-						}
-					}
-				}
-			}
-			var fullChordName;
-			if (displayType == 'roman') {
-				fullChordName = chordRN.figure;
-			} else {
-				fullChordName = chordRN.degreeName;
-				if (chordRN.numbers != undefined) {
-					fullChordName += " " + chordRN.numbers.toString();
-				}
-			}
-			var tonicDisplay = tonic.replace(/\-/, 'b');
-			if (mode == 'minor') {
-				tonicDisplay = tonicDisplay.toLowerCase();
-			}
-			var infoDiv = $("<div style='padding-left: 20px; margin-top: -18px; margin-bottom: 50px'>" +
-					fullChordName + inversionName + " in " + tonicDisplay + " " + mode + "</div>");
-			
-			var chordPitches = chordRN.pitches;
-			
-			
-			var s = new music21.stream.Measure();
-			for (var j =0; j < chordPitches.length; j++ ) {
-				var gPitch = new music21.note.Note("G2");
-				s.append(gPitch);
-			}
-			s.clef = new music21.clef.Clef('bass');
-
-			var d = $("<div/>").css('text-align','left').css('position','relative');
-			var buttonDivPlay = s.getPlayToolbar();
-			buttonDivPlay.css('top', '0px');
-			d.append(buttonDivPlay);
-			d.append( $("<br clear='all'/>") );
-			var buttonDiv = s.getAccidentalToolbar();
-			buttonDiv.css('top', '15px');
-			d.append(buttonDiv);
-			d.append( $("<br clear='all'/>") );
-			s.renderOptions.events['click'] = s.canvasChangerFunction;
-			s.renderOptions.scaleFactor.x = 1.0;
-			s.renderOptions.scaleFactor.y = 1.0;            
-			s.appendNewCanvas(d); // var can = ...
-			
-			d.css('float', 'left');
-			
-			d.append(infoDiv);
-
-			if (m21theory.Debug) {
-				var answerStr = "";
-				for (var j =0; j < chordPitches.length; j++ ) {
-					answerStr += chordPitches[j].nameWithOctave + " ";
-				}
-				console.log(answerStr);
-			}
-			
-			var answerChord = new music21.chord.Chord(chordPitches);
-			// store answers, etc. on Stream!
-			s.storedAnswer = answerChord;
-			s.answerStatus = 'unanswered';
-			s.storedTest = this;
-			s.storedDiv = d;
-			s.changedCallbackFunction = function () { this.storedTest.validateAnswer(this); };
-			return d;
+		this.getKeySignature = function () {
+		    if (this.usedKeySignatures.length == (this.maxSharps - this.minSharps)) {
+                this.usedKeySignatures = []; // clear for new work.
+            }
+            var keySignatureSharps = undefined;
+            while (keySignatureSharps == undefined) {
+                keySignatureSharps = random.randint(this.minSharps, this.maxSharps);
+                for (var j = 0; j < this.usedKeySignatures.length; j++) {
+                    if (this.usedKeySignatures[j] == keySignatureSharps) {
+                        keySignatureSharps = undefined;
+                    }
+                }
+            }
+            this.usedKeySignatures.push(keySignatureSharps);
+            var ks = new key.KeySignature(keySignatureSharps);
+            return ks;
+		};
+		
+		this.getKey = function () {
+            var ks = this.getKeySignature();            
+            var mode = random.choice(this.modeChoices);         
+            var tonic;
+            if (mode == 'major') {
+                tonic = ks.majorName();
+            } else {
+                tonic = ks.minorName();
+            }
+            var keyObj = new key.Key(tonic, mode);
+            return keyObj;
+		};
+		
+		this.getRomanNumeral = function () {
+		    var keyObj = this.getKey();
+		    var modalChoices = this.chordChoicesMode[keyObj.mode];
+            var chordRNstr = random.choice(modalChoices);
+            var chordRN = new music21.roman.RomanNumeral(chordRNstr, keyObj);
+            return chordRN;            		    
 		};
 
-
-		this.validateAnswer = function (s) {
-			//console.log(s);
-			var storedAnswer = s.storedAnswer.pitches;
-			var givenAnswer = [];
-			for (var i = 0; i < s.length; i++) {
-				givenAnswer.push(s.get(i).pitch);
-			}
-			if (m21theory.debug) {
-				var answerStr = "";
-				for (var j =0; j < storedAnswer.length; j++ ) {
-					answerStr += storedAnswer[j].name + " ";
-				}
-				console.log(answerStr);
-			}
-			var correct = true;
-			for (var i = 0; i < storedAnswer.length; i++) {
-				var foundIt = false;
-				for (var j = 0; j < givenAnswer.length; j++) {
-					if (storedAnswer[i].name == givenAnswer[j].name) {
-						foundIt = true;
-						break;
-					}
-				}
-				if (foundIt != true) {
-					correct = false;
-					break;
-				}
-			}
-			if (correct) { // possible correct 
-				//find bass note -- for inversion, etc...
-				var givenChord = new music21.chord.Chord(givenAnswer);
-				var givenBass = givenChord.bass();
-				var storedBass = s.storedAnswer.bass();
-				if (givenBass.name != storedBass.name) {
-					correct = false;
-				}
-			}
-			
-
-			if (correct) {
-				if (m21theory.debug) {
-					console.log('correct');
-				}
-				if (s.answerStatus == 'unanswered') {
-					this.numRight += 1;
-				} else if (s.answerStatus == 'incorrect') {
-					// do not decrement numMistakes...
-					this.numRight += 1;
-					this.numWrong -= 1;
-				} 
-				s.answerStatus = 'correct';
-
-				if (this.studentFeedback === true) {
-					s.storedDiv.css('background', '#ccffcc');
-					s.playStream();
-				}
-			} else { // incorrect
-				if (s.answerStatus == 'unanswered') {
-					this.numWrong += 1;
-				} else if (s.answerStatus == 'correct') {
-					this.numRight += -1;
-					this.numWrong += 1;
-					if (this.studentFeedback === true) {
-						s.storedDiv.css('background', 'white');
-					}				
-				}
-				s.answerStatus = 'incorrect';
-			}
-			if (m21theory.debug != false) {
-				console.log("Right " + this.numRight + " ; Wrong " + this.numWrong + 
-							" ; Mistakes " + this.numMistakes);
-			}
-			this.checkEndCondition();
-		};
+	    this.getDisplayForRN = function (chordRN) {
+            var keyObj = chordRN.key;
+            var tonic = keyObj.tonic;
+            var mode = keyObj.mode;
+            
+            var displayType = random.choice(this.displayChoices);
+            
+            var inversionName = "";
+            if (this.inversionChoices != undefined) {
+                var thisInversion = random.choice(this.inversionChoices);
+                if (thisInversion != 0) {
+                    if (thisInversion == 1) {
+                        chordRN.pitches[0].octave += 1;
+                        if (displayType == 'roman') {
+                            inversionName = '6';
+                        } else {
+                            inversionName = ' (first inversion)';
+                        }
+                    } else if (thisInversion == 2) {
+                        chordRN.pitches[0].octave += 1;
+                        chordRN.pitches[1].octave += 1;
+                        if (displayType == 'roman') {
+                            inversionName = '64';
+                        } else {
+                            inversionName = ' (second inversion)';
+                        }
+                    }
+                }
+            }
+            var fullChordName;
+            if (displayType == 'roman') {
+                fullChordName = chordRN.figure;
+            } else {
+                fullChordName = chordRN.degreeName;
+                if (chordRN.numbers != undefined) {
+                    fullChordName += " " + chordRN.numbers.toString();
+                }
+            }
+            var tonicDisplay = tonic.replace(/\-/, 'b');
+            if (mode == 'minor') {
+                tonicDisplay = tonicDisplay.toLowerCase();
+            }
+            var $infoDiv = $("<div style='padding-left: 20px; margin-top: -18px; margin-bottom: 50px'>" +
+                    fullChordName + inversionName + " in " + tonicDisplay + " " + mode + "</div>");
+            return $infoDiv;
+	    };
+        this.getStream = function(len) {
+            var s = new music21.stream.Measure();
+            for (var j =0; j < len; j++ ) {
+                var gPitch = new music21.note.Note("G2");
+                s.append(gPitch);
+            }
+            s.clef = new music21.clef.Clef('bass');
+            s.renderOptions.events['click'] = s.canvasChangerFunction;
+            s.renderOptions.scaleFactor.x = 1.0;
+            s.renderOptions.scaleFactor.y = 1.0;            
+            return s;
+        };
 
 	};
 

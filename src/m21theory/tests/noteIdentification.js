@@ -8,6 +8,27 @@ define("m21theory/tests/noteIdentification",
     NoteQuestion.prototype = new question.Question();
     NoteQuestion.prototype.constructor = NoteQuestion;
     
+    NoteQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer){
+        return (storedAnswer.toLowerCase().replace(/\s*/g, "") == 
+            studentAnswer.toLowerCase().replace(/\s*/g, "") );
+    };
+    NoteQuestion.prototype.lyricsChanged = function () {
+        var lyricsVal = this.$inputBox.val();
+        var lyricsSplit = lyricsVal.split(/\s+/);
+        var streamLength = this.stream.length;
+        for (var i = 0; i < streamLength; i++) {
+            var n = this.stream.get(i);
+            if (lyricsSplit[i] !== undefined) {
+                //console.log(lyricsSplit[i]);
+                n.lyric = lyricsSplit[i];                
+            } else {
+                n.lyric = "";
+            }
+        }
+        this.canvas = this.stream.replaceCanvas(this.canvas);
+        //console.log(lyricsSplit);
+    };
+    
     NoteQuestion.prototype.render = function () {
         var s = this.section.getStream();
         var minDiatonicNoteNum = s.clef.firstLine - 1 - (2 * this.section.allowableLedgerLines);
@@ -63,6 +84,8 @@ define("m21theory/tests/noteIdentification",
         var streamAnswer = answerList.join(' ');
         s.renderOptions.events['click'] = undefined;
         var nc = s.createCanvas(400);
+        this.canvas = nc;
+        
         var $questionDiv = $("<div style='width: 420px; float: left; padding-bottom: 20px'></div>");
         $questionDiv.append(nc);
                                 
@@ -72,10 +95,13 @@ define("m21theory/tests/noteIdentification",
                     streamAnswer + 
                     "</b></div>") );
         } else {
+            this.stream = s;
+            var bindLyrics = (function () { this.lyricsChanged(); } ).bind(this);
             this.$inputBox = $("<input type='text' size='24' class='unanswered'/>")
-                             .change( this.checkTrigger );
+                             .change( this.checkTrigger )
+                             .on('input propertychange paste', bindLyrics );
             this.storedAnswer = streamAnswer;
-            $questionDiv.append( $("<div style='padding-left: 30px; position: relative; top: 0px'/>")
+            $questionDiv.append( $("<div style='padding-left: 70px; position: relative; top: 10px'/>")
                              .append(this.$inputBox) );
         }
         this.$questionDiv = $questionDiv;
@@ -95,17 +121,13 @@ define("m21theory/tests/noteIdentification",
 		this.instructions = "<p>" +
 			"Identify the notes in the following excerpts. Use <b>#</b> and <b>b</b> " +
 			"for sharp and flat.  You may write in uppercase or lowercase.  Place a space " +
-			"after each note for clarity (optional, but highly recommended)." +
+			"after each note for clarity." +
 			"</p>";
 		this.lastPs = 0.0;
 		this.numNotes = 7;
         this.useAug2014System = true;
         this.questionClass = NoteQuestion;
         
-		this.checkAnswer = function (storedAnswer, answerGiven, question) {
-			return (storedAnswer.toLowerCase().replace(/\s*/g, "") == 
-			         answerGiven.toLowerCase().replace(/\s*/g, "") );
-		};		
 		this.getStream = function () {
 	        var s = new music21.stream.Stream();
 	        s.renderOptions.scaleFactor.x = 1.0;

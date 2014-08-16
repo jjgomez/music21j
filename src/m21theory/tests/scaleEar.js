@@ -95,14 +95,14 @@ define("m21theory/tests/scaleEar", ["m21theory/section", "m21theory/random", 'm2
     var ThisTest = function () {
         section.Generic.call(this);
         this.assignmentId = 'scaleEar';
+        this.questionClass = ScaleQuestion;
+
         this.totalQs = 16;
         this.practiceQs = 2;
         this.screwyFraction = .6;
         this.minSharps = -6;
         this.maxSharps = 6;
 
-        this.useAug2014System = true;        
-        this.questionClass = ScaleQuestion;
         
         this.title = "Hearing Major Scales Test";
         this.instructions = "<p>" +

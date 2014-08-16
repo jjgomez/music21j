@@ -1,6 +1,6 @@
 define("m21theory/tests/keySignature", 
-        ["m21theory/section", "m21theory/random", "m21theory/question"], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", "m21theory/question", 'music21/key'], 
+        function (section, random, question, key) {
     var KSQuestion = function (handler, index) {
         question.Question.call(this, handler, index);   
     };
@@ -43,7 +43,6 @@ define("m21theory/tests/keySignature",
 	var ThisTest = function () {
 		section.Generic.call(this);
 		this.questionClass = KSQuestion;
-		this.useAug2014System = true;
 		
 		this.assignmentId = 'keySignatures';
 		this.totalQs = 16;
@@ -79,7 +78,7 @@ define("m21theory/tests/keySignature",
             }
         }
         this.usedKeySignatures.push(keySignatureSharps);
-        var ks = new music21.key.KeySignature(keySignatureSharps);
+        var ks = new key.KeySignature(keySignatureSharps);
         return ks;
 	};
 	

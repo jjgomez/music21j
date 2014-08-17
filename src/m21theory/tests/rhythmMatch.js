@@ -1,7 +1,84 @@
-define("m21theory/tests/rhythmMatch", ["m21theory/section", "m21theory/random"], 
-        function (section, random) {
-	var ThisTest = function () {
+define("m21theory/tests/rhythmMatch", 
+        ["m21theory/section", "m21theory/random", "m21theory/question"], 
+        function (section, random, question) {
+    var RhythmDict = function (handler, index) {
+        question.Question.call(this, handler, index);  
+        this.ignoreMistakes = true;
+    };
+    RhythmDict.prototype = new question.Question();
+    RhythmDict.prototype.constructor = RhythmDict;
+    RhythmDict.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
+        var gt = storedAnswer.flat.notes;
+        var student = studentAnswer.flat.notes;
+        if (storedAnswer.length != studentAnswer.length) {
+            var comparative = 'fewer';
+            if (studentAnswer.length > storedAnswer.length) {
+                comparative = 'more';
+            }
+            this.section.showAlert("Your line has " + comparative + " measures than the played line.");
+            return false;
+        }
+        if (gt.length != student.length) { 
+            this.section.showAlert(
+                    "Your line doesn't have the same number of notes as was played; look for that.");
+            return false; 
+        }                       
+        
+        for (var i = 0; i < gt.length; i++) {
+            var gtN = gt.get(i);
+            var studentN = student.get(i);
+            if (gtN.duration.quarterLength != studentN.duration.quarterLength) {
+                this.section.showAlert(
+                "You have at least one wrong rhythm. Listen closely again by hitting 'Play'.");
+                return false;
+            }
+        }
+        return true;
+    };
+
+    RhythmDict.prototype.render = function () {
+        var niceDiv = $("<div>Question " + (this.index + 1).toString() + "<br/></div>");
+        var _ = this.section.getTwoStreams(),
+            tnStream = _[0],
+            s = _[1];
+        
+        if (this.isPractice) {
+            niceDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'><b>Example:</b> Click to listen</div>") );
+            tnStream.appendNewCanvas(niceDiv);
+        } else {
+            s.renderOptions.width = 500;
+            var canvasDiv = $("<div style='width: 500px'/>");
+            s.appendNewCanvas(canvasDiv);
+            var rc = new music21.widgets.RhythmChooser(s, canvasDiv[0]);
+            rc.values = this.section.rhythmChooserValues.concat('undo');
+            var rcHolder = $("<div/>");
+
+            var b = $("<button style='font-size: 30pt; float: left; position: relative; top: 60px;'>Play</button>");
+            b.click( (function() { this.playStream(); }).bind(tnStream) );
+            
+            var b2 = $("<button style='font-size: 30pt; float: left;  position: relative; top: 60px;'>Check</button>");                
+            b2.click( this.checkTrigger );
+            rcHolder.append(b);
+            rcHolder.append(b2);
+            var rhythmChooser = rc.addDiv();
+            rhythmChooser.css('width', 'auto');
+            rhythmChooser.css('float', 'left');
+            
+            this.storedAnswer = tnStream;
+            this.studentAnswer = s;
+            
+            rcHolder.append(rhythmChooser);
+            niceDiv.append(rcHolder);
+            niceDiv.append($("<br clear='all'/>"));
+            niceDiv.append(canvasDiv);            
+        }
+        this.$questionDiv = niceDiv;
+        return niceDiv;
+    };
+    var ThisTest = function () {
 		section.Generic.call(this);
+		this.questionClass = RhythmDict;
+		
 		this.assignmentId = 'rhythmMatch';
 		this.totalQs = 6;
 		this.practiceQs = 2;
@@ -40,36 +117,8 @@ define("m21theory/tests/rhythmMatch", ["m21theory/section", "m21theory/random"],
 		            ],
 		};
 
-		this.checkAnswer = function (storedAnswer, answerGiven) {
-		    var gt = storedAnswer.flat.notes;
-		    var student = answerGiven.flat.notes;
-            if (storedAnswer.length != answerGiven.length) {
-                var comparative = 'fewer';
-                if (answerGiven.length > storedAnswer.length) {
-                    comparative = 'more';
-                }
-                this.showAlert("Your line has " + comparative + " measures than the played line.");
-                return false;
-            }
-		    if (gt.length != student.length) { 
-		        this.showAlert(
-                        "Your line doesn't have the same number of notes as was played; look for that.");
-		        return false; 
-		    }
-		    
-		    
-		    for (var i = 0; i < gt.length; i++) {
-		        var gtN = gt.get(i);
-		        var studentN = student.get(i);
-		        if (gtN.duration.quarterLength != studentN.duration.quarterLength) {
-		            return false;
-		        }
-		    }
-		    answerGiven.niceDiv.css('background-color', '#99ff99');
-		    return true;
-		};
 
-		this.renderOneQ = function (i) {
+		this.getTwoStreams = function () {
 		    var chosenMeter = random.choice(this.allowableMeters);
 		    var chosenRhythm = random.choice(this.possibleRhythms[chosenMeter]);
 		    var values = chosenRhythm.split(' ');
@@ -98,15 +147,19 @@ define("m21theory/tests/rhythmMatch", ["m21theory/section", "m21theory/random"],
 		    
 		    tnStream.clef = new music21.clef.PercussionClef();
 		    tnStream.tempo = this.tempo;
+		    // for practice questions
+		    tnStream.renderOptions.scaleFactor.x = 0.9;
+		    tnStream.renderOptions.scaleFactor.y = 0.9;
+
 		    
 			var s = new music21.stream.Part();
-			s.renderOptions.scaleFactor.x = 1.0;
-            s.renderOptions.scaleFactor.y = 1.0;
+			s.renderOptions.scaleFactor.x = 0.9;
+            s.renderOptions.scaleFactor.y = 0.9;
 			s.tempo = this.tempo;
 			s.autoBeam = true;
 			s.clef = new music21.clef.PercussionClef();
 			s.timeSignature = chosenMeter;
-			var answerList = [];
+
 			m = new music21.stream.Measure();
 			m.renderOptions.staffLines = 1;
 	        for (var j = 0; j < numQtrs; j++) {
@@ -114,35 +167,8 @@ define("m21theory/tests/rhythmMatch", ["m21theory/section", "m21theory/random"],
 	            n.stemDirection = 'up';
 	            m.append( n );
 	        }
-		    s.append(m);			
-			var niceDiv = $("<div>Question " + (i+1).toString() + "<br/></div>");
-									
-			if (i < this.practiceQs) {
-				niceDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'>Click to listen</div>") );
-				tnStream.appendNewCanvas(niceDiv);
-			} else {
-			    var canvasDiv = $("<div/>");
-			    s.appendNewCanvas(canvasDiv);
-	            var rc = new music21.widgets.RhythmChooser(s, canvasDiv[0]);
-	            rc.values = this.rhythmChooserValues.concat('undo');
-	            var rcHolder = $("<div/>");
-                var b = $("<button style='font-size: 30pt; float: left; position: relative; top: 60px;'>Play</button>");
-                b.click( (function() { this.playStream(); }).bind(tnStream) );
-                var b2 = $("<button style='font-size: 30pt; float: left;  position: relative; top: 60px;'>Check</button>");                
-                b2.click( (function(sts) { this.checkAnswer(sts[0], sts[1]); }).bind(this, [tnStream, s]) );
-                rcHolder.append(b);
-                rcHolder.append(b2);
-	            var rhythmChooser = rc.addDiv();
-	            rhythmChooser.css('width', 'auto');
-                rhythmChooser.css('float', 'left');
-	            
-	            rcHolder.append(rhythmChooser);
-	            niceDiv.append(rcHolder);
-	            niceDiv.append($("<br clear='all'/>"));
-                niceDiv.append(canvasDiv);
-                s.niceDiv = niceDiv;
-			}
-			return niceDiv;
+		    s.append(m);
+		    return [tnStream, s];		    		    
 		};
 
 

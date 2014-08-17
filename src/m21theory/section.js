@@ -131,7 +131,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			if (params == undefined) {
 				params = {};
 			}
-			var top = ('top' in params) ? params.top : '280px';
+			var top = ('top' in params) ? params.top : '80px';
 			var delayFade = ('delayFade' in params) ? params.delayFade : 5000;
 			var fadeTime = ('fadeTime' in params) ? params.fadeTime : 500;
 			
@@ -156,9 +156,9 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			var tdiv = this.testSectionDiv;
 			var alertDiv = $("<div>" + msg + "</div>")
 				.attr('id', 'alertDiv')
-				.css('position', 'absolute')
+				.css('position', 'fixed')
 				.css('top', top)
-				.css('left', '650px')
+				.css('left', '750px')
 				.css('padding', '30px 30px 30px 30px')
 				.css('width', '200px')
 				.css('background', bgColor)
@@ -281,6 +281,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			submissionSection.append(submissionContents);
 			newTestSection.append(submissionSection);
 			this.testSectionDiv = newTestSection;
+			
 			this.changeOutcome('incomplete');
 			$(jsSelector).append(newTestSection);
 			this.renderPostAppend();

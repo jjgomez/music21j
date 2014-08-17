@@ -7,10 +7,6 @@ define("m21theory/tests/chordIdentification",
     };
     CIQuestion.prototype = new question.Question();
     CIQuestion.prototype.constructor = CIQuestion;
-
-    CIQuestion.prototype.getStudentAnswer = function () {
-        return this.studentAnswer; // don't search elsewhere...
-    };
     
     CIQuestion.prototype.render = function () {
         var thisChordArr = this.section.chords[this.index % this.section.chords.length].split(" ");

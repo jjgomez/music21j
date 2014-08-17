@@ -1,10 +1,209 @@
-define("m21theory/tests/firstSpecies", ["m21theory/section", "m21theory/random"], 
-        function (section, random) {
+define("m21theory/tests/firstSpecies", 
+        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
+        function (section, random, question) {
+    
+    var FirstQ = function (handler, index) {
+        question.Question.call(this, handler, index);  
+        this.ignoreMistakes = true;
+        this.correctCallback = function () { 
+            this.section.showAlert("Great Work! It's all set; listen to what you've done, then click Submit.", 'ok');
+            this.stream.playStream(); 
+        };
+    };
+    FirstQ.prototype = new question.Question();
+    FirstQ.prototype.constructor = FirstQ;
+    
+    FirstQ.prototype.noteChanged = (function (clickedDiatonicNoteNum, foundNote, canvas) {          
+        if (foundNote != undefined) {
+            var n = foundNote;
+            var part = n.activeSite.activeSite;
+            var score = part.activeSite;
+            if (part == score.get(1)) {
+                this.testHandler.showAlert(
+                        "No...you can't alter the given line.  That'd be too easy. :-)", 'alert');
+                return;
+            }
+            n.unchanged = false;
+            p = new music21.pitch.Pitch("C");
+            p.diatonicNoteNum = clickedDiatonicNoteNum;
+            var stepAccidental = score.keySignature.accidentalByStep(p.step);
+            if (stepAccidental == undefined) {
+                stepAccidental = new music21.pitch.Accidental(0);
+            }
+            p.accidental = stepAccidental;
+            n.pitch = p;
+            n.stemDirection = undefined;
+            //this.clef.setStemDirection(n);
+            score.activeNote = n;
+            score.activeCanvas = canvas;
+            score.redrawCanvas(canvas);
+            if (score.changedCallbackFunction != undefined) {
+                score.changedCallbackFunction();
+            }
+        } else {
+            if (music21.debug) {
+                console.log("No note found at: " + xPx);        
+            }
+        }
+
+    }).bind(this);
+
+    FirstQ.prototype.render = function () {
+        var s = this.section.getNewStream();
+        s.noteChanged = this.noteChanged;
+        s.renderOptions.events['click'] = s.canvasChangerFunction;
+        s.changedCallbackFunction = this.checkTrigger;
+
+        this.stream = s;
+        var niceDiv = $("<div style='width: 700px; float: left; padding-bottom: 20px'></div>").css('position','relative');
+        var buttonDiv = s.getPlayToolbar();
+        niceDiv.append(buttonDiv);
+        s.appendNewCanvas(niceDiv);        
+        this.$questionDiv = niceDiv;
+        return niceDiv;
+    };
+    FirstQ.prototype.changeStatusClass = function (unused) {
+        
+    };
+    FirstQ.prototype.checkAnswer = function (unused_a, unused_b) {
+        var s = this.stream;
+        var activeCanvas = s.activeCanvas;
+        var existingAlerts = this.section.testSectionDiv.find('#alertDiv');
+        if (existingAlerts.length > 0) {
+            $(existingAlerts[0]).remove();
+        }
+        var studentLine = s.get(0).flat.elements;
+        var cf = s.get(1).flat.elements;
+        var totalUnanswered = 0;
+        var niceNames = {
+                1: "unison or octave",
+                2: "second",
+                3: "third",
+                4: "fourth",
+                5: "fifth",
+                6: "sixth",
+                7: "seventh",
+        };
+        var allowableIntervalStr = "thirds, perfect fifths, sixths, or perfect octaves/unisons (or octave equivalents).";
+        var prevNote = undefined;
+        var prevInt = undefined;
+        var prevPrevInt = undefined;
+        var unansweredNumbers = [];
+        var studentPartObj = s.get(0);
+        for (var i = 0; i < studentPartObj.length; i++) {
+            var measureNumber = i + 1;
+            var studentNote = studentLine[i];
+            var cfNote = cf[i];
+            var genericInterval = 1 + (studentNote.pitch.diatonicNoteNum - cfNote.pitch.diatonicNoteNum) % 7;
+            if (studentNote.unchanged) {
+                totalUnanswered ++;
+                unansweredNumbers.push(measureNumber);
+                prevPrevInt = prevInt;
+                prevInt = genericInterval;
+                prevNote = studentNote;
+                continue;
+            }
+            if (genericInterval <= 0) {
+                this.section.showAlert("Your lines cross in measure " + measureNumber + "; keep your line above the given line.");              
+                return false;
+            }
+            if (genericInterval != 1 && genericInterval != 3 && genericInterval != 5 && genericInterval != 6) {
+                this.section.showAlert("You have a " + niceNames[genericInterval] + " in measure " + measureNumber +
+                        ".  Acceptable intervals are " + allowableIntervalStr);
+                return false;
+            }
+            if (genericInterval == 5) {
+                var semitones = (studentNote.pitch.ps - cfNote.pitch.ps) % 12;
+                if (semitones == 6) {
+                    this.section.showAlert("Not all fifths are perfect fifths! In measure " +
+                            measureNumber + " you wrote a diminished fifth. Listen to " +
+                            " what you wrote and hit Play to listen to it in context before " +
+                            " fixing it."
+                    );
+                    var newS = new music21.stream.Stream();
+                    var oldCFNoteactiveSite = cfNote.activeSite; 
+                    var oldStudentNoteactiveSite = studentNote.activeSite;
+                    newS.append(cfNote);
+                    newS.append(studentNote);
+                    newS.playStream();
+                    cfNote.activeSite = oldCFNoteactiveSite; 
+                    studentNote.activeSite = oldStudentNoteactiveSite;
+                    return false;
+                }
+            }
+            if (prevInt != undefined) {
+                var prevMeasure = measureNumber - 1;
+                if (prevNote.pitch.ps == studentNote.pitch.ps) {
+                    this.section.showAlert("Remember, you cannot repeat notes, like you do between measures " +
+                            prevMeasure + " and " + measureNumber);
+                    return false;
+                }
+                if (prevInt == 1 && genericInterval == 1) {
+                    this.section.showAlert("You have parallel unisons or octaves between measures " + prevMeasure + " and " +
+                            measureNumber);
+                    return false;
+                }
+                if (Math.abs(studentNote.pitch.diatonicNoteNum - prevNote.pitch.diatonicNoteNum) >= 4) {
+                    this.section.showAlert("Between measures " + prevMeasure + " and " +
+                            measureNumber + " you have a leap greater than a Perfect 4th.");
+                    return false;
+                }
+                if (prevPrevInt != undefined) {
+                    if (prevPrevInt == prevInt && prevInt == genericInterval) {
+                        this.section.showAlert(
+                                "In measures " + (prevMeasure - 1) + "-" + measureNumber + 
+                                " you have used three " + niceNames[genericInterval] + "s in a row. " +
+                                "The limit is two in a row."
+                        );
+                        return false;
+                    }   
+                }
+            }
+            if (measureNumber > 4) {
+                var numSkips = 0;
+                for (var j = measureNumber - 4; j < measureNumber; j++) {
+                    if (Math.abs(
+                            studentLine[j-1].pitch.diatonicNoteNum - 
+                            studentLine[j].pitch.diatonicNoteNum
+                    ) >= 2) {
+                        numSkips++;
+                    }
+                }
+                if (numSkips > 2) {
+                    this.section.showAlert("You have " + numSkips + " skips " + 
+                            "between measures " + (measureNumber - 4) + " and " +
+                            measureNumber + ". The maximum is 2 per 4 melodic intervals."
+                    );
+                    return false;
+                }
+            }
+            prevPrevInt = prevInt;
+            prevInt = genericInterval;
+            prevNote = studentNote;
+        }
+        s.redrawCanvas(activeCanvas);
+        if (totalUnanswered > 5) {
+            this.section.showAlert(":-)", 'update');
+            return false;
+        } else if (totalUnanswered > 0) {
+            this.section.showAlert("Almost there... you need to give an answer for measures " +
+                    unansweredNumbers.join(', ') + ". (If the note is right, just click it again).",
+                    'update');
+            return false;
+        } else {
+            return true;
+        }
+    };
+
+    
+    
 	var ThisTest = function () {
 		/*
 		 * First species counterpoint in a tonal context.
 		 */		
 		section.Generic.call(this);
+		this.questionClass = FirstQ;
+		
 		this.assignmentId = 'firstSpeciesTest';
 		this.totalQs = 1;
 		this.practiceQs = 0;
@@ -31,226 +230,61 @@ define("m21theory/tests/firstSpecies", ["m21theory/section", "m21theory/random"]
 		            "C1 E D F E F D E AA BB C E D C BB C",
 		            "c1 B A E F F G A G E D C",
 		            "c1 c B A G A G F E F E G A B c"];
+		this.usedCfs = [];
 		
-		this.noteChanged = function (clickedDiatonicNoteNum, foundNote, canvas) {
-			if (foundNote != undefined) {
-				var n = foundNote;
-				var part = n.activeSite.activeSite;
-				var score = part.activeSite;
-				if (part == score.get(1)) {
-					this.testHandler.showAlert(
-							"No...you can't alter the given line.  That'd be too easy. :-)", 'alert');
-					return;
-				}
-				n.unchanged = false;
-				p = new music21.pitch.Pitch("C");
-				p.diatonicNoteNum = clickedDiatonicNoteNum;
-				var stepAccidental = this.keySignature.accidentalByStep(p.step);
-				if (stepAccidental == undefined) {
-					stepAccidental = new music21.pitch.Accidental(0);
-				}
-				p.accidental = stepAccidental;
-				n.pitch = p;
-				n.stemDirection = undefined;
-				//this.clef.setStemDirection(n);
-				this.activeNote = n;
-				this.activeCanvas = canvas;
-				this.redrawCanvas(canvas);
-				if (this.changedCallbackFunction != undefined) {
-					this.changedCallbackFunction();
-				}
-			} else {
-				if (music21.debug) {
-					console.log("No note found at: " + xPx);		
-				}
-			}
-
-		};
-		this.evaluateCtp = function () {
-		    var th = this.testHandler;
-			if (th.testHandler != undefined) {
-				return;
-			}
-            var activeCanvas = this.activeCanvas;            
-            var existingAlerts = $(th.testSectionDiv).find('#alertDiv');
-			if (existingAlerts.length > 0) {
-				$(existingAlerts[0]).remove();
-			}
-			var studentLine = this.get(0).flat.elements;
-			var cf = this.get(1).flat.elements;
-			var totalUnanswered = 0;
-			var niceNames = {
-					1: "unison or octave",
-					2: "second",
-					3: "third",
-					4: "fourth",
-					5: "fifth",
-					6: "sixth",
-					7: "seventh",
-			};
-			var allowableIntervalStr = "thirds, perfect fifths, sixths, or perfect octaves/unisons (or octave equivalents).";
-			var prevNote = undefined;
-			var prevInt = undefined;
-			var prevPrevInt = undefined;
-			var unansweredNumbers = [];
-			var studentPartObj = this.get(0);
-			for (var i = 0; i < studentPartObj.length; i++) {
-				var measureNumber = i + 1;
-				var studentNote = studentLine[i];
-				var cfNote = cf[i];
-				var genericInterval = 1 + (studentNote.pitch.diatonicNoteNum - cfNote.pitch.diatonicNoteNum) % 7;
-				if (studentNote.unchanged) {
-					totalUnanswered ++;
-					unansweredNumbers.push(measureNumber);
-					prevPrevInt = prevInt;
-					prevInt = genericInterval;
-					prevNote = studentNote;
-					continue;
-				}
-				if (genericInterval <= 0) {
-					th.showAlert("Your lines cross in measure " + measureNumber + "; keep your line above the given line.");				
-					return;
-				}
-				if (genericInterval != 1 && genericInterval != 3 && genericInterval != 5 && genericInterval != 6) {
-					th.showAlert("You have a " + niceNames[genericInterval] + " in measure " + measureNumber +
-							".  Acceptable intervals are " + allowableIntervalStr);
-					return;
-				}
-				if (genericInterval == 5) {
-					var semitones = (studentNote.pitch.ps - cfNote.pitch.ps) % 12;
-					if (semitones == 6) {
-						th.showAlert("Not all fifths are perfect fifths! In measure " +
-								measureNumber + " you wrote a diminished fifth. Listen to " +
-								" what you wrote and hit Play to listen to it in context before " +
-								" fixing it."
-						);
-						var newS = new music21.stream.Stream();
-						var oldCFNoteactiveSite = cfNote.activeSite; 
-						var oldStudentNoteactiveSite = studentNote.activeSite;
-						newS.append(cfNote);
-						newS.append(studentNote);
-						newS.playStream();
-						cfNote.activeSite = oldCFNoteactiveSite; 
-						studentNote.activeSite = oldStudentNoteactiveSite;
-						return;
-					}
-				}
-				if (prevInt != undefined) {
-					var prevMeasure = measureNumber - 1;
-					if (prevNote.pitch.ps == studentNote.pitch.ps) {
-						th.showAlert("Remember, you cannot repeat notes, like you do between measures " +
-								prevMeasure + " and " + measureNumber);
-						return;
-					}
-					if (prevInt == 1 && genericInterval == 1) {
-						th.showAlert("You have parallel unisons or octaves between measures " + prevMeasure + " and " +
-								measureNumber);
-						return;
-					}
-					if (Math.abs(studentNote.pitch.diatonicNoteNum - prevNote.pitch.diatonicNoteNum) >= 4) {
-						th.showAlert("Between measures " + prevMeasure + " and " +
-								measureNumber + " you have a leap greater than a Perfect 4th.");
-						return;
-					}
-					if (prevPrevInt != undefined) {
-						if (prevPrevInt == prevInt && prevInt == genericInterval) {
-							th.showAlert("In measures " + (prevMeasure - 1) + "-" + measureNumber + 
-									" you have used three " + niceNames[genericInterval] + "s in a row. " +
-									"The limit is two in a row."
-							);
-							return;
-						}	
-					}
-				}
-				if (measureNumber > 4) {
-					var numSkips = 0;
-					for (var j = measureNumber - 4; j < measureNumber; j++) {
-						if (Math.abs(
-								studentLine[j-1].pitch.diatonicNoteNum - 
-								studentLine[j].pitch.diatonicNoteNum
-						) >= 2) {
-							numSkips++;
-						}
-					}
-					if (numSkips > 2) {
-						th.showAlert("You have " + numSkips + " skips " + 
-								"between measures " + (measureNumber - 4) + " and " +
-								measureNumber + ". The maximum is 2 per 4 melodic intervals."
-						);
-						return;
-					}
-				}
-				prevPrevInt = prevInt;
-				prevInt = genericInterval;
-				prevNote = studentNote;
-			}
-            this.redrawCanvas(activeCanvas);
-			if (totalUnanswered > 5) {
-				th.showAlert(":-)", 'update');
-			} else if (totalUnanswered > 0) {
-				th.showAlert("Almost there... you need to give an answer for measures " +
-						unansweredNumbers.join(', ') + ". (If the note is right, just click it again).",
-						'update');
-			} else {
-				th.showAlert("Great Work! It's all set; listen to what you've done, then click Submit.", 'ok');
-				this.playStream();
-				th.numRight += 1;
-				th.checkEndCondition();
-			}
+		this.getNewStream = function () {
+            var thisSharps = random.randint(this.minSharps, this.maxSharps);
+            var thisCfNum = undefined;
+            var thisCf = undefined;
+            while (thisCfNum === undefined) {
+                thisCfNum = random.randint(0, this.cfs.length - 1);
+                thisCf = this.cfs[thisCfNum];
+                for (var i = 0; i < this.usedCfs.length; i++) {
+                    if (this.usedCfs[i] == thisCfNum) {
+                        thisCfNum = undefined;
+                    }
+                }
+                
+            }
+            this.usedCfs.push(thisCfNum);
+            
+            var s = new music21.stream.Score();
+            s.renderOptions.scaleFactor = {x: .9, y: .9};
+            var ks = new music21.key.KeySignature(thisSharps);
+            var pStudent = new music21.stream.Part();
+            var pCF = new music21.stream.Part();
+            var tnCF = music21.tinyNotation.TinyNotation(thisCf);
+                        
+            $.each(tnCF.flat.elements, function(j, el) { 
+                var mStudent = new music21.stream.Measure();
+                if (j != 0) {
+                    mStudent.renderOptions.showMeasureNumber = true;
+                    mStudent.renderOptions.measureIndex = j;
+                }
+                
+                var studentNote = new music21.note.Note('C4');
+                studentNote.duration.type = 'whole';
+                studentNote.pitch = ks.transposePitchFromC(studentNote.pitch);
+                studentNote.unchanged = true;
+                mStudent.append(studentNote);
+                
+                pStudent.append(mStudent);
+                var mCF = new music21.stream.Measure();
+                el.pitch = ks.transposePitchFromC(el.pitch);
+                mCF.append(el);
+                pCF.append(mCF);
+            });
+            pStudent.clef = new music21.clef.Clef('treble');
+            pCF.clef = new music21.clef.Clef('bass');
+            s.append(pStudent);
+            s.append(pCF);
+            s.timeSignature = '4/4';
+            s.keySignature = ks;
+            s.tempo = 200;
+            s.renderOptions.maxSystemWidth = 500;
+            return s;  
 		};
 		
-		this.renderOneQ = function (i) {
-			var thisSharps = random.randint(this.minSharps, this.maxSharps);
-			var thisCf = random.choice(this.cfs);
-			var s = new music21.stream.Score();
-			s.renderOptions.scaleFactor = {x: 1.0, y: 1.0};
-			var ks = new music21.key.KeySignature(thisSharps);
-			var pStudent = new music21.stream.Part();
-			var pCF = new music21.stream.Part();
-			var tnCF = music21.tinyNotation.TinyNotation(thisCf);
-			
-			
-			$.each(tnCF.flat.elements, function(j, el) { 
-				var mStudent = new music21.stream.Measure();
-				if (j != 0) {
-					mStudent.renderOptions.showMeasureNumber = true;
-					mStudent.renderOptions.measureIndex = j;
-				}
-				
-				var studentNote = new music21.note.Note('C4');
-				studentNote.duration.type = 'whole';
-				studentNote.pitch = ks.transposePitchFromC(studentNote.pitch);
-				studentNote.unchanged = true;
-				mStudent.append(studentNote);
-				
-				pStudent.append(mStudent);
-				var mCF = new music21.stream.Measure();
-				el.pitch = ks.transposePitchFromC(el.pitch);
-				mCF.append(el);
-				pCF.append(mCF);
-			});
-			pStudent.clef = new music21.clef.Clef('treble');
-			pCF.clef = new music21.clef.Clef('bass');
-			s.append(pStudent);
-			s.append(pCF);
-			s.timeSignature = '4/4';
-			s.keySignature = ks;
-			s.tempo = 200;
-			s.renderOptions.maxSystemWidth = 500;
-			s.noteChanged = this.noteChanged;
-			s.renderOptions.events['click'] = s.canvasChangerFunction;
-			s.testHandler = this;
-			s.changedCallbackFunction = this.evaluateCtp;
-			var niceDiv = $("<div style='width: 700px; float: left; padding-bottom: 20px'></div>").css('position','relative');
-			var buttonDiv = s.getPlayToolbar();
-			niceDiv.append(buttonDiv);
-			var can = s.appendNewCanvas(niceDiv);
-			can.answerStatus = "unanswered"; // separate from class
-			can.testHandler = this;
-			return niceDiv;
-		};
-
-
 	};
 	ThisTest.prototype = new section.Generic();
 	ThisTest.prototype.constructor = ThisTest;

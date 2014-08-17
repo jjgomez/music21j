@@ -8,6 +8,7 @@ define("m21theory/tests/chordCreation",
     };
     CCQuestion.prototype = new question.Question();
     CCQuestion.prototype.constructor = CCQuestion;
+    
     CCQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
         //m21theory.debug = true;
         if (m21theory.debug) {

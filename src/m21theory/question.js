@@ -59,8 +59,9 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         var sa = undefined;
         if (this.$inputBox != undefined) {
             sa = this.$inputBox.val();
+        } else if (this.studentAnswer != undefined) {
+            return this.studentAnswer;
         }
-        this.studentAnswer = sa;
         return sa;
     };
     
@@ -82,7 +83,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         this.answerStatus = isCorrect ? "correct" : "incorrect";
         if (isCorrect != true && this.ignoreMistakes == false) {
             this.incorrectAnswerAttempts += 1;
-        }
+        }        
         this.section.questionStatusChanged(this.answerStatus, this);
         this.changeStatusClass(isCorrect);
         if (isCorrect && this.correctCallback !== undefined) {

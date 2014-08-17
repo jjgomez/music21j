@@ -39,7 +39,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
         this.questions = [];
 		
 		
-		// hidden variables masked by propreties
+		// hidden variables masked by properties
+        this._autosubmit = undefined;
 		this._allowEarlySubmit = undefined;
 		this._allowSubmitWithErrors = undefined; // n.b. if allowEarlySubmit is true then this is ignored...
 
@@ -48,7 +49,18 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 		this._studentFeedback = undefined;
 		
 	    Object.defineProperties(this, {
-	    	'testResponseURL': { 
+	        'progressBar': {
+	            get: function () {
+	                if (this.inTestBank !== undefined) {	                    
+	                    for (var i = 0; i < this.inTestBank.allTests.length; i++) {
+	                        if (this === this.inTestBank.allTests[i]) {
+	                            return this.inTestBank.scoreboard.pbSubparts[i];
+	                        }
+	                    }
+	                }
+	            },
+	        },
+	        'testResponseURL': { 
 	    		get: function () {
 	    			var tempURL = this._testResponseURL;
 	    			if (tempURL == undefined) {
@@ -108,6 +120,22 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 					this._allowEarlySubmit = newAllow;
 				}
 			},
+            'autoSubmit': {
+                get: function () {
+                    var allow = this._autoSubmit;
+                    if (allow == undefined) {
+                        if (this.inTestBank != undefined) {
+                            allow = this.inTestBank.autoSubmit;
+                        } else {
+                            allow = true;
+                        }
+                    }
+                    return allow;
+                },
+                set: function (newAllow) {
+                    this._autoSubmit = newAllow;
+                }
+            },
 	    	'studentFeedback': {
 	    		get: function () {
 	    			var allow = this._studentFeedback;
@@ -283,6 +311,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 		    // correct and question are currently unused;
 		    this.recalculateScore();
             this.checkEndCondition();
+            this.inTestBank.questionStatusChanged();
 		};
 		
 		this.recalculateScore = function () {
@@ -394,6 +423,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 					storedThis.submissionSection.empty();
 					storedThis.submissionSection.append(newOutcome);
 					storedThis.submissionContents = newOutcome;
+					storedThis.progressBar.text("SUBMITTED");
 					},
 				error: function (data, errorThrown) { 
 						alert("Got a problem -- print this page as a PDF and email it to cuthbert@mit.edu: " + data); 

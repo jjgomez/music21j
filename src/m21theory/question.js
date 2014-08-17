@@ -86,7 +86,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
         }        
         this.section.questionStatusChanged(this.answerStatus, this);
         this.changeStatusClass(isCorrect);
-        if (isCorrect && this.correctCallback !== undefined) {
+        if (isCorrect && this.section.studentFeedback && this.correctCallback !== undefined) {
             this.correctCallback();
         }
     };

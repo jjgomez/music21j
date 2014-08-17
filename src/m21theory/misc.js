@@ -30,9 +30,9 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
 	        endDNN = 39;
 	    }
 	    
-	    var keyboardNewDiv = $('<div/>');
+	    var keyboardNewDiv = $('<div/>');	    
 	    var k = new music21.keyboard.Keyboard();
-	    k.appendKeyboard(keyboardNewDiv, startDNN, endDNN);
+	    k.appendKeyboard(keyboardNewDiv, startDNN, endDNN, {hideable: true});
 	    k.markMiddleC();
 	    
 	    misc.addScrollFixed(keyboardNewDiv, where);	    
@@ -98,7 +98,20 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
                     }
                 });
                 
-            } );            
+            } );
+            
+            if ($.fn.attrchange !== undefined) {
+                // make spacer height always the same..
+                // http://meetselva.github.io/attrchange/ -- really great jQuery plugin...
+                $(".fixedScrollContent").attrchange({
+                   callback: function (e) {
+                       var fss = $(this).siblings('.fixedScrollSpacer');
+                       fss.css('height', $(this).css('height'));
+                   },
+                });
+            }
+            
+            
         }    
 	};
 	

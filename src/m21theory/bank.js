@@ -6,12 +6,14 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/misc', 'm21theory/userData'], function(misc, userData) {
+define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback'], 
+        function(misc, userData, feedback) {
 	var bank = {};
 	/* Test Bank */
 
 	bank.TestBank = function () {
 		this.allTests = [];
+		this.autoSubmit = false;
 		this.addStudentName = true;
 		this.startTime = 0;
 		this.submissionBox = true;
@@ -20,6 +22,7 @@ define(['m21theory/misc', 'm21theory/userData'], function(misc, userData) {
 		this.instructions = "";
 		this.testBankSelector = "#testBank";	
 		this.addKeyboard = true;
+		this.scoreboard = new feedback.Scoreboard(this);
 		
 		// test defaults...
 		this.profEmail = 'cuthbert';
@@ -50,6 +53,7 @@ define(['m21theory/misc', 'm21theory/userData'], function(misc, userData) {
 				thisTest.render(this.testBankSelector);
 			}
 			testBank.append( $("<br clear='all' />") );
+			this.scoreboard.render();
 			this.startTime = new Date().getTime();
 		};
 		
@@ -57,6 +61,10 @@ define(['m21theory/misc', 'm21theory/userData'], function(misc, userData) {
 		this.append = function (newTest) {
 			newTest.inTestBank = this;
 			this.allTests.push(newTest);
+		};
+		
+		this.questionStatusChanged = function () {
+		    this.scoreboard.updateProgressBars();
 		};
 	};
 	// end of define

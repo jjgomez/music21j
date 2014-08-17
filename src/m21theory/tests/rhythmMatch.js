@@ -1,6 +1,6 @@
 define("m21theory/tests/rhythmMatch", 
-        ["m21theory/section", "m21theory/random", "m21theory/question"], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", "m21theory/question", "m21theory/feedback"], 
+        function (section, random, question, feedback) {
     var RhythmDict = function (handler, index) {
         question.Question.call(this, handler, index);  
         this.ignoreMistakes = true;
@@ -15,11 +15,11 @@ define("m21theory/tests/rhythmMatch",
             if (studentAnswer.length > storedAnswer.length) {
                 comparative = 'more';
             }
-            this.section.showAlert("Your line has " + comparative + " measures than the played line.");
+            feedback.alert("Your line has " + comparative + " measures than the played line.");
             return false;
         }
         if (gt.length != student.length) { 
-            this.section.showAlert(
+            feedback.alert(
                     "Your line doesn't have the same number of notes as was played; look for that.");
             return false; 
         }                       
@@ -28,7 +28,7 @@ define("m21theory/tests/rhythmMatch",
             var gtN = gt.get(i);
             var studentN = student.get(i);
             if (gtN.duration.quarterLength != studentN.duration.quarterLength) {
-                this.section.showAlert(
+                feedback.alert(
                 "You have at least one wrong rhythm. Listen closely again by hitting 'Play'.");
                 return false;
             }

@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/random', 'm21theory/userData', 'm21theory/question'], 
-        function(random, userData, question) {
+define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theory/feedback'], 
+        function(random, userData, question, feedback) {
 	var section = {};
 
 
@@ -125,51 +125,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 				}
 	    	}
 	    });
-		this.showAlert = function (msg, type, params) {
-			var bgColor = '#ffff99';
-			var fontColor = 'black';
-			if (params == undefined) {
-				params = {};
-			}
-			var top = ('top' in params) ? params.top : '80px';
-			var delayFade = ('delayFade' in params) ? params.delayFade : 5000;
-			var fadeTime = ('fadeTime' in params) ? params.fadeTime : 500;
-			
-			if (typeof(top) != 'string') {
-				top = top + 'px';
-			}
-			
-			if (type == 'alert') {
-				bgColor = 'red';
-				fontColor = 'white';
-			} else if (type == 'ok') {
-				bgColor = '#99ff99';
-				fontColor = 'black';
-				delayFade = 10 * 1000;
-				fadeTime = 2 * 1000;
-			} else if (type == 'update') {
-				bgColor = '#e4f0f0';
-				fontColor = 'black';
-				delayFade = 4 * 1000;
-				
-			}
-			var tdiv = this.testSectionDiv;
-			var alertDiv = $("<div>" + msg + "</div>")
-				.attr('id', 'alertDiv')
-				.css('position', 'fixed')
-				.css('top', top)
-				.css('left', '750px')
-				.css('padding', '30px 30px 30px 30px')
-				.css('width', '200px')
-				.css('background', bgColor)
-				.css('color', fontColor)
-				.css('opacity', .9)
-				.css('border-radius', '15px')
-				.css('box-shadow', '0px 0px 19px #999')
-				.delay(delayFade)
-				.fadeOut(fadeTime, function () { this.remove(); } );
-			$(tdiv).append(alertDiv);
-		};
+		
 
 		this.initPossibleOutcomes = function () { 
 			this.possibleOutcomes['noFeedback'] =	$("<br clear='all'/>" + 
@@ -254,6 +210,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 			}
 		};
 
+		
 		this.render = function (jsSelector) {
 			if (jsSelector == undefined) {
 				jsSelector = '#testBank';
@@ -409,7 +366,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question'],
 				return false;
 			}
 			if (this.studentFeedback == 'onSubmit') {
-				this.showAlert('You got ' + this.numRight + ' right and ' + this.numWrong + ' wrong.', 'update');
+				feedback.alert('You got ' + this.numRight + ' right and ' + this.numWrong + ' wrong.', 'update');
 			}
 			var totalTime = Math.floor((new Date().getTime() - this.startTime)/1000);
 			var storedThis = this;

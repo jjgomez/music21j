@@ -1,12 +1,12 @@
 define("m21theory/tests/firstSpecies", 
-        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", 'm21theory/question', 'm21theory/feedback'], 
+        function (section, random, question, feedback) {
     
     var FirstQ = function (handler, index) {
         question.Question.call(this, handler, index);  
         this.ignoreMistakes = true;
         this.correctCallback = function () { 
-            this.section.showAlert("Great Work! It's all set; listen to what you've done, then click Submit.", 'ok');
+            feedback.alert("Great Work! It's all set; listen to what you've done, then click Submit.", 'ok');
             this.stream.playStream(); 
         };
     };
@@ -104,18 +104,18 @@ define("m21theory/tests/firstSpecies",
                 continue;
             }
             if (genericInterval <= 0) {
-                this.section.showAlert("Your lines cross in measure " + measureNumber + "; keep your line above the given line.");              
+                feedback.alert("Your lines cross in measure " + measureNumber + "; keep your line above the given line.");              
                 return false;
             }
             if (genericInterval != 1 && genericInterval != 3 && genericInterval != 5 && genericInterval != 6) {
-                this.section.showAlert("You have a " + niceNames[genericInterval] + " in measure " + measureNumber +
+                feedback.alert("You have a " + niceNames[genericInterval] + " in measure " + measureNumber +
                         ".  Acceptable intervals are " + allowableIntervalStr);
                 return false;
             }
             if (genericInterval == 5) {
                 var semitones = (studentNote.pitch.ps - cfNote.pitch.ps) % 12;
                 if (semitones == 6) {
-                    this.section.showAlert("Not all fifths are perfect fifths! In measure " +
+                    feedback.alert("Not all fifths are perfect fifths! In measure " +
                             measureNumber + " you wrote a diminished fifth. Listen to " +
                             " what you wrote and hit Play to listen to it in context before " +
                             " fixing it."
@@ -134,23 +134,23 @@ define("m21theory/tests/firstSpecies",
             if (prevInt != undefined) {
                 var prevMeasure = measureNumber - 1;
                 if (prevNote.pitch.ps == studentNote.pitch.ps) {
-                    this.section.showAlert("Remember, you cannot repeat notes, like you do between measures " +
+                    feedback.alert("Remember, you cannot repeat notes, like you do between measures " +
                             prevMeasure + " and " + measureNumber);
                     return false;
                 }
                 if (prevInt == 1 && genericInterval == 1) {
-                    this.section.showAlert("You have parallel unisons or octaves between measures " + prevMeasure + " and " +
+                    feedback.alert("You have parallel unisons or octaves between measures " + prevMeasure + " and " +
                             measureNumber);
                     return false;
                 }
                 if (Math.abs(studentNote.pitch.diatonicNoteNum - prevNote.pitch.diatonicNoteNum) >= 4) {
-                    this.section.showAlert("Between measures " + prevMeasure + " and " +
+                    feedback.alert("Between measures " + prevMeasure + " and " +
                             measureNumber + " you have a leap greater than a Perfect 4th.");
                     return false;
                 }
                 if (prevPrevInt != undefined) {
                     if (prevPrevInt == prevInt && prevInt == genericInterval) {
-                        this.section.showAlert(
+                        feedback.alert(
                                 "In measures " + (prevMeasure - 1) + "-" + measureNumber + 
                                 " you have used three " + niceNames[genericInterval] + "s in a row. " +
                                 "The limit is two in a row."
@@ -170,7 +170,7 @@ define("m21theory/tests/firstSpecies",
                     }
                 }
                 if (numSkips > 2) {
-                    this.section.showAlert("You have " + numSkips + " skips " + 
+                    feedback.alert("You have " + numSkips + " skips " + 
                             "between measures " + (measureNumber - 4) + " and " +
                             measureNumber + ". The maximum is 2 per 4 melodic intervals."
                     );
@@ -183,10 +183,10 @@ define("m21theory/tests/firstSpecies",
         }
         s.redrawCanvas(activeCanvas);
         if (totalUnanswered > 5) {
-            this.section.showAlert(":-)", 'update');
+            feedback.alert(":-)", 'update');
             return false;
         } else if (totalUnanswered > 0) {
-            this.section.showAlert("Almost there... you need to give an answer for measures " +
+            feedback.alert("Almost there... you need to give an answer for measures " +
                     unansweredNumbers.join(', ') + ". (If the note is right, just click it again).",
                     'update');
             return false;

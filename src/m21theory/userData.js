@@ -43,20 +43,20 @@ define(['jquery'], function($) {
 			userData.studentName.last = "";
 		}
 		$("<input type='text' size='20' value='" + userData.studentName.first + "'/>")
-			.attr('onchange','m21theory.userData.changeName("first",this.value)')
+			.attr('onchange','m21theory.userData.changeData("first",this.value)')
 			.attr('class', 'lightInput')
 			.appendTo("#firstName");
 		$("<input type='text' size='20' value='" + userData.studentName.last + "'/>")
-			.attr('onchange','m21theory.userData.changeName("last",this.value)')
+			.attr('onchange','m21theory.userData.changeData("last",this.value)')
 			.attr('class', 'lightInput')
 			.appendTo("#lastName");	
 	};
 
-	userData.changeName = function (which, newName) {
+	userData.changeData = function (which, newData) {
 		if (which == 'first') {
-			userData.studentName.first = newName;
+			userData.studentName.first = newData;
 		} else if (which == 'last') {
-			userData.studentName.last = newName;	
+			userData.studentName.last = newData;
 		}
 	    localStorage["studentInfo"] = JSON.stringify(userData.studentName);
 	};

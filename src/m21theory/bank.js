@@ -26,7 +26,6 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback'],
 		
 		// test defaults...
 		this.profEmail = 'cuthbert';
-		this.testResponseURL = "http://ciconia.mit.edu/m21j/testSectionResponse2.cgi";
 		this.allowEarlySubmit = true;
 		this.allowSubmitWithErrors = false;
 		this.studentFeedback = true;

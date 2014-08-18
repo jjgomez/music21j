@@ -6,8 +6,9 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theory/feedback'], 
-        function(random, userData, question, feedback) {
+define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 
+        'm21theory/feedback', 'm21theory/serverSettings'], 
+        function(random, userData, question, feedback, serverSettings) {
 	var section = {};
 
 
@@ -60,20 +61,6 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 	                }
 	            },
 	        },
-	        'testResponseURL': { 
-	    		get: function () {
-	    			var tempURL = this._testResponseURL;
-	    			if (tempURL == undefined) {
-	    				if (this.inTestBank != undefined) {
-	    					tempURL = this.inTestBank.testResponseURL;
-	    				}
-	    			}
-	    			return tempURL;
-	    		},
-	    		set: function (newURL) {
-	    				this._testResponseURL = newURL;
-	    		}
-	    	},
 	    	'profEmail': {
 	    		get: function () {
 	    			var tempEmail = this._profEmail;
@@ -406,7 +393,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 'm21theo
 			}
 			$.ajax({
 				type: "GET",
-				url: this.testResponseURL,
+				url: serverSettings.testResponseURL,
 				data: { comments: textComments,
 						first: userData.studentName.first,
 						last: userData.studentName.last,

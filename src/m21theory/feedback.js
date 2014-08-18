@@ -172,7 +172,6 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         size = size || 50;
         animateTime = animateTime || 3000;        
         $what.css('-m21j-TempProperty', 0);
-        console.log('glowing...');
         $what.animate({'-m21j-TempProperty': size}, {
             duration: animateTime,
             step: stepFunc,
@@ -196,6 +195,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
     feedback.alert = function (msg, type, params) {
         var bgColor = '#ffff99';
         var fontColor = 'black';
+        var fontWeight = 'normal';
         if (params == undefined) {
             params = {};
         }
@@ -207,9 +207,11 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             top = top + 'px';
         }
         
+        
         if (type == 'alert') {
             bgColor = 'red';
             fontColor = 'white';
+            fontWeight = 'bold';
         } else if (type == 'ok') {
             bgColor = '#99ff99';
             fontColor = 'black';
@@ -231,6 +233,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             .css('width', '200px')
             .css('background', bgColor)
             .css('color', fontColor)
+            .css('font-weight', fontWeight)
             .css('opacity', .9)
             .css('border-radius', '15px')
             .css('box-shadow', '0px 0px 19px #999')

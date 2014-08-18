@@ -134,19 +134,18 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             });
         var $correct = $("<div class='progressBarPart correctBar'>&nbsp;</div>").css({
             'background-color': '#66aa66',
-            color: 'white',
             'border-top-left-radius': '7px',
             'border-bottom-left-radius': '7px',
-            'text-align': 'center',
             'font-weight': 'bold',
         });
         var $incorrect = $("<div class='progressBarPart incorrectBar'>&nbsp;</div>").css({
             'background-color': '#995555', 
-            color: 'white',
         });
         $pb.append($correct);
         $pb.append($incorrect);
         $pb.find(".progressBarPart").css({
+            color: 'white',
+            'text-align': 'center',
             width: '33%',
             display: 'inline-block',
             height: '100%',
@@ -192,51 +191,63 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         return $what; // passthrough..
     };
     
+    feedback.alertTypes = {
+        'alert': { // something bad happened
+            'background-color': 'red',
+            color: 'white',
+            'font-weight': 'bold',
+            delayFade: 10 * 1000,
+        },
+        'ok': { // fine -- all good. green
+            'background-color': '#99ff99',
+            delayFade: 10 * 1000,
+            fadeTime: 2 * 1000,            
+        },
+        'update': {  // neutral -- could be a bit good or neutral
+            'background-color': '#e4f0f0',
+            delayFade: 4 * 1000,
+        },
+        'normal': { }, // default -- yellow, alert
+    };
+    
     feedback.alert = function (msg, type, params) {
-        var bgColor = '#ffff99';
-        var fontColor = 'black';
-        var fontWeight = 'normal';
-        if (params == undefined) {
-            params = {};
-        }
-        var top = ('top' in params) ? params.top : '80px';
-        var delayFade = ('delayFade' in params) ? params.delayFade : 5000;
-        var fadeTime = ('fadeTime' in params) ? params.fadeTime : 500;
+        type = type || 'normal';
+                        
+        cssParams = {
+                top: '80px',
+                'background-color': '#ffff99',
+                color: 'black',
+                'font-weight': 'normal',
+                'position': 'fixed',
+                'left': '750px',
+                'width': '200px',
+                'opacity': .9,
+                'border-radius': '15px',
+                'box-shadow': '0px 0px 19px #999',
+                'padding': '30px 30px 30px 30px',
+                'z-index': 20,
+                
+                delayFade: 4 * 1000,
+                fadeTime:  0.5 * 1000,
+        };
         
-        if (typeof(top) != 'string') {
-            top = top + 'px';
+        if (feedback.alertTypes[type] != undefined) {
+            music21.common.merge(cssParams, feedback.alertTypes[type]);            
         }
-        
-        
-        if (type == 'alert') {
-            bgColor = 'red';
-            fontColor = 'white';
-            fontWeight = 'bold';
-        } else if (type == 'ok') {
-            bgColor = '#99ff99';
-            fontColor = 'black';
-            delayFade = 10 * 1000;
-            fadeTime = 2 * 1000;
-        } else if (type == 'update') {
-            bgColor = '#e4f0f0';
-            fontColor = 'black';
-            delayFade = 4 * 1000;
-            
+        music21.common.merge(cssParams, params);
+        var delayFade = cssParams.delayFade;
+        var fadeTime = cssParams.fadeTime;
+        delete(cssParams.delayFade);
+        delete(cssParams.fadeTime);
+                
+        if (typeof(cssParams.top) != 'string') {
+            cssParams.top = cssParams.top + 'px';
         }
+                
         var tdiv = document.body;
         var alertDiv = $("<div>" + msg + "</div>")
             .attr('id', 'alertDiv')
-            .css('position', 'fixed')
-            .css('top', top)
-            .css('left', '750px')
-            .css('padding', '30px 30px 30px 30px')
-            .css('width', '200px')
-            .css('background', bgColor)
-            .css('color', fontColor)
-            .css('font-weight', fontWeight)
-            .css('opacity', .9)
-            .css('border-radius', '15px')
-            .css('box-shadow', '0px 0px 19px #999')
+            .css(cssParams)
             .delay(delayFade)
             .fadeOut(fadeTime, function () { this.remove(); } );
         $(tdiv).append(alertDiv);

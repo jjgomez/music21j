@@ -58,7 +58,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback'],
 		
 		
 		this.append = function (newTest) {
-			newTest.inTestBank = this;
+			newTest.bank = this;
 			this.allTests.push(newTest);
 		};
 		

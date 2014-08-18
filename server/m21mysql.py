@@ -19,7 +19,6 @@ class M21JMysql(object):
     def __init__(self, form=None, host='localhost', user='cuthbert', db='fundamentals'):
         self.form = form
         self.jsonForm = None
-        self.jsonReply = None
         
         self.host = host
         self.user = user
@@ -34,8 +33,10 @@ class M21JMysql(object):
         self.mysqlVersion = None
     
         self.parseForm() # self.jsonForm from self.form
-        self.connect()
-
+        try:
+            self.connect()
+        except M21JMysqlException:
+            pass # okay at this point; maybe the user intended to connect later
     
     def __del__(self):
         if self.con:
@@ -55,8 +56,7 @@ class M21JMysql(object):
             self.mysqlVersion = version[0];
         
         except mdb.Error as e:
-            print("Error %d: %s" % (e.args[0], e.args[1]))
-            sys.exit(1)
+            raise M21JMysqlException("Error %d: %s" % (e.args[0], e.args[1]))
 
         self.con = con
         
@@ -68,13 +68,17 @@ class M21JMysql(object):
         jsonString = self.form.getfirst('json')
         self.jsonForm = json.loads(jsonString)
         return self.jsonForm
+
+    def jsonReply(self, pyObj):
+        self.printJsonHeader()
+        print(json.dumps(pyObj))        
         
     def getPW(self):  
         username = getpass.getuser()
         userdir = os.path.expanduser("~" + username)
         
-        logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        logging.debug(username)
+        #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        #logging.debug(username)
         
         mysqlPasswordFile = userdir + os.path.sep + '.music21j_password'
         if not os.path.exists(mysqlPasswordFile):
@@ -91,8 +95,7 @@ class M21JMysql(object):
         verifyLogin does the heavy lifting
         '''
         checksOut = self.verifyLogin()
-        self.printJsonHeader()
-        print(json.dumps(checksOut))        
+        self.jsonReply(checksOut)
 
 
     def verifyLogin(self):
@@ -130,7 +133,6 @@ class M21JMysql(object):
 
     def changePassword(self):
         self.title = 'Change Password'
-        self.connect()
         self.printHeader()
 #         print(r'''
 #         <script>
@@ -191,7 +193,6 @@ class M21JMysql(object):
 
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')
-    m.connect()
     cur = m.con.cursor()
     cur.execute("SELECT * FROM countries")
     rows = cur.fetchall()

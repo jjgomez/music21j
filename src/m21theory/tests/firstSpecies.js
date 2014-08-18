@@ -55,10 +55,18 @@ define("m21theory/tests/firstSpecies",
         s.changedCallbackFunction = this.checkTrigger;
 
         this.stream = s;
-        var niceDiv = $("<div style='width: 700px; float: left; padding-bottom: 20px'></div>").css('position','relative');
+        var width = $(this.section.bank.testBankSelector).width() || 700;
+        width = width.toString() + "px";
+        console.log(width);
+        var niceDiv = $("<div/>").css({
+            'position':'relative',
+            'width': width,
+            'float': 'left',
+            'padding-bottom': '20px',
+            });
         var buttonDiv = s.getPlayToolbar();
         niceDiv.append(buttonDiv);
-        s.appendNewCanvas(niceDiv);        
+        s.appendNewCanvas(niceDiv); //, width);        
         this.$questionDiv = niceDiv;
         return niceDiv;
     };
@@ -281,7 +289,7 @@ define("m21theory/tests/firstSpecies",
             s.timeSignature = '4/4';
             s.keySignature = ks;
             s.tempo = 200;
-            s.renderOptions.maxSystemWidth = 500;
+            s.maxSystemWidth = 500;
             return s;  
 		};
 		

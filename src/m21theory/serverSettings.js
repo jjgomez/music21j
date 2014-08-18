@@ -9,6 +9,7 @@
 
 define(['jquery'], function($) {
     var s = {}; 
+    s.changePassword = '/server/cgi-bin/change_pw.cgi';
     s.checkLogin = '/server/cgi-bin/check_login.cgi';
     s.testResponseURL = "http://ciconia.mit.edu/m21j/testSectionResponse2.cgi";
 

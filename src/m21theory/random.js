@@ -73,6 +73,33 @@ define([], function(require) {
 			return inList[choiceNum];
 		}
 	};
+	
+	random.choiceWithoutDuplicates = function (inList, usedList) {
+	    var thisChoice = undefined;
+	    if (usedList.length >= inList.length) {
+	        // fastest algorithm via:
+	        // http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
+	        while(usedList.length > 0) {
+	            usedList.pop();
+	        }
+	    }
+	    var maxIterations = inList.length;
+	    while (thisChoice === undefined && maxIterations > 0) {
+            if (maxIterations == 1) {
+                // duplicates in inList causing impossibility to use them all...
+                while(usedList.length > 0) {
+                    usedList.pop();
+                }   
+            }
+	        thisChoice = random.choice(inList);
+	        if (usedList.indexOf(thisChoice) != -1) {
+	            thisChoice = undefined;
+	        }
+	        maxIterations -= 1;
+	    }
+	    usedList.push(thisChoice);
+	    return thisChoice;
+	};
 
 	//+ Jonas Raoni Soares Silva
 	//@ http://jsfromhell.com/array/shuffle [v1.0]

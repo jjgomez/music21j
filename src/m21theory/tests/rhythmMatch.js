@@ -10,9 +10,9 @@ define("m21theory/tests/rhythmMatch",
     RhythmDict.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
         var gt = storedAnswer.flat.notes;
         var student = studentAnswer.flat.notes;
-        if (storedAnswer.length != studentAnswer.length) {
+        if (storedAnswer.parts[0].length != studentAnswer.parts[0].length) {
             var comparative = 'fewer';
-            if (studentAnswer.length > storedAnswer.length) {
+            if (studentAnswer.parts[0].length > storedAnswer.parts[0].length) {
                 comparative = 'more';
             }
             feedback.alert("Your line has " + comparative + " measures than the played line.");
@@ -39,35 +39,42 @@ define("m21theory/tests/rhythmMatch",
     RhythmDict.prototype.render = function () {
         var niceDiv = $("<div>Question " + (this.index + 1).toString() + "<br/></div>");
         var _ = this.section.getTwoStreams(),
-            tnStream = _[0],
+            tnScore = _[0],
             s = _[1];
+
+        this.storedAnswer = tnScore;
+        this.studentAnswer = s;
         
         if (this.isPractice) {
+            tnScore.maxSystemWidth = 500;
             niceDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'><b>Example:</b> Click to listen</div>") );
-            tnStream.appendNewCanvas(niceDiv);
-        } else {
-            s.renderOptions.width = 500;
-            var canvasDiv = $("<div style='width: 500px'/>");
+            tnScore.appendNewCanvas(niceDiv);
+        } else {            
+            s.maxSystemWidth = 500;
+            var canvasDiv = $("<div/>");//"<div style='width: 500px'/>");
             s.appendNewCanvas(canvasDiv);
-            var rc = new music21.widgets.RhythmChooser(s, canvasDiv[0]);
+                        
+            var rc = new music21.widgets.RhythmChooser(s.parts[0], canvasDiv[0]);
             rc.values = this.section.rhythmChooserValues.concat('undo');
             var rcHolder = $("<div/>");
 
-            var b = $("<button style='font-size: 30pt; float: left; position: relative; top: 60px;'>Play</button>");
-            b.click( (function() { this.playStream(); }).bind(tnStream) );
+            var b = $("<button style='font-size: 32pt; float: left; position: relative; top: 40px;'>Play</button>");
+            b.click( (function() { this.playStream(); }).bind(tnScore) );
             
-            var b2 = $("<button style='font-size: 30pt; float: left;  position: relative; top: 60px;'>Check</button>");                
+            var b2 = $("<button style='font-size: 32pt; float: left;  position: relative; top: 40px;'>Check</button>");                
             b2.click( this.checkTrigger );
             rcHolder.append(b);
             rcHolder.append(b2);
             var rhythmChooser = rc.addDiv();
             rhythmChooser.css('width', 'auto');
             rhythmChooser.css('float', 'left');
-            
-            this.storedAnswer = tnStream;
-            this.studentAnswer = s;
-            
             rcHolder.append(rhythmChooser);
+            rcHolder.css({
+                '-ms-transform': 'scale(.5, .5)',
+                '-webkit-transform': 'scale(.5, .5)',                
+                'transform': 'scale(.5, .5)',                
+            });
+            
             niceDiv.append(rcHolder);
             niceDiv.append($("<br clear='all'/>"));
             niceDiv.append(canvasDiv);            
@@ -94,23 +101,24 @@ define("m21theory/tests/rhythmMatch",
 		this.lastPs = 0.0;
 		this.rhythmChooserValues = ['whole', 'half','quarter'];
 		this.allowableMeters = ['4/4','3/4'];
+		this.usedRhythms = {};
 		this.possibleRhythms = {
 		    '4/4': ['2 2 4 4 4 4 2 2',
 		            '4 2 4 4 4 2 1',
-		            '1 2 4 4 2 4 4 4 4 2',
+		            '1 2 4 4 2 4 4 2 2',
 		            '2 2 4 2 4 1',
-		            '1 4 4 2 4 4 4 4 4 2 4',
+		            '1 4 4 2 4 4 4 4 1',
 		            '1 2 2 2 2 4 4 2',
-		            '4 4 4 4 1 2 4 4 2 4 4',
-		            '4 4 2 4 2 4 4 4 4 4',
+		            '4 4 4 4 1 2 4 4 1',
+		            '4 2 4 4 4 4 4',
 		            '2 4 4 4 4 2 4 4 2',
 		            '2 2 1 2 2 1',
 		            '4 4 2 2 2 4 4 4 4 1',
-		            '2 2 2 2 1 4 4 2',
+		            '2 2 2 2 1',
 		            ],
-		    '3/4': ['2 4 4 4 4 2 4 2.',
+		    '3/4': ['2 4 4 4 4 2.',
 		            '2. 4 2 4 2 2.',
-		            '4 4 4 2. 2 4 2.',
+		            '4 4 4 2 4 2.',
 		            '4 2 2 4 2.',
 		            '2. 4 4 4 2.',
 		            '2 4 2 4 2.',
@@ -120,7 +128,13 @@ define("m21theory/tests/rhythmMatch",
 
 		this.getTwoStreams = function () {
 		    var chosenMeter = random.choice(this.allowableMeters);
-		    var chosenRhythm = random.choice(this.possibleRhythms[chosenMeter]);
+		    if (this.usedRhythms[chosenMeter] == undefined) {
+		        this.usedRhythms[chosenMeter] = [];
+		    }
+		    var chosenRhythm = random.choiceWithoutDuplicates(
+	            this.possibleRhythms[chosenMeter],
+	            this.usedRhythms[chosenMeter]                
+		    );
 		    var values = chosenRhythm.split(' ');
 		    var tn = chosenMeter + " ";
 		    var tsObj = new music21.meter.TimeSignature(chosenMeter);
@@ -148,17 +162,20 @@ define("m21theory/tests/rhythmMatch",
 		    tnStream.clef = new music21.clef.PercussionClef();
 		    tnStream.tempo = this.tempo;
 		    // for practice questions
-		    tnStream.renderOptions.scaleFactor.x = 0.9;
-		    tnStream.renderOptions.scaleFactor.y = 0.9;
-
+		    tnScore = new music21.stream.Score();
+		    tnScore.renderOptions.scaleFactor.x = 0.9;
+		    tnScore.renderOptions.scaleFactor.y = 0.9;
+		    tnScore.append(tnStream);
 		    
-			var s = new music21.stream.Part();
-			s.renderOptions.scaleFactor.x = 0.9;
+		    
+			var s = new music21.stream.Score();
+            s.renderOptions.scaleFactor.x = 0.9;
             s.renderOptions.scaleFactor.y = 0.9;
-			s.tempo = this.tempo;
-			s.autoBeam = true;
-			s.clef = new music21.clef.PercussionClef();
-			s.timeSignature = chosenMeter;
+			p = new music21.stream.Part();
+			p.tempo = this.tempo;
+			p.autoBeam = true;
+			p.clef = new music21.clef.PercussionClef();
+			p.timeSignature = chosenMeter;
 
 			m = new music21.stream.Measure();
 			m.renderOptions.staffLines = 1;
@@ -167,8 +184,9 @@ define("m21theory/tests/rhythmMatch",
 	            n.stemDirection = 'up';
 	            m.append( n );
 	        }
-		    s.append(m);
-		    return [tnStream, s];		    		    
+		    p.append(m);
+		    s.append(p);
+		    return [tnScore, s];		    		    
 		};
 
 

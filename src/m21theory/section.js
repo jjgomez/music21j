@@ -15,7 +15,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	/* Test Type -- general -- inherited by other tests... */
 
 	section.Generic = function () {
-		this.inTestBank = undefined;
+		this.bank = undefined;
 		this.testSectionDiv = undefined;
 		this.assignmentId = 'unknownTestSection';
 		this.title = "Assignment";
@@ -52,10 +52,10 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	    Object.defineProperties(this, {
 	        'progressBar': {
 	            get: function () {
-	                if (this.inTestBank !== undefined) {	                    
-	                    for (var i = 0; i < this.inTestBank.allTests.length; i++) {
-	                        if (this === this.inTestBank.allTests[i]) {
-	                            return this.inTestBank.scoreboard.pbSubparts[i];
+	                if (this.bank !== undefined) {	                    
+	                    for (var i = 0; i < this.bank.allTests.length; i++) {
+	                        if (this === this.bank.allTests[i]) {
+	                            return this.bank.scoreboard.pbSubparts[i];
 	                        }
 	                    }
 	                }
@@ -65,8 +65,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	    		get: function () {
 	    			var tempEmail = this._profEmail;
 	    			if (tempEmail == undefined) {
-	    				if (this.inTestBank != undefined) {
-	    					tempEmail = this.inTestBank.profEmail;
+	    				if (this.bank != undefined) {
+	    					tempEmail = this.bank.profEmail;
 	    				}
 	    			}
 	    			return tempEmail;
@@ -79,8 +79,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	    		get: function () {
 	    			var allow = this._allowEarlySubmit;
 	    			if (allow == undefined) {
-	    				if (this.inTestBank != undefined) {
-	    					allow = this.inTestBank.allowEarlySubmit;
+	    				if (this.bank != undefined) {
+	    					allow = this.bank.allowEarlySubmit;
 	    				} else {
 	    					allow = true;
 	    				}
@@ -95,8 +95,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	    		get: function () {
 	    			var allow = this._allowSubmitWithErrors;
 	    			if (allow == undefined) {
-	    				if (this.inTestBank != undefined) {
-	    					allow = this.inTestBank.allowSubmitWithErrors;
+	    				if (this.bank != undefined) {
+	    					allow = this.bank.allowSubmitWithErrors;
 	    				} else {
 	    					allow = true;
 	    				}
@@ -111,8 +111,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
                 get: function () {
                     var allow = this._autoSubmit;
                     if (allow == undefined) {
-                        if (this.inTestBank != undefined) {
-                            allow = this.inTestBank.autoSubmit;
+                        if (this.bank != undefined) {
+                            allow = this.bank.autoSubmit;
                         } else {
                             allow = true;
                         }
@@ -127,8 +127,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	    		get: function () {
 	    			var allow = this._studentFeedback;
 	    			if (allow == undefined) {
-	    				if (this.inTestBank != undefined) {
-	    					allow = this.inTestBank.studentFeedback;
+	    				if (this.bank != undefined) {
+	    					allow = this.bank.studentFeedback;
 	    				} else {
 	    					allow = true;
 	    				}
@@ -298,7 +298,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		    // correct and question are currently unused;
 		    this.recalculateScore();
             this.checkEndCondition();
-            this.inTestBank.questionStatusChanged();
+            this.bank.questionStatusChanged();
 		};
 		
 		this.recalculateScore = function () {
@@ -388,8 +388,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			var storedThis = this;
 			var profEmail = this.profEmail;
 			var testId = 'unknownTestBank';
-			if (this.inTestBank != undefined) {
-				testId = this.inTestBank.testId;
+			if (this.bank != undefined) {
+				testId = this.bank.testId;
 			}
 			$.ajax({
 				type: "GET",

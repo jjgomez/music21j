@@ -134,5 +134,5 @@ define("m21theory/tests/noteIdentification",
 	ThisTest.prototype = new section.Generic();
 	ThisTest.prototype.constructor = ThisTest;
 	
-		return ThisTest;
+	return ThisTest;
 });

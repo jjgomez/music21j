@@ -74,22 +74,22 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
     feedback.Scoreboard.prototype.updateProgressBarPercentages = function ($pb, numQs, numRight, numWrong) {
         var rightPercent = 100 * numRight/numQs;
         var wrongPercent = 100 * numWrong/numQs;
-        var $rightBar = $pb.find('.correctBar');
+
+        var $rightBar = $pb.find('.correctBar');        
         var $wrongBar = $pb.find('.incorrectBar');
-        $rightBar.css('width', rightPercent.toString() + "%");
-        $wrongBar.css('width', wrongPercent.toString() + "%");        
+
+        var rightBarPriorPercent = $rightBar.data('priorPercentage');
+        var wrongBarPriorPercent = $wrongBar.data('priorPercentage');
+        if (rightPercent == rightBarPriorPercent && wrongPercent == wrongBarPriorPercent) {
+            return;
+        }
+        
+                       
         if (numRight == numQs) {
             $rightBar.css({
                 'border-top-right-radius': '7px',
                 'border-bottom-right-radius': '7px',
             });
-            if ($pb.data('hasGlowed') != true) {
-                if (this.bank.studentFeedback) {
-                    this.glow($rightBar);                    
-                    $rightBar.text('DONE');
-                };
-                $pb.data('hasGlowed', true);
-            }
         } else {
             $rightBar.css({
                 'border-top-right-radius': '0px',
@@ -118,6 +118,41 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
                 'border-bottom-right-radius': '0px',
             });                    
         }
+                
+        //console.log(wrongPercent, wrongBarPriorPercent);
+        //$rightBar.text("");
+        if (rightPercent == 0) {
+            $rightBar.css('display', 'none');
+        } else {
+            $rightBar.css('display', 'inline-block');
+        }
+        if (wrongPercent == 0) {
+            $wrongBar.css('display', 'none');
+        } else {
+            $wrongBar.css('display', 'inline-block');
+        }
+        
+        $rightBar.animate({'width': rightPercent.toString() + "%"}, 
+                {
+                        duration: 30 * (1 + Math.abs(rightPercent - rightBarPriorPercent)),
+                });            
+        $wrongBar.animate({'width': wrongPercent.toString() + "%"}, 
+                {
+                       duration: 30 * (1 + Math.abs(wrongPercent - wrongBarPriorPercent))
+                });   
+        $rightBar.data('priorPercentage', rightPercent);
+        $wrongBar.data('priorPercentage', wrongPercent);
+        
+        if (numRight == numQs && $pb.data('hasGlowed') != true) {
+            if (this.bank.studentFeedback) {
+                this.glow($rightBar);                    
+                $rightBar.text('DONE');
+            };
+            $pb.data('hasGlowed', true);
+        }
+
+                
+
     };
     
     feedback.Scoreboard.prototype.getProgressBar = function (height) {
@@ -137,16 +172,16 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             'border-top-left-radius': '7px',
             'border-bottom-left-radius': '7px',
             'font-weight': 'bold',
-        });
+        }).data('priorPercentage', 0);
         var $incorrect = $("<div class='progressBarPart incorrectBar'>&nbsp;</div>").css({
             'background-color': '#995555', 
-        });
+        }).data('priorPercentage', 0);
         $pb.append($correct);
         $pb.append($incorrect);
         $pb.find(".progressBarPart").css({
             color: 'white',
             'text-align': 'center',
-            width: '33%',
+            width: '0%',
             display: 'inline-block',
             height: '100%',
         });

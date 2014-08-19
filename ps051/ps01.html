@@ -12,6 +12,20 @@ var m2;
 
 
 require(['m21theory'], function() {
+    var onPaper = m21theory.tests.get('doOnPaper');
+    onPaper.title = 'Terms and Conditions';
+    onPaper.$specifics = $("<div>Read the syllabus, mark down important " + 
+            "dates on your calendar, and agree to the conditions of the syllabus. You " +
+            "must accept the conditions to be in 21m.051; your instructor (Cuthbert) agrees " +
+            "to do his absolute best to teach according to his ability. <ul>" +
+            "<li> I agree to follow the terms of the syllabus </li>" +
+            "<li> I agree to report any problems with the online questions in a timely manner.</li>" +
+            "<li> Esp. I agree not to solve these problems through hacking, javascript, etc., but " +
+            "through the provided interface and according to academic honesty.</li>" +
+            "</ul></div>");
+    
+    onPaper.checkboxInstructions = 'If you agree to these conditions... ';
+    
     var noteLength = m21theory.tests.get('noteLength');
     var noteLength2 = m21theory.tests.get('noteLength');
     noteLength2.displayTNName = 'r';
@@ -43,6 +57,7 @@ require(['m21theory'], function() {
     testBank.instructions = "<p>Instructions here...</p>";
     testBank.allowEarlySubmit = true;
 
+    testBank.append(onPaper);
     testBank.append(noteLength);
     testBank.append(noteLength2);
     testBank.append(noteLength3);

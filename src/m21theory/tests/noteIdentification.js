@@ -103,7 +103,9 @@ define("m21theory/tests/noteIdentification",
     
     var ThisTest = function () {
 		section.Generic.call(this);
-		this.assignmentId = 'noteIdentificationTest';
+        this.questionClass = NoteQuestion;
+
+        this.assignmentId = 'noteIdentificationTest';
 		this.totalQs = 6;
 		this.practiceQs = 1;
 		this.allowableLedgerLines = 0;
@@ -117,8 +119,6 @@ define("m21theory/tests/noteIdentification",
 			"</p>";
 		this.lastPs = 0.0;
 		this.numNotes = 7;
-        this.useAug2014System = true;
-        this.questionClass = NoteQuestion;
         
 		this.getStream = function () {
 	        var s = new music21.stream.Stream();

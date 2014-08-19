@@ -8,7 +8,8 @@
  */
 
 var knownTests = ['interval','chordCreation','chordIdentification','firstSpecies','keySignature',
-                  'noteIdentification','scaleEar','scaleMajorMinorWritten', 'rhythmMatch', 'pulseIdentify'];
+                  'noteIdentification','scaleEar','scaleMajorMinorWritten', 
+                  'rhythmMatch', 'pulseIdentify', 'noteLength'];
 
 var knownTestsPrefixed = [];
 for (var i = 0; i < knownTests.length; i ++) {

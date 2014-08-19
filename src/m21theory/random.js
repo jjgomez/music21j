@@ -79,7 +79,7 @@ define([], function(require) {
 	    if (usedList.length >= inList.length) {
 	        // fastest algorithm via:
 	        // http://stackoverflow.com/questions/1232040/how-to-empty-an-array-in-javascript
-	        while(usedList.length > 0) {
+	        while(usedList.length > 0) {            
 	            usedList.pop();
 	        }
 	    }

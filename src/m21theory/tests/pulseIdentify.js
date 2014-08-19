@@ -167,50 +167,22 @@ define("m21theory/tests/pulseIdentify",
             this.possibleRhythms[chosenMeter],
             this.usedRhythms[chosenMeter]                
         );
-        var values = chosenRhythm.split(' ');
-        var tn = chosenMeter + " ";
-        var tnDisplay = tn;
+        var tn = chosenRhythm;
         var tsObj = new music21.meter.TimeSignature(chosenMeter);
         var numQtrs = parseInt(tsObj.barDuration.quarterLength);
         for (var j = 0; j < numQtrs; j++) {
-            tn += "b'4 ";
+            tn = "b'4 " + tn;
         }
-        for (var j = 0; j < values.length; j++) {
-            var note = "b" + values[j];
-            if (j < values.length - 1) {
-                note += " ";
-            }
-            tn += note;
-            tnDisplay += note;
-        }
-        var tnScore = this.getTnScore(tn);
-        var tnScoreDisplay = this.getTnScore(tnDisplay);
+        var tnScore = m21theory.misc.tnRhythmScore(tn, chosenMeter);
+        tnScore.tempo = this.tempo;
         tnScore.timeSignature = tsObj;
+
+        var tnDisplay = chosenRhythm;
+        var tnScoreDisplay = m21theory.misc.tnRhythmScore(tnDisplay, chosenMeter);
+        tnScoreDisplay.tempo = this.tempo;        
         tnScoreDisplay.timeSignature = tsObj;
         return [tnScore, tnScoreDisplay];
-    };  
-    
-    ThisTest.prototype.getTnScore = function (tn) {
-        var tnStream = music21.tinyNotation.TinyNotation(tn);           
-        for (var j = 0; j < tnStream.length; j++ ) {
-            tnStream.get(j).renderOptions.staffLines = 1;
-            tnStream.get(j).get(0).volume = 85;
-        }
-        var tnStreamFlatNotes = tnStream.flat.notes;
-        for (var j = 0; j < tnStreamFlatNotes.length; j++) {
-            tnStreamFlatNotes.get(j).stemDirection = 'up';
-        }
-        
-        tnStream.clef = new music21.clef.PercussionClef();
-        // for practice questions
-        tnScore = new music21.stream.Score();
-        tnScore.tempo = this.tempo;
-        tnScore.renderOptions.scaleFactor.x = 0.9;
-        tnScore.renderOptions.scaleFactor.y = 0.9;
-        tnScore.append(tnStream);
-        return tnScore;
-    };
-    
+    };      
     
     return ThisTest;
  

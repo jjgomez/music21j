@@ -12,6 +12,17 @@ var m2;
 
 
 require(['m21theory'], function() {
+    var noteLength = m21theory.tests.get('noteLength');
+    var noteLength2 = m21theory.tests.get('noteLength');
+    noteLength2.displayTNName = 'r';
+    noteLength2.title = 'Rest Lengths';
+    noteLength2.instructions = '<p>Now do the same things with rests (note that rests cannot be tied).</p>';
+    
+    var noteLength3 = m21theory.tests.get('noteLength');
+    noteLength3.randomizeNotesAndRests = true;
+    noteLength3.title = 'Note and Rest Lengths';
+    noteLength3.instructions = '<p>Now do the same things with a mixture of notes and rests.</p>';
+      
     var pulseMatch = m21theory.tests.get('pulseIdentify');
     var pulseMatch2 = m21theory.tests.get('pulseIdentify');
     pulseMatch2.instructions = '<p>Same thing, but now at a faster tempo.</p>';
@@ -31,7 +42,10 @@ require(['m21theory'], function() {
 	testBank.title = "Rhythmic Exercises";
     testBank.instructions = "<p>Instructions here...</p>";
     testBank.allowEarlySubmit = true;
-	
+
+    testBank.append(noteLength);
+    testBank.append(noteLength2);
+    testBank.append(noteLength3);
     testBank.append(pulseMatch);
     testBank.append(pulseMatch2);
     testBank.append(rhythmMatch1);

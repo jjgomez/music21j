@@ -6,7 +6,7 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
+define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, MIDI, $, random) {
 	var misc = {};
 	misc.playMotto = function (MIDI) {
 	    //return;
@@ -21,7 +21,61 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
 		MIDI.noteOn(0, note + 4, velocity - 90, delay + 1.35);
 		MIDI.noteOff(0, note + 4, delay + 0.75 + 1.35);
 	};
-	
+    misc.tnRhythmScore = function (chosenRhythm, chosenMeter, options) {
+        var params = {
+                noteValue: 'b',
+                randomizeNotesAndRests: false,
+        };
+        music21.common.merge(params, options);
+        tn = "";
+        if (chosenMeter !== undefined) {
+            tn = chosenMeter + " " + tn;            
+        }
+        var values = chosenRhythm.split(/\s+/);
+        lastNoteTied = true;
+        for (var j = 0; j < values.length; j++) {
+            var note = values[j];
+            var nv = params.noteValue;
+            if (note.match(/^[0-9]/) != null) {
+                if (params.randomizeNotesAndRests && lastNoteTied == false) {
+                    nv = random.choice([params.noteValue, 'r']);
+                }
+                note = nv + note; 
+            }
+            if (nv == 'r' && note.indexOf('~') != -1) {
+                //strip ties from rests...                
+                note = note.slice(0, note.indexOf('~'));
+            }
+            if (note.indexOf('~') != -1) {
+                lastNoteTied = true;
+            } else {
+                lastNoteTied = false;
+            }
+            if (j < values.length - 1) {
+                note += " ";
+            }
+            tn += note;
+        }
+        
+        var tnStream = music21.tinyNotation.TinyNotation(tn);           
+        for (var j = 0; j < tnStream.length; j++ ) {
+            tnStream.get(j).renderOptions.staffLines = 1;
+            tnStream.get(j).get(0).volume = 85;
+        }
+        var tnStreamFlatNotes = tnStream.flat.notes;
+        for (var j = 0; j < tnStreamFlatNotes.length; j++) {
+            tnStreamFlatNotes.get(j).stemDirection = 'up';
+        }
+        
+        tnStream.clef = new music21.clef.PercussionClef();
+        // for practice questions
+        tnScore = new music21.stream.Score();
+        tnScore.renderOptions.scaleFactor.x = 0.9;
+        tnScore.renderOptions.scaleFactor.y = 0.9;
+        tnScore.append(tnStream);
+        return tnScore;
+    };
+
 	misc.addKeyboard = function(where, startDNN, endDNN) {    	    
 	    if (startDNN === undefined) {
 	        startDNN = 18;
@@ -123,6 +177,7 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
 	        convertFlats: true,
 	        convertSharps: true,
 	        convertNaturals: true,
+	        skipTies: false,
 	    };
 	    music21.common.merge(params, options);
 	    var returnVal;
@@ -138,9 +193,14 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
 	    }
 	    var sFlat = s.flat.notesAndRests;
         var streamLength = sFlat.length;
+        var returnValDisplacement = 0;
         for (var i = 0; i < streamLength; i++) {
             var n = sFlat.get(i);
-            var setLyricText = returnVal[i] || "";
+            if (params.skipTies && n.tie && n.tie.type != 'start') {
+                returnValDisplacement -= 1;
+                continue;
+            }
+            var setLyricText = returnVal[i + returnValDisplacement] || "";
             if (params.convertSharps) {
                 setLyricText = setLyricText.replace(/\#/g, '♯');
             }
@@ -154,6 +214,31 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
         }	    
 	    return returnVal;
 	};
+	
+	misc.fractionStringFromFloat = function (floatIn) {
+	    // ridiculous little function -- take a float like 0.33333 or 0.25 and convert it to
+	    // a string like 1/3 or 1/4; ridiculous, because it's really limited right now...
+	    // returns a string of a float if it can't convert...
+	    if (Math.abs(floatIn - Math.round(floatIn)) < 0.001) {
+	        return parseInt(floatIn).toString();
+	    }
+	    
+	    var denoms = [2, 3, 4, 5, 6, 7, 8, 16, 32, 64];
+	    for (var i = 0; i < denoms.length; i++) {
+	        var d = denoms[i];
+	        if (Math.abs(floatIn * d - Math.round(floatIn * d)) < 0.001) {
+	            return Math.round(floatIn * d) + "/" + d;  
+	        }
+	    }
+	    
+        var dqs = floatIn.toString();
+        if (dqs.length >= 5) {
+            // tuplets, etc.
+            dqs = floatIn.toFixed(3);
+        }
+        return dqs;
+	};
+	
 	
 	// end of define
 	if (typeof(m21theory) != "undefined") {

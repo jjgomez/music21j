@@ -140,38 +140,14 @@ define("m21theory/tests/rhythmMatch",
 	            this.possibleRhythms[chosenMeter],
 	            this.usedRhythms[chosenMeter]                
 		    );
-		    var values = chosenRhythm.split(' ');
-		    var tn = chosenMeter + " ";
+		    var tn = chosenRhythm;
 		    var tsObj = new music21.meter.TimeSignature(chosenMeter);
 		    var numQtrs = parseInt(tsObj.barDuration.quarterLength);
 		    for (var j = 0; j < numQtrs; j++) {
-		        tn += "b4 ";
+		        tn = "b4 " + tn;
 		    }
-		    for (var j = 0; j < values.length; j++) {
-		        var note = "b" + values[j];
-		        if (j < values.length - 1) {
-		            note += " ";
-		        }
-		        tn += note;
-		    }
-		    var tnStream = music21.tinyNotation.TinyNotation(tn);		    
-		    for (var j = 0; j < tnStream.length; j++ ) {
-		        tnStream.get(j).renderOptions.staffLines = 1;
-		        tnStream.get(j).get(0).volume = 85;
-		    }
-		    var tnStreamFlatNotes = tnStream.flat.notes;
-		    for (var j = 0; j < tnStreamFlatNotes.length; j++) {
-		        tnStreamFlatNotes.get(j).stemDirection = 'up';
-		    }
-		    
-		    tnStream.clef = new music21.clef.PercussionClef();
-		    tnStream.tempo = this.tempo;
-		    // for practice questions
-		    tnScore = new music21.stream.Score();
-		    tnScore.renderOptions.scaleFactor.x = 0.9;
-		    tnScore.renderOptions.scaleFactor.y = 0.9;
-		    tnScore.append(tnStream);
-		    
+		    tnScore = m21theory.misc.tnRhythmScore(tn, chosenMeter);
+		    tnScore.tempo = this.tempo;
 		    
 			var s = new music21.stream.Score();
             s.renderOptions.scaleFactor.x = 0.9;

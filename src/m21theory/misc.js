@@ -115,6 +115,46 @@ define(['music21','loadMIDI', 'jquery'], function(music21, MIDI, $) {
         }    
 	};
 	
+	
+	misc.lyricsFromValue = function (val, s, options) {
+	    var params = {
+	        useIntervals: false,
+	        separator: /\s+/,
+	        convertFlats: true,
+	        convertSharps: true,
+	        convertNaturals: true,
+	    };
+	    music21.common.merge(params, options);
+	    var returnVal;
+	    if (typeof val == 'string') {
+	        returnVal = val.split(params.separator);
+	    } else if (val instanceof Array) {
+	        returnVal = val;
+	    } else if (typeof val == 'object' && val.jquery != undefined) {
+	        returnVal = val.val().split(params.separator);
+	    } else { // ??
+	        console.log("misc.lyricsFromValue called on unknown val");
+	        returnVal = val;
+	    }
+	    var sFlat = s.flat.notesAndRests;
+        var streamLength = sFlat.length;
+        for (var i = 0; i < streamLength; i++) {
+            var n = sFlat.get(i);
+            var setLyricText = returnVal[i] || "";
+            if (params.convertSharps) {
+                setLyricText = setLyricText.replace(/\#/g, '♯');
+            }
+            if (params.convertFlats) {
+                setLyricText = setLyricText.replace(/([a-zA-Z])b/g, '$1♭');
+            }
+            if (params.convertNaturals) {
+                setLyricText = setLyricText.replace(/([a-zA-Z])n/g, '$1♮');
+            }
+            n.lyric = setLyricText;
+        }	    
+	    return returnVal;
+	};
+	
 	// end of define
 	if (typeof(m21theory) != "undefined") {
 		m21theory.misc = misc;

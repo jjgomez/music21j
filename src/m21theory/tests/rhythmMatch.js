@@ -37,7 +37,7 @@ define("m21theory/tests/rhythmMatch",
     };
 
     RhythmDict.prototype.render = function () {
-        var niceDiv = $("<div>Question " + (this.index + 1).toString() + "<br/></div>");
+        var $questionDiv = $("<div>Question " + (this.index + 1).toString() + "<br/></div>");
         var _ = this.section.getTwoStreams(),
             tnScore = _[0],
             s = _[1];
@@ -47,27 +47,29 @@ define("m21theory/tests/rhythmMatch",
         
         if (this.isPractice) {
             tnScore.maxSystemWidth = 500;
-            niceDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'><b>Example:</b> Click to listen</div>") );
-            tnScore.appendNewCanvas(niceDiv);
+            tnScore.parts[0].renderOptions.systemPadding = -20;
+            $questionDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'><b>Example:</b> Click to listen</div>") );
+            tnScore.appendNewCanvas($questionDiv);
         } else {            
             s.maxSystemWidth = 500;
+            s.parts[0].renderOptions.systemPadding = -20;
             var canvasDiv = $("<div/>");//"<div style='width: 500px'/>");
             s.appendNewCanvas(canvasDiv);
                         
             var rc = new music21.widgets.RhythmChooser(s.parts[0], canvasDiv[0]);
             rc.values = this.section.rhythmChooserValues.concat('undo');
-            var rcHolder = $("<div/>");
+            var rcHolder = $("<div style='inline-block'/>");
 
-            var b = $("<button style='font-size: 32pt; float: left; position: relative; top: 40px;'>Play</button>");
+            var b = $("<button style='font-size: 32pt; display: inline-block; position: relative;'>Play</button>");
             b.click( (function() { this.playStream(); }).bind(tnScore) );
             
-            var b2 = $("<button style='font-size: 32pt; float: left;  position: relative; top: 40px;'>Check</button>");                
+            var b2 = $("<button style='font-size: 32pt; display: inline-block; position: relative;'>Check</button>");                
             b2.click( this.checkTrigger );
             rcHolder.append(b);
             rcHolder.append(b2);
             var rhythmChooser = rc.addDiv();
             rhythmChooser.css('width', 'auto');
-            rhythmChooser.css('float', 'left');
+            rhythmChooser.css('display', 'inline-block');
             rcHolder.append(rhythmChooser);
             rcHolder.css({
                 '-ms-transform': 'scale(.5, .5)',
@@ -75,12 +77,15 @@ define("m21theory/tests/rhythmMatch",
                 'transform': 'scale(.5, .5)',                
             });
             
-            niceDiv.append(rcHolder);
-            niceDiv.append($("<br clear='all'/>"));
-            niceDiv.append(canvasDiv);            
+            $questionDiv.append($("<div>Click 'Play' to hear the rhythm to be transcribed. Use the " +
+                    "yellow buttons to add rhythms to the staff below. When you are satisfied that " +
+                    		"the lines are the same, click 'Check'.</div>"));
+            $questionDiv.append(rcHolder);
+            $questionDiv.append($("<br clear='all'/>"));
+            $questionDiv.append(canvasDiv);            
         }
-        this.$questionDiv = niceDiv;
-        return niceDiv;
+        this.$questionDiv = $questionDiv;
+        return $questionDiv;
     };
     var ThisTest = function () {
 		section.Generic.call(this);
@@ -109,7 +114,7 @@ define("m21theory/tests/rhythmMatch",
 		            '2 2 4 2 4 1',
 		            '1 4 4 2 4 4 4 4 1',
 		            '1 2 2 2 2 4 4 2',
-		            '4 4 4 4 1 2 4 4 1',
+		            '4 4 4 4 2 4 4 1',
 		            '4 2 4 4 4 4 4',
 		            '2 4 4 4 4 2 4 4 2',
 		            '2 2 1 2 2 1',

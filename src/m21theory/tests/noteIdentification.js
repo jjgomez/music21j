@@ -1,30 +1,22 @@
 define("m21theory/tests/noteIdentification", 
-        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", 'm21theory/question', 'm21theory/misc'], 
+        function (section, random, question, misc) {
 	
     var NoteQuestion = function (handler, index) {
         question.Question.call(this, handler, index);   
     };
     NoteQuestion.prototype = new question.Question();
     NoteQuestion.prototype.constructor = NoteQuestion;
-    
+    NoteQuestion.prototype.getStudentAnswer = function () {
+        return question.Question.prototype.getStudentAnswer.call(this)
+            .toLowerCase().replace(/\s*/g, "").replace(/n/g, "");
+    };
     NoteQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer){
         return (storedAnswer.toLowerCase().replace(/\s*/g, "") == 
-            studentAnswer.toLowerCase().replace(/\s*/g, "") );
+            studentAnswer );
     };
     NoteQuestion.prototype.lyricsChanged = function () {
-        var lyricsVal = this.$inputBox.val();
-        var lyricsSplit = lyricsVal.split(/\s+/);
-        var streamLength = this.stream.length;
-        for (var i = 0; i < streamLength; i++) {
-            var n = this.stream.get(i);
-            if (lyricsSplit[i] !== undefined) {
-                //console.log(lyricsSplit[i]);
-                n.lyric = lyricsSplit[i];                
-            } else {
-                n.lyric = "";
-            }
-        }
+        misc.lyricsFromValue(this.$inputBox, this.stream);
         this.canvas = this.stream.replaceCanvas(this.canvas);
         //console.log(lyricsSplit);
     };
@@ -130,8 +122,8 @@ define("m21theory/tests/noteIdentification",
         
 		this.getStream = function () {
 	        var s = new music21.stream.Stream();
-	        s.renderOptions.scaleFactor.x = 1.0;
-	        s.renderOptions.scaleFactor.y = 1.0;
+	        s.renderOptions.scaleFactor.x = 0.9;
+	        s.renderOptions.scaleFactor.y = 0.9;
 	        s.autoBeam = true;
 	        s.clef = new music21.clef.Clef( random.choice(this.allowableClefs) );
 	        s.timeSignature = '4/4';

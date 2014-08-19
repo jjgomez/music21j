@@ -294,7 +294,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			return $("<div>Blank question " + i.toString() + "</div>");
 		}; 
 		
-		this.questionStatusChanged = function (new_status, changed_question) {		    
+		this.questionStatusChanged = function (new_status, changed_question) {		    		   
 		    // correct and question are currently unused;
 		    this.recalculateScore();
             this.checkEndCondition();

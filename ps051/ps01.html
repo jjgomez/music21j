@@ -12,6 +12,11 @@ var m2;
 
 
 require(['m21theory'], function() {
+    var pulseMatch = m21theory.tests.get('pulseIdentify');
+    var pulseMatch2 = m21theory.tests.get('pulseIdentify');
+    pulseMatch2.instructions = '<p>Same thing, but now at a faster tempo.</p>';
+    pulseMatch2.tempo = 136;
+    
     var rhythmMatch1 = m21theory.tests.get('rhythmMatch');
     rhythmMatch1.allowableMeters = ['4/4'];
 
@@ -27,6 +32,8 @@ require(['m21theory'], function() {
     testBank.instructions = "<p>Instructions here...</p>";
     testBank.allowEarlySubmit = true;
 	
+    testBank.append(pulseMatch);
+    testBank.append(pulseMatch2);
     testBank.append(rhythmMatch1);
     testBank.append(rhythmMatch2);
 	testBank.render();
@@ -34,7 +41,7 @@ require(['m21theory'], function() {
 
 </script>
 <div class="related">
-	<ul><li><a href="#">21m.051 Cuthbert</a> &raquo; <a href="#">Test Prep</a></li></ul>
+	<ul><li><a href="#">21m.051 Cuthbert</a> &raquo; <a href="#">PS01</a></li></ul>
 </div>
 <div class="document">
   <div class="documentwrapper">

@@ -29,13 +29,13 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         var $title = $("<p class='sidebarTitle'>Progress</p>");
         $d.append($title);
 
-        var $pb = this.getProgressBar(30);
+        var $pb = this.getProgressBar(30, this.bank.studentFeedback);
         this.mainPB = $pb;
         $d.append($pb);
         $d.append($("<br/>"));
         
         for (var i = 0; i < this.bank.allTests.length; i++) {            
-            var $subPB = this.getProgressBar(20);
+            var $subPB = this.getProgressBar(20, this.bank.allTests[i].studentFeedback);
             this.pbSubparts.push( $subPB );
             $d.append($subPB);
         }
@@ -55,9 +55,9 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             var numQs = t.totalQs - t.practiceQs;
             var numRight = t.numRight;
             var numWrong = t.numWrong;
-            if (t.studentFeedback) {
+            if (t.studentFeedback == true) {
                 var $rightBar = $pb.find('.correctBar');                
-                if (t.numMistakes > t.maxMistakes) {
+                if (t.maxMistakes > 0 && t.numMistakes > t.maxMistakes) {
                     $rightBar.css('background-color', '#dddd66');
                 } else {
                     $rightBar.css('background-color', '#66aa66');                    
@@ -66,14 +66,19 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             totalQs += numQs;
             totalRight += numRight;
             totalWrong += numWrong;
-            this.updateProgressBarPercentages($pb, numQs, numRight, numWrong);
+            this.updateProgressBarPercentages($pb, numQs, numRight, numWrong, t.studentFeedback);
         };
-        this.updateProgressBarPercentages(this.mainPB, totalQs, totalRight, totalWrong);
+        this.updateProgressBarPercentages(this.mainPB, totalQs, totalRight, totalWrong, this.bank.studentFeedback);
     };
         
-    feedback.Scoreboard.prototype.updateProgressBarPercentages = function ($pb, numQs, numRight, numWrong) {
+    feedback.Scoreboard.prototype.updateProgressBarPercentages = function ($pb, numQs, numRight, numWrong, studentFeedback) {
         var rightPercent = 100 * numRight/numQs;
         var wrongPercent = 100 * numWrong/numQs;
+        if (studentFeedback != true) {
+            rightPercent = rightPercent + wrongPercent;
+            wrongPercent = 0;
+        }
+        
 
         var $rightBar = $pb.find('.correctBar');        
         var $wrongBar = $pb.find('.incorrectBar');
@@ -121,6 +126,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
                 
         //console.log(wrongPercent, wrongBarPriorPercent);
         //$rightBar.text("");
+        
         if (rightPercent == 0) {
             $rightBar.css('display', 'none');
         } else {
@@ -144,7 +150,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         $wrongBar.data('priorPercentage', wrongPercent);
         
         if (numRight == numQs && $pb.data('hasGlowed') != true) {
-            if (this.bank.studentFeedback) {
+            if (this.bank.studentFeedback == true) {
                 this.glow($rightBar);                    
                 $rightBar.text('DONE');
             };
@@ -155,7 +161,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
 
     };
     
-    feedback.Scoreboard.prototype.getProgressBar = function (height) {
+    feedback.Scoreboard.prototype.getProgressBar = function (height, studentFeedback) {
         if (height === undefined) {
             height = 20;
         }
@@ -176,6 +182,10 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         var $incorrect = $("<div class='progressBarPart incorrectBar'>&nbsp;</div>").css({
             'background-color': '#995555', 
         }).data('priorPercentage', 0);
+        if (studentFeedback != true) {
+            $correct.css('background-color', '#666666');
+            $incorrect.css('display', 'none');
+        }        
         $pb.append($correct);
         $pb.append($incorrect);
         $pb.find(".progressBarPart").css({
@@ -185,9 +195,6 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             display: 'inline-block',
             height: '100%',
         });
-        if (this.bank.studentFeedback == false) {
-            $pb.find(".progressBarPart").css('background-color', '#666666');                    
-        }
         return $pb;
     };
     feedback.Scoreboard.prototype.glow = function ($what, size, animateTime) {

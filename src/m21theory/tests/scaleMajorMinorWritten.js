@@ -130,7 +130,7 @@ define("m21theory/tests/scaleMajorMinorWritten",
                 var thisOption = allowable[j];
                 var niceChoice = sec.niceScaleNames[direction][thisOption];
                 var fieldInput =  $('<label><input type="radio" name="' + 
-                            this.assignmentId + i.toString() + '" value="' + thisOption + '" /> ' + 
+                            this.assignmentId + this.index.toString() + '" value="' + thisOption + '" /> ' + 
                             niceChoice + '<br/></label>');
                 fieldInput.change( this.checkTrigger );
                 inputBox.append(fieldInput);

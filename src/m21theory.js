@@ -39,7 +39,7 @@ var displayLoader = function () {
     var textNode = document.createTextNode(title + '...');
     loadH1.appendChild(textNode);
     var imgNode = document.createElement('img');
-    imgNode.setAttribute('src', '../css/ajax-loader.gif');
+    imgNode.setAttribute('src', 'http://web.mit.edu/music21/music21j/css/ajax-loader.gif');
     imgNode.setAttribute('alt', '[loading image]');
     loadH1.appendChild(imgNode);
     loadDiv.appendChild(loadH1);

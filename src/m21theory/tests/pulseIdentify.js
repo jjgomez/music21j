@@ -125,8 +125,9 @@ define("m21theory/tests/pulseIdentify",
         this.offsetLimit = 0.24; // maximum mistake value
         this.title = "Pulse identification";
         this.instructions = "<p>" +
-            "Click the score to here it played <b>preceeded by a measure of quarter notes</b>. " +
-            "After the measure of quarter notes is finished, press <b>SPACE</b> when each note should play. " +
+            "Click the score to hear it played <b>preceeded by a measure of quarter notes</b>. " +
+            "After the measure of quarter notes is finished, press (but do not hold down) <b>SPACE</b> " + 
+            "when each note should play. (You should be hitting space at the same time the notes are played). " +
             "When the excerpt is done you will get feedback on how accurately you played the rhythm. " +
             "</p>";
         this.allowableMeters = ['4/4','3/4'];

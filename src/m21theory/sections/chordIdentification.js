@@ -60,7 +60,7 @@ define("m21theory/sections/chordIdentification",
 		this.questionClass = CIQuestion;
 		this.useAug2014System = true;
 		
-		this.assignmentId = 'chordIdentificationTest';
+		this.id = 'chordIdentificationTest';
 		this.totalQs = 15;
 		this.practiceQs = 0;
 		this.title = "Chord Identification";

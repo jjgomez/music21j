@@ -44,7 +44,7 @@ define("m21theory/sections/keySignature",
 		section.Generic.call(this);
 		this.questionClass = KSQuestion;
 		
-		this.assignmentId = 'keySignatures';
+		this.id = 'keySignatures';
 		this.totalQs = 16;
 		this.minSharps = -6;
 		this.maxSharps = 6;

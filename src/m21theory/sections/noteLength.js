@@ -137,7 +137,7 @@ define("m21theory/sections/noteLength",
         section.Generic.call(this);
         this.questionClass = NL;
 
-        this.assignmentId = 'noteLength';
+        this.id = 'noteLength';
         this.displayTNName = 'b';
         this.randomizeNotesAndRests = false;
         this.autoBeam = false;

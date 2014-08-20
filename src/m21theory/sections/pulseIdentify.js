@@ -5,6 +5,7 @@ define("m21theory/sections/pulseIdentify",
         question.Question.call(this, handler, index); 
         this.noteTiming = [];
         this.timeStart = undefined;
+        this.storedClickEvent = undefined;
     };
     PI.prototype = new question.Question();
     PI.prototype.constructor = PI;
@@ -25,17 +26,21 @@ define("m21theory/sections/pulseIdentify",
             this.startTest();
             this.tnScore.playStream({done: this.evaluateResults.bind(this)}); 
         }).bind(this);
-        tnDisplay.appendNewCanvas($questionDiv);  
+        var canvas = tnDisplay.appendNewCanvas($questionDiv);  
+        this.$canvas = $(canvas);
         return $questionDiv;
     };
     
     PI.prototype.registerPresses = function () {
         //console.log('registering bind', this);
+        this.storedClickEvent = this.storedAnswer.renderOptions.events.click;
+        this.$canvas.off('click');
         this.keyboardBinder = this.keydownHandler.bind(this);
         $(document).bind('keydown', this.keyboardBinder);
     };
     PI.prototype.unregisterPresses = function () {
         //console.log('unregistering bind');
+        this.$canvas.on('click', this.storedClickEvent);
         $(document).unbind('keydown', this.keyboardBinder);
     };
 
@@ -117,9 +122,10 @@ define("m21theory/sections/pulseIdentify",
         section.Generic.call(this);
         this.questionClass = PI;
         
-        this.assignmentId = 'pulseIdentify';
+        this.id = 'pulseIdentify';
         this.totalQs = 6;
         this.practiceQs = 0;
+        this.maxMistakes = 8;
         this.tempo = 80;
         this.offsetLimitFluctuates = true;
         this.offsetLimit = 0.24; // maximum mistake value

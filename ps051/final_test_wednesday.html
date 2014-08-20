@@ -22,11 +22,11 @@ require(['m21theory'], function() {
     it1.minInterval = -4;
     it1.maxInterval = 8;
     it1.instructions = '<p>Identify the following intervals:</p>';
-    it1.assignmentId = 'multipartIntervals1';
+    it1.id = 'multipartIntervals1';
 
     var ks1 =     m21theory.sections.get('keySignature');
 ;
-    ks1.assignmentId = 'keySignatures1'
+    ks1.id = 'keySignatures1'
     ks1.totalQs = 8;
 
     var ks2 =     m21theory.sections.get('keySignature');
@@ -36,7 +36,7 @@ require(['m21theory'], function() {
     ks2.minSharps = -5;
     ks2.maxSharps = 4;
     ks2.title = 'Minor Key Signature';
-    ks2.assignmentId = 'minorKeySignatures';
+    ks2.id = 'minorKeySignatures';
     ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow. The minor key has three sharps less (or three flats more) than the major key of the same name.</p>";
     
     var msct =     m21theory.sections.get('scaleEar');
@@ -50,7 +50,7 @@ require(['m21theory'], function() {
     cc4.inversionChoices = [0];
     cc4.minSharps = -4;
     cc4.maxSharps = 3;
-    cc4.assignmentId = 'chordCreation';
+    cc4.id = 'chordCreation';
     cc4.title = 'Writing chords';
     cc4.instructions = "<p>Create the appropriate chord in root position</p>";
     cc4.chordChoicesMode = {
@@ -67,7 +67,7 @@ require(['m21theory'], function() {
 ;
     scales2.totalQs = 10;
     scales2.hide367 = true;
-    scales2.assignmentId = 'hiddenScales';
+    scales2.id = 'hiddenScales';
 
     var testBank = new m21theory.bank.TestBank();
     testBank.id = "finalTestPrepNoFeedback";

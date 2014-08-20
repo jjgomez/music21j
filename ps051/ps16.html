@@ -15,7 +15,7 @@ require(['m21theory'], function() {
 	ks2.minSharps = -5;
 	ks2.maxSharps = 4;
 	ks2.title = 'Minor Key Signature';
-	ks2.assignmentId = 'minorKeySignatures';
+	ks2.id = 'minorKeySignatures';
 	ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow. The minor key has three sharps less (or three flats more) than the major key of the same name.</p>";
 	
     var cc4 = m21theory.sections.get('chordCreation');
@@ -26,7 +26,7 @@ require(['m21theory'], function() {
     cc4.chordChoicesMode = {'minor': ['i','iv','V','V7','viio','viio7']};
     cc4.minSharps = -4;
     cc4.maxSharps = 3;
-    cc4.assignmentId = 'minorChordCreations';
+    cc4.id = 'minorChordCreations';
     cc4.title = 'Minor chords';
     cc4.instructions = "<p>Create the appropriate chord in each of the following minor keys.  When 'subdominant' is requested, give the minor subdominant; Major 'V' and 'V7' are included. No feedback will be given -- use the play button to check your work.</p>";
 

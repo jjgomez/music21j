@@ -181,7 +181,16 @@ class M21JMysql(object):
             return True
         else:
             return False
-                
+
+    def getUserId(self):
+        studentData = self.getStudentData()
+        if 'email' not in studentData:
+            raise M21JMysqlException('Email not in studentData')
+        email = studentData['email']
+        info = self.queryOne('SELECT id FROM users WHERE email = %s', (email, ))
+        if info is None:
+            raise M21JMysqlException('Email not in database!')
+        return info.id
         
     def getStudentData(self):
         if self.jsonForm is None:
@@ -189,6 +198,44 @@ class M21JMysql(object):
         if 'studentData' not in self.jsonForm:
             raise M21JMysqlException('studentData not in jsonForm: %s' % self.jsonForm)
         return self.jsonForm['studentData']
+
+    def submitSection(self):
+        if self.verifyLogin() is False:
+            self.jsonReply({'success': False,
+                            'login': False,
+                            })
+        else:
+            userId = self.getUserId()
+            j = self.jsonForm
+            if 'sectionId' not in j:
+                j['sectionId'] = "unknownSection"
+            #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+            #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+            try:
+                self.execute(
+                '''INSERT INTO section (bankId, sectionId, sectionIndex, 
+                                        userId, numRight, numWrong, numMistakes, numUnanswered,
+                                        totalQs, startTime, endTime, seed
+                                        )
+                                VALUES (%s, %s, %s,
+                                        %s, %s, %s, %s, %s,
+                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                        )
+                ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
+                      userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
+                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed']
+                      )
+                )
+            except Exception as e:
+                self.err(e)
+                self.jsonReply({'success': False,
+                                'login': True,
+                                'dbSuccess': False,
+                                })
+            self.jsonReply({'success': True,
+                            'login': True,
+                            'dbSuccess': True,                            
+                            })
 
 
     def changePassword(self):
@@ -199,6 +246,7 @@ class M21JMysql(object):
             print(r'''
         <script>
         require(['m21theory'], function () {
+           m21theory.style.apply({loadCss: false});
            m21theory.userData.fillNameDiv();           
            var $t = $("#testBank");
            $t.append('<h1>Change Password</h1><hr/><p>Enter your old password and email above ' +
@@ -218,6 +266,7 @@ class M21JMysql(object):
                        url: m21theory.serverSettings.changePassword,
                        success: function (json) {
                                m21theory.feedback.alert(json.msg, json.type);
+                               m21theory.userData.changeData('password', newPw, true); // silent
                            },
                        } );
                }
@@ -228,14 +277,10 @@ class M21JMysql(object):
             ''')
             self.printFooter()
         else:
-            self.err('yep')
-
             try:
                 checksOut = self.verifyLogin()
             except M21JMysqlException:
                 checksOut = false;
-            self.err("HI!")
-        
             if not checksOut:
                 reply = {'msg': 'Make sure you login successfully before changing password.',
                          'type': 'alert'}
@@ -270,18 +315,8 @@ class M21JMysql(object):
 <title>{title}</title>
 <link rel="stylesheet" href="{hostpath}/css/m21theory.css" type="text/css" />
  <script data-main="{hostpath}/src/m21theory" src="{hostpath}/ext/require/require.js"></script>
-
 </head>
 <body>
-<div class="related">
-    <ul><li><a href="#">21m.051 Cuthbert</a> &raquo; <a href="#">{title}</a></li></ul>
-</div>
-<div class="document">
-  <div class="documentwrapper">
-       <div class="sidebar" id="infoDiv"></div>
-  
-    <div class="bodywrapper">
-      <div class="body" id="testBank">
         '''
         print(template.format(**{'title': self.title,
                                'hostpath': self.hostpath
@@ -296,15 +331,7 @@ class M21JMysql(object):
         print("")
                 
     def printFooter(self):
-        print ('''
-        
-              </div>
-    </div>
-  </div>
-</div> 
-</body>        
-</html>
-''')
+        print ('''</body></html>''')
 
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')

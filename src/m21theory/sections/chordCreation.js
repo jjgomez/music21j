@@ -103,7 +103,7 @@ define("m21theory/sections/chordCreation",
 		
 		this.questionClass = CCQuestion;
 
-		this.assignmentId = 'chordCreationTest';
+		this.id = 'chordCreationTest';
 		this.totalQs = 9;
 		this.practiceQs = 0;
 		this.maxMistakes = 999999; // okay...

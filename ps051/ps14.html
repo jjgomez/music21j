@@ -20,7 +20,7 @@ require(['m21theory'], function() {
 	ks2.minSharps = -5;
 	ks2.maxSharps = 4;
 	ks2.title = 'Minor Key Signature';
-	ks2.assignmentId = 'minorKeySignatures';
+	ks2.id = 'minorKeySignatures';
 	ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow. The minor key has three sharps less (or three flats more) than the major key of the same name.</p>";
 	
 	
@@ -29,7 +29,7 @@ require(['m21theory'], function() {
 	
 	var scales2 = m21theory.sections.get('scaleMajorMinorWritten');
 	scales2.hide367 = true;
-	scales2.assignmentId = 'hiddenScales';
+	scales2.id = 'hiddenScales';
 	scales2.instructions = "<p>Same as above, but now scale degrees ^3, ^6, and ^7, are missing, so you'll need to do this by ear. Now descending scales are also tested</p>";
 	scales2.totalQs = 12;
 	
@@ -39,7 +39,7 @@ require(['m21theory'], function() {
     cc.chordChoicesMode = {'minor': ['V']};
     cc.minSharps = -4;
     cc.maxSharps = 2;
-    cc.assignmentId = 'VinMinor';
+    cc.id = 'VinMinor';
     cc.title = 'Dominant Chord Review';
     cc.instructions = "<p>Create a major chord on the Dominant in each of the following keys.  Since the Dominant chord is the same in Major and Minor, this is a review of what you know from major.</p>"
 
@@ -49,7 +49,7 @@ require(['m21theory'], function() {
     cc3.chordChoicesMode = {'minor': ['viio']};
     cc3.minSharps = -4;
     cc3.maxSharps = 2;
-    cc3.assignmentId = 'viioinMinor';
+    cc3.id = 'viioinMinor';
     cc3.title = 'Diminished chords on the leading tone';
     cc3.instructions = "<p>Create a diminished chord on the leading tone in each of the following minor keys.  The diminished chord has two minor thirds in a row, creating a diminished fifth.  The diminished chord on the leading tone is the same in Major and Minor, so you will be learning skills for both modes. Make sure first that you find the leading tone properly!</p>"
 
@@ -59,7 +59,7 @@ require(['m21theory'], function() {
     cc2.chordChoicesMode = {'minor': ['V7']};
     cc2.minSharps = -4;
     cc2.maxSharps = 2;
-    cc2.assignmentId = 'V7inMinor';
+    cc2.id = 'V7inMinor';
     cc2.title = 'Dominant Seventh Chords';
     cc2.instructions = "<p>Create a dominant-seventh chord in each of the following minor keys.  The dominant seventh is like a dominant triad in the lowest 3 notes and a diminished triad in the highest three notes.  The Dominant Seventh chord is the same in Major and Minor, so you will be learning skills for both modes.</p>"
     
@@ -69,7 +69,7 @@ require(['m21theory'], function() {
     cc4.chordChoicesMode = {'minor': ['viio7']};
     cc4.minSharps = -4;
     cc4.maxSharps = 2;
-    cc4.assignmentId = 'viio7inMinor';
+    cc4.id = 'viio7inMinor';
     cc4.title = 'Diminished seventh chords on the leading tone';
     cc4.instructions = "<p>Create a diminished-seventh chord on the leading tone in each of the following minor keys.  The diminished seventh chord is a diminished seventh with another minor third added on top of it. It is generally used only in minor keys.</p>";
 

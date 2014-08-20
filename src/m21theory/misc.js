@@ -220,7 +220,7 @@ define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, M
 	    // a string like 1/3 or 1/4; ridiculous, because it's really limited right now...
 	    // returns a string of a float if it can't convert...
 	    if (Math.abs(floatIn - Math.round(floatIn)) < 0.001) {
-	        return parseInt(floatIn).toString();
+	        return Math.round(floatIn).toString();
 	    }
 	    
 	    var denoms = [2, 3, 4, 5, 6, 7, 8, 16, 32, 64];

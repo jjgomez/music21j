@@ -13,6 +13,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
     s.host = '';
     s.changePassword = s.host + '/server/cgi-bin/change_pw.cgi';
     s.checkLogin = s.host + '/server/cgi-bin/check_login.cgi';
+    s.submitSection = s.host + '/server/cgi-bin/submit_section.cgi';
     s.testResponseURL = "http://ciconia.mit.edu/m21j/testSectionResponse2.cgi";
 
     serverSettings = s;
@@ -22,7 +23,8 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
             objToMakeJSON = {};
         }
         if (objToMakeJSON.studentData === undefined) {
-            objToMakeJSON.studentData = userData.studentData;
+            // userData alone was giving problems...
+            objToMakeJSON.studentData = m21theory.userData.studentData;
         }
         var jsonObj = JSON.stringify(objToMakeJSON);
         var params = {
@@ -34,7 +36,8 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
                     feedback.alert(jsonData, 'ok');
                 },
                 error: function (data, errorThrown) { 
-                    alert("Got a problem! -- print this page as a PDF and email it to cuthbert@mit.edu: " + data); 
+                    alert("Got a problem! -- print this page as a PDF and email it to cuthbert@mit.edu: " + errorThrown);
+                    console.log(data);
                 },
         };
         common.merge(params, options);

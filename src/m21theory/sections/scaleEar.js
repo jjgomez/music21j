@@ -94,7 +94,7 @@ define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 
     
     var ThisSection = function () {
         section.Generic.call(this);
-        this.assignmentId = 'scaleEar';
+        this.id = 'scaleEar';
         this.questionClass = ScaleQuestion;
 
         this.totalQs = 16;

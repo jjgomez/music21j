@@ -91,7 +91,7 @@ define("m21theory/sections/rhythmMatch",
 		section.Generic.call(this);
 		this.questionClass = RhythmDict;
 		
-		this.assignmentId = 'rhythmMatch';
+		this.id = 'rhythmMatch';
 		this.totalQs = 6;
 		this.practiceQs = 2;
 		this.tempo = 100;

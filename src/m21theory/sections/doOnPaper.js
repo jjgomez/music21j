@@ -43,7 +43,7 @@ define("m21theory/sections/doOnPaper",
         this.questionClass = OnlyQuestion;
 
         this.title = 'Assignment on Paper';
-        this.assignmentId = 'doOnPaper';
+        this.id = 'doOnPaper';
         this.totalQs = 1;
         this.practiceQs = 0;
         this.studentFeedback = true;
@@ -60,6 +60,12 @@ define("m21theory/sections/doOnPaper",
     };
     ThisSection.prototype = new section.Generic();
     ThisSection.prototype.constructor = ThisSection;
+    
+    ThisSection.prototype.setFromId = function (id) {
+        var $domObj = $("#" + id).clone();
+        $domObj.css('display', 'block');
+        this.$specifics = $domObj;        
+    };
     
     return ThisSection;    
 });

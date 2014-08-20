@@ -13,7 +13,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 
 	bank.TestBank = function () {
 		this.sections = [];
-		this.autoSubmit = false;
+		this.autoSubmit = true;
 		this.addStudentData = true;
 		this.startTime = 0;
 		this.submissionBox = true;

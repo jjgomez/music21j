@@ -130,7 +130,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
                 var thisOption = allowable[j];
                 var niceChoice = sec.niceScaleNames[direction][thisOption];
                 var fieldInput =  $('<label><input type="radio" name="' + 
-                            this.assignmentId + this.index.toString() + '" value="' + thisOption + '" /> ' + 
+                            this.id + this.index.toString() + '" value="' + thisOption + '" /> ' + 
                             niceChoice + '<br/></label>');
                 fieldInput.change( this.checkTrigger );
                 inputBox.append(fieldInput);
@@ -149,7 +149,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
 		section.Generic.call(this);
 		this.questionClass = ScaleWriteQuestion;
 		
-		this.assignmentId = 'scaleMajorMinor';
+		this.id = 'scaleMajorMinor';
 		this.totalQs = 16;
 		this.practiceQs = 4;
 		this.allowableClefs = ['treble', 'bass'];

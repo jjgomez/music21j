@@ -105,7 +105,7 @@ define("m21theory/sections/noteIdentification",
 		section.Generic.call(this);
         this.questionClass = NoteQuestion;
 
-        this.assignmentId = 'noteIdentificationTest';
+        this.id = 'noteIdentificationTest';
 		this.totalQs = 6;
 		this.practiceQs = 1;
 		this.allowableLedgerLines = 0;

@@ -18,7 +18,8 @@ require(['m21theory'], function() {
     
     var onPaper = m21theory.sections.get('doOnPaper');
     onPaper.title = 'Terms and Conditions';
-    onPaper.$specifics = $("<div>Read the syllabus, mark down important " + 
+    onPaper.id = 'agreedToSyllabus'
+    onPaper.$specifics = $("<div><b>Read the syllabus</b>, mark down important " + 
             "dates on your calendar, and agree to the conditions of the syllabus. You " +
             "must accept the conditions to be in 21m.051; your instructor (Cuthbert) agrees " +
             "to do his absolute best to teach according to his ability. <ul>" +
@@ -54,6 +55,18 @@ require(['m21theory'], function() {
     rhythmMatch2.allowableMeters = ['3/4'];
     rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];
     
+    var alignment = m21theory.sections.get('doOnPaper');
+    alignment.title = 'Multiple Part Alignment';
+    alignment.id = 'alignment';
+    alignment.setFromId("alignmentSpecifics");
+    var p1 = music21.tinyNotation.TinyNotation("2/4 a8 a a a a4 a a16 a8. r4 a4");
+    var p2 = music21.tinyNotation.TinyNotation("2/4 f8. f16 f8. f16 f2 r4 f4 f8 f f f");
+    var p3 = music21.tinyNotation.TinyNotation("2/4 d4 d d8. d16 d4 d2 d4. d8");
+    p1.appendNewCanvas(alignment.$specifics.find('#asPart'));
+    p2.appendNewCanvas(alignment.$specifics.find('#asPart'));
+    p3.appendNewCanvas(alignment.$specifics.find('#asPart'));
+    
+    
     testBank.append(onPaper);
     testBank.append(noteLength);
     testBank.append(noteLength2);
@@ -62,9 +75,48 @@ require(['m21theory'], function() {
     testBank.append(pulseMatch2);
     testBank.append(rhythmMatch1);
     testBank.append(rhythmMatch2);
+    testBank.append(alignment);
     testBank.render();
 });
 
 </script>
+<div id='alignmentSpecifics' style='display: none'>
+<p>
+When working with multiple parts that are to be played simultaneously, it is very important
+to ensure that all of the notes that will be played at the same time are vertically aligned,
+along with clefs, time signatures, barlines (that divide measures, etc.). Exact spacing between
+notes--for example, having a half note take up twice the space of a quarter note--is not extremely
+important (and in fact can be ridiculous or impossible if a piece sometimes uses very long notes)
+and sometimes very short notes; but the general principle that longer notes get more space than
+shorter notes is a good one that you should follow.</p>
+
+<p>For instance, consider this piece made up of three different parts.  Click each of them to hear
+it. (Each part is on one note, but I've written them on different notes so you can hear them separately):</p>
+
+<div id='asPart'/>
+
+<p>The parts don't look like they belong together because each of the parts is unaligned with the
+others. When the parts are aligned, they look like they belong to the same piece. Click this to hear
+what that sounds like:
+</p>
+
+<div id='asScore1'/>
+
+<p>When parts that are meant to be heard together are written together, not only are they aligned
+but their left-most barline is drawn connected to each other. We often also put a bracket or fancy
+curly brace between the different parts to show that they will be played together. (This is optional,
+but the connecting barline is <b>not</b>!)</p>
+
+<p>Most good software will automatically do this sort of alignment for you, but it is still a
+very important skill to learn. <b>On staff paper, by hand</b>, neatly recopy the three parts below
+so that they line up with each other. Pay close attention to making sure that all notes that play
+together are perfectly aligned and that no measure has a lot of extra space or feels cramped.
+</p>
+
+<div id='asAssign1'/>
+<div id='asAssign2'/>
+<div id='asAssign3'/>
+
+</div>
 </body>
 </html>

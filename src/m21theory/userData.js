@@ -86,28 +86,30 @@ define(['jquery', 'm21theory/feedback', 'm21theory/serverSettings'],
         }
 	};
 	
-	userData.changeData = function (which, newData) {
+	userData.changeData = function (which, newData, silent) {
 	    userData.studentData[which] = newData;
 	    if (userData.studentData.saveInfo) {
 	        localStorage["studentInfo"] = JSON.stringify(userData.studentData);	        
 	    }
 	    if (which == 'email' || which == 'password') {
-	        userData.checkLogin();	        
+	        userData.checkLogin(silent);	        
 	    }
 	};
 
-	userData.checkLogin = function () {
+	userData.checkLogin = function (silent) {
 	    var ud = {'studentData': userData.studentData};
 	    serverSettings.makeAjax(ud, { 
 	        url: serverSettings.checkLogin,
 	        success: (function (successCall) { 
-                if (successCall === null) {
-                    feedback.alert("Your email cannot be found in the database","alert");
-                } else if (successCall == false) {
-                    feedback.alert("Your password did not match the stored password", "alert");                    
-                } else {
-                    feedback.alert("Login successful.", "update");
-                }                
+	            if (silent != true) {
+	                if (successCall === null) {
+	                    feedback.alert("Your email cannot be found in the database","alert");
+	                } else if (successCall == false) {
+	                    feedback.alert("Your password did not match the stored password", "alert");                    
+	                } else {
+	                    feedback.alert("Login successful.", "update");
+	                }                	                
+	            }
             }).bind(this),	        
 	    });
 	};

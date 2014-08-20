@@ -17,7 +17,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	section.Generic = function () {
 		this.bank = undefined;
 		this.testSectionDiv = undefined;
-		this.assignmentId = 'unknownTestSection';
+		this.id = 'unknownTestSection';
 		this.title = "Assignment";
 		this.instructions = "<p>" + "Answer the following questions" + "</p>";
 
@@ -41,7 +41,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		
 		
 		// hidden variables masked by properties
-        this._autosubmit = undefined;
+        this._autoSubmit = undefined;
 		this._allowEarlySubmit = undefined;
 		this._allowSubmitWithErrors = undefined; // n.b. if allowEarlySubmit is true then this is ignored...
 
@@ -68,9 +68,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
                     var bankIndex = this.bankIndex;
                     if (bankIndex === undefined) {
                         return undefined;
-                    }
-                    
-                    return this.bank.scoreboard.pbSubparts[i];
+                    }      
+                    return this.bank.scoreboard.pbSubparts[bankIndex];
 	            },
 	        },
 	    	'profEmail': {
@@ -157,35 +156,37 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		this.initPossibleOutcomes = function () { 
 			this.possibleOutcomes['noFeedback'] =	$("<br clear='all'/>" + 
 				  "<div class='submissionContents' style='float: right'><b>All done!</b>" +
-				  "<br>You might want to check your work again just to be sure, but click submit to send. " +
-				  "<br> Make sure your <b>name</b> is filled in above and "+
+				  "<br/>You might want to check your work again just to be sure, but click submit to send. " +
+				  "<br/> Make sure your <b>name</b> is filled in above and "+
 				  "click " + 
 				  "<input class='emptyButton' type='button' />" +
-				  "to finish. <br/>" + 
-				  "Add any comments here: <br/>" + 
-				  "<textarea class='commentTextArea' rows='7' cols='80'></textarea>" +
-				  "</div><br clear='all'/>");
+				  "to finish. <br/></div><br clear='all'/>");
 
 			this.possibleOutcomes['success'] =	$("<br clear='all'/>" + 
 				  "<div class='submissionContents' style='float: right'><b>Great Work!</b>" +
-				  "<br> Make sure your <b>name</b> is filled in above and "+
+				  "<br/> Make sure your <b>name</b> is filled in above and "+
 				  "click " + 
 				  "<input class='emptyButton' type='button' />" +
-				  "to finish. <br/>" + 
-				  "Add any comments here: <br/>" + 
-				  "<textarea class='commentTextArea' rows='7' cols='80'></textarea>" +
-				  "</div><br clear='all'/>");
+				  "to finish. <br/></div><br clear='all'/>");
+			this.possibleOutcomes['submitted'] =   $("<br clear='all'/>" + 
+	                  "<div class='submissionContents' style='float: right'><b>Submitted!</b>" +
+	                  "<br/>Your work has been submitted and recorded. "+
+	                  "But if you'd like to keep trying and improving, click " + 
+	                  "<input class='emptyButton' type='button' />" +
+	                  "to submit again. <br/></div><br clear='all'/>");
 			this.possibleOutcomes['moreWork'] =  $("<br clear='all'/>" + 
 				"<div class='submissionContents' style='float: right'><b>You got them all!</b><br/>" +
 				"You can submit your work here... <input class='emptyButton' type='button' /> ..."+
 				"<b>But you need more practice</b> (too many mistakes). " +
 				"After submitting hit <b>reload to try again</b> and " +
-				"see if you can work slowly and have fewer errors next time. Use a piano or " +
-				"the keyboard layout in the back of the book or print one from online.<br/>" + 
-				"Add any comments here: <br/>" + 
-				"<textarea class='commentTextArea' rows='7' cols='80'></textarea>" +
-				"</div><br clear='all'/>"
-				);
+				"see if you can work slowly and have fewer errors next time.<br/></div><br clear='all'/>");
+            this.possibleOutcomes['submittedMoreWork'] =   $("<br clear='all'/>" + 
+                    "<div class='submissionContents' style='float: right'><b>Submitted!</b>" +
+                    "<br/>Your work has been submitted and recorded. "+
+                    "But if you'd like to keep trying and improving, <b>highly recommended, because " +
+                    "you could get better at this</b>, hit reload to get a new problem set, then click " + 
+                    "<input class='emptyButton' type='button' />" +
+                    "to submit again. <br/></div><br clear='all'/>");
 
 			if (this.allowEarlySubmit || this.allowSubmitWithErrors) {
 				this.possibleOutcomes['errors'] =  $("<br clear='all'/>" + 
@@ -193,11 +194,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 					"You still have some errors; look closely at the answers and " +
 					"fix any where the answers are red.<br/>" +
 					"If you cannot find them, you may submit anyhow.<br/>" +
-					"<input class='emptyButton' type='button' /> ...<br/>" +
-					"Add any comments here: <br/>" + 
-					"<textarea class='commentTextArea' rows='7' cols='80'></textarea>" +
-					"</div><br clear='all'/>"
-					);
+					"<input class='emptyButton' type='button' /> ...<br/></div><br clear='all'/>");
 
 			} else {
 				this.possibleOutcomes['errors'] =  $("<br clear='all'/>" + 
@@ -212,15 +209,11 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 				this.possibleOutcomes['incomplete'] =  $("<br clear='all'/>" + 
 				"<div class='submissionContents' style='float: right'><i>more work to do...</i><br>" +
 				"You can submit your work here if you are out of time <br/> or cannot understand the problems..." +
-				"<input class='emptyButton' type='button' /> ...<br/>" +
-				"Add any comments here: <br/>" + 
-				"<textarea class='commentTextArea' rows='7' cols='80'></textarea>" +
-				"</div><br clear='all'/>"
-				);
+				"<input class='emptyButton' type='button' /> ...<br/></div><br clear='all'/>");
 			} else {
 				this.possibleOutcomes['incomplete'] = $("<br clear='all'/>" + 
 					"<div class='submissionContents' style='float: right'>" +
-					"<i>a submission box will appear here when you are done</i>" +
+					"<i>A submission box will appear here when you are done</i>" +
 					"</div><br clear='all'/>"
 					);
 			}
@@ -232,7 +225,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 				}
 				var submitButton = $("<input type='button' value='SUBMIT' class='submitButton'/> ");
 				submitButton[0].testHandler = this;
-				submitButton.click( function () { this.testHandler.submitWork(); } );
+				submitButton.click( (function () { this.submitWork(); }).bind(this) );
 				eb1.replaceWith(submitButton);
 			}
 		};
@@ -359,11 +352,26 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		
 		this.changeOutcome = function (outcome) {
 			if (outcome != this.currentOutcome) {
-				thisOutcome = this.possibleOutcomes[outcome];
+				var thisOutcome = this.possibleOutcomes[outcome];
 				this.submissionSection.empty();
 				this.submissionSection.append(thisOutcome);
 				this.submissionContents = thisOutcome;	
 				this.currentOutcome = outcome;
+				if (outcome == 'noFeedback' || outcome == 'success' || outcome == 'moreWork') {
+				    if (this.autoSubmit == true) {
+				        this.submitWork();
+				        var newOutcome = 'submitted';
+				        if (outcome == 'moreWork') {
+				            newOutcome = 'submittedMoreWork';
+				        }
+                        var newOutcomeContents = this.possibleOutcomes[newOutcome];
+				        this.currentOutcome = newOutcome;                  
+                        this.submissionSection.empty();
+                        this.submissionSection.append(newOutcomeContents);
+                        this.submissionContents = newOutcomeContents;                              
+				    }
+				}
+				
 			}
 		};
 		
@@ -373,10 +381,59 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			answerInformation['wrong'] = this.numWrong;
 			answerInformation['unanswered'] = this.totalQs - this.practiceQs - this.numRight - this.numWrong;
 			answerInformation['mistakes'] = this.numMistakes;
+			answerInformation['totalQs'] = this.totalQs - this.practiceQs;
 			return answerInformation;
 		};
 		
 		this.submitWork = function () {
+		    var scores = this.answerInformation();
+            var bankId = 'unknownTestBank';
+            if (this.bank != undefined) {
+                bankId = this.bank.id;
+            }
+		    var info = {
+	                studentData: userData.studentData,
+	               	bankId: bankId,
+	               	sectionId: this.id,
+	               	sectionIndex: this.bankIndex,
+	               	numRight: scores.right,
+	               	numWrong: scores.wrong,
+	               	numMistakes: scores.mistakes,
+	               	numUnanswered: scores.unanswered,
+	               	totalQs: scores.totalQs,
+	               	startTime: this.startTime,
+	               	endTime: Date.now(),
+	               	seed: random.seed,	               	
+	        };
+	        serverSettings.makeAjax(info, { 
+	            url: serverSettings.submitSection,
+	            success: (function (retObj) {
+	                if (retObj.success == true) {
+	                    feedback.alert('Section successfully submitted', 'ok', 
+	                            {
+	                                top: '400px', 
+	                                delayFade: 1000
+	                             });
+	                    this.progressBar.find('.correctBar').text('SUBMITTED');
+	                    // SWITCH OUTCOME...
+	                } else {
+	                    if (retObj.login == false) {
+	                        feedback.alert('You need to LOG IN before submitting', 'alert');
+	                    } else {
+	                        feedback.alert('Oh crap, something happened...', 'alert');
+	                        console.log(retObj);
+	                    }
+	                }
+	                
+	                if (this.studentFeedback == 'onSubmit') {
+	                    feedback.alert('You got ' + this.numRight + ' right and ' + 
+	                            this.numWrong + ' wrong.', 'update', {top: '0px'});
+	                }
+	            }).bind(this),
+	        });	
+		};
+		
+		this.submitWorkOld = function () {
 			var textCommentsArea = this.submissionContents;
 			if (m21theory.debug) {
 				console.log(textCommentsArea);
@@ -403,6 +460,9 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			if (this.bank != undefined) {
 				bankId = this.bank.id;
 			}
+			
+			
+			
 			$.ajax({
 				type: "GET",
 				url: serverSettings.testResponseURL,
@@ -411,7 +471,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 						last: userData.studentData.last,
 						totalTime: totalTime,
 						bankId: bankId,
-						assignmentId: this.assignmentId,
+						sectionId: this.id,
 						profEmail: profEmail,
 						information: JSON.stringify(this.answerInformation()),
 						},

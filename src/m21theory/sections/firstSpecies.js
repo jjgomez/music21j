@@ -212,7 +212,7 @@ define("m21theory/sections/firstSpecies",
 		section.Generic.call(this);
 		this.questionClass = FirstQ;
 		
-		this.assignmentId = 'firstSpeciesTest';
+		this.id = 'firstSpeciesTest';
 		this.totalQs = 1;
 		this.practiceQs = 0;
 		this.title = "Counterpoint (Two part) in First Species";

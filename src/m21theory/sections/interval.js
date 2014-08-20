@@ -65,7 +65,7 @@ define("m21theory/sections/interval",
 		section.Generic.call(this);
 		this.questionClass = IntervalQuestion;
 
-		this.assignmentId = 'interval';
+		this.id = 'interval';
 		
 		this.noteNames = ['C','D','E','F','G','A','B'];
 		this.accidentals = ["", "", "", "#", "-"];

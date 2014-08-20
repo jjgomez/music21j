@@ -1,4 +1,4 @@
-define("m21theory/tests/scaleMajorMinorWritten", 
+define("m21theory/sections/scaleMajorMinorWritten", 
         ["m21theory/section", "m21theory/random", 'm21theory/question'], 
         function (section, random, question) {
     var ScaleWriteQuestion = function (handler, index) {

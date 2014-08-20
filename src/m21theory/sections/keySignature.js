@@ -1,4 +1,4 @@
-define("m21theory/tests/keySignature", 
+define("m21theory/sections/keySignature", 
         ["m21theory/section", "m21theory/random", "m21theory/question", 'music21/key'], 
         function (section, random, question, key) {
     var KSQuestion = function (handler, index) {

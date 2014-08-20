@@ -9,7 +9,7 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
-	var it1 = m21theory.tests.get('interval');
+	var it1 = m21theory.sections.get('interval');
 
 	it1.totalQs = 7;
 	it1.minInterval = -3;
@@ -19,23 +19,23 @@ require(['m21theory'], function() {
 	it1.assignmentId = 'multipartIntervals1';
 	it1.instructions = "<p>These small intervals will help you practice identifying chords below.  Remember a major chord has a Major 3rd below and a Minor 3rd above, while a minor chord has a Minord 3rd below and a Major 3rd above</p>";
 	
-	var ci = m21theory.tests.get('chordIdentification');
+	var ci = m21theory.sections.get('chordIdentification');
 	ci.maxMistakes = 3;
 
 
-	var noteIdentify = m21theory.tests.get('noteIdentification');
+	var noteIdentify = m21theory.sections.get('noteIdentification');
 	noteIdentify.assignmentId = 'noteIdentify';
 	
-	msct = m21theory.tests.get('scaleEar');
+	msct = m21theory.sections.get('scaleEar');
 	msct.assignmentId = 'scaleEar';
 	msct.totalQs = 14;
 	msct.maxMistakes = 3;
 	
 
-	var ks1 = m21theory.tests.get('keySignature');
+	var ks1 = m21theory.sections.get('keySignature');
 	ks1.assignmentId = 'keySignature';
 
-	var it2 = m21theory.tests.get('interval');
+	var it2 = m21theory.sections.get('interval');
 
 	it2.totalQs = 16;
 	it2.minInterval = 2;
@@ -46,7 +46,7 @@ require(['m21theory'], function() {
 	it2.instructions = "<p>These intervals now range up to an octave in either direction and unisons, fourths, fifths, and octaves can be augmented or diminished in additon to perfect.</p>";
 
 	
-	var cc = m21theory.tests.get('chordCreation');
+	var cc = m21theory.sections.get('chordCreation');
 	cc.assignmentId = 'chordCreation';
     cc.modeChoices = ['major'];
     cc.chordChoicesMode = {'major': ['I','IV','V']};

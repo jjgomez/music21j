@@ -14,9 +14,9 @@ require(['m21theory'], function() {
     //m21theory.debug = true;
     //music21.debug = true;
 
-    var noteIdentify = m21theory.tests.get('noteIdentification');
+    var noteIdentify = m21theory.sections.get('noteIdentification');
     noteIdentify.totalQs = 5;
-    var it1 =     m21theory.tests.get('interval');
+    var it1 =     m21theory.sections.get('interval');
 
     it1.totalQs = 12;
     it1.minInterval = -4;
@@ -24,12 +24,12 @@ require(['m21theory'], function() {
     it1.instructions = '<p>Identify the following intervals:</p>';
     it1.assignmentId = 'multipartIntervals1';
 
-    var ks1 =     m21theory.tests.get('keySignature');
+    var ks1 =     m21theory.sections.get('keySignature');
 ;
     ks1.assignmentId = 'keySignatures1'
     ks1.totalQs = 8;
 
-    var ks2 =     m21theory.tests.get('keySignature');
+    var ks2 =     m21theory.sections.get('keySignature');
 ;
     ks2.totalQs = 8;
     ks2.mode = 'minor';
@@ -39,11 +39,11 @@ require(['m21theory'], function() {
     ks2.assignmentId = 'minorKeySignatures';
     ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow. The minor key has three sharps less (or three flats more) than the major key of the same name.</p>";
     
-    var msct =     m21theory.tests.get('scaleEar');
+    var msct =     m21theory.sections.get('scaleEar');
 ;
     msct.totalQs = 6;
 
-    var cc4 =     m21theory.tests.get('chordCreation');
+    var cc4 =     m21theory.sections.get('chordCreation');
 ;
     cc4.totalQs = 6;
     cc4.modeChoices = ['major','minor'];
@@ -58,12 +58,12 @@ require(['m21theory'], function() {
             'minor': ['i','V','V7','viio','viio7']
     };
 
-    var ci =     m21theory.tests.get('chordIdentification');
+    var ci =     m21theory.sections.get('chordIdentification');
 ;
     ci.totalQs = 8;
     
 
-    var scales2 =     m21theory.tests.get('scaleMajorMinorWritten');
+    var scales2 =     m21theory.sections.get('scaleMajorMinorWritten');
 ;
     scales2.totalQs = 10;
     scales2.hide367 = true;

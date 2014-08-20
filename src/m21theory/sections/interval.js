@@ -1,4 +1,4 @@
-define("m21theory/tests/interval", 
+define("m21theory/sections/interval", 
         ["m21theory/section", "m21theory/random", 'm21theory/question'], 
         function (section, random, question) {
 

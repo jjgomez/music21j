@@ -1,4 +1,4 @@
-define("m21theory/tests/chordCreation", 
+define("m21theory/sections/chordCreation", 
         ["m21theory/section", "m21theory/random", "m21theory/question", 'music21/key', 'music21/chord'], 
         function (section, random, question, key, chord) {
     var CCQuestion = function (handler, index) {

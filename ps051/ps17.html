@@ -9,7 +9,7 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
-    var cc4 = m21theory.tests.get('chordCreation');
+    var cc4 = m21theory.sections.get('chordCreation');
     cc4.totalQs = 22;
     cc4.allowEarlySubmit = true;
     cc4.modeChoices = ['major','minor'];
@@ -23,7 +23,7 @@ require(['m21theory'], function() {
             'major': ['I','IV','V','vi','viio'],
             'minor': ['i','iv','V','viio']
     };
-    var ci = m21theory.tests.get('chordIdentification');
+    var ci = m21theory.sections.get('chordIdentification');
     ci.maxMistakes = 3;
     ci.chords = m21theory.random.shuffle(["C3 E3 G3", "E-3 G3 C4", "G3 E3 C4",
                                            "F#2 C#3 A3", "C#2 A3 F#3", "A2 C#3 F#3", 

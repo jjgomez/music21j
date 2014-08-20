@@ -9,12 +9,12 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
-	var ks1 = m21theory.tests.get('keySignature');
+	var ks1 = m21theory.sections.get('keySignature');
 	ks1.allowEarlySubmit = true;
 	ks1.totalQs = 8;
 	ks1.instructions = "<p>First a review of major Key Signatures...</p>";
 	
-	var ks2 = m21theory.tests.get('keySignature');
+	var ks2 = m21theory.sections.get('keySignature');
 	ks2.allowEarlySubmit = true;
 	ks2.mode = 'minor';
 	ks2.minSharps = -5;
@@ -24,9 +24,9 @@ require(['m21theory'], function() {
 	ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow</p>";
 	
 	
-	var scales = m21theory.tests.get('scaleMajorMinorWritten');
+	var scales = m21theory.sections.get('scaleMajorMinorWritten');
 
-	var scales2 = m21theory.tests.get('scaleMajorMinorWritten');
+	var scales2 = m21theory.sections.get('scaleMajorMinorWritten');
 	scales2.hide367 = true;
 	scales2.assignmentId = 'hiddenScales';
 	scales2.instructions = "<p>Same as above, but now scale degrees ^3, ^6, and ^7, are missing, so you'll need to do this by ear.</p>";

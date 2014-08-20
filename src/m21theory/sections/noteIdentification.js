@@ -1,4 +1,4 @@
-define("m21theory/tests/noteIdentification", 
+define("m21theory/sections/noteIdentification", 
         ["m21theory/section", "m21theory/random", 'm21theory/question', 'm21theory/misc'], 
         function (section, random, question, misc) {
 	

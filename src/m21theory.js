@@ -84,7 +84,7 @@ require.config({
 if ( typeof define === "function" && define.amd) {
     define( "m21theory", ['music21', 
                           'm21theory/userData', 'm21theory/random', 'm21theory/misc',
-                          'm21theory/bank', 'm21theory/section', 'm21theory/tests',
+                          'm21theory/bank', 'm21theory/section', 'm21theory/sections',
                           'm21theory/question', 'm21theory/feedback',
                           'm21theory/serverSettings', 'm21theory/style'], 
     		function (music21) { 

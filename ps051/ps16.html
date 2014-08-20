@@ -9,7 +9,7 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
-	var ks2 = m21theory.tests.get('keySignature');
+	var ks2 = m21theory.sections.get('keySignature');
 	ks2.allowEarlySubmit = true;
 	ks2.mode = 'minor';
 	ks2.minSharps = -5;
@@ -18,7 +18,7 @@ require(['m21theory'], function() {
 	ks2.assignmentId = 'minorKeySignatures';
 	ks2.instructions = "<p>Now identify the minor key indicated by each of these key signatures.  Remember to write MINOR key names with lowercase letters... They're hard, so go slow. The minor key has three sharps less (or three flats more) than the major key of the same name.</p>";
 	
-    var cc4 = m21theory.tests.get('chordCreation');
+    var cc4 = m21theory.sections.get('chordCreation');
     cc4.totalQs = 22;
     cc4.studentFeedback = false;
     cc4.allowEarlySubmit = true;

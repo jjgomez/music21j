@@ -1,4 +1,4 @@
-define("m21theory/tests/chordIdentification", 
+define("m21theory/sections/chordIdentification", 
         ["m21theory/section", "m21theory/random", 'm21theory/question', 'music21/chord'], 
         function (section, random, question, chord) {
 

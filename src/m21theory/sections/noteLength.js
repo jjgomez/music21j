@@ -1,4 +1,4 @@
-define("m21theory/tests/noteLength", 
+define("m21theory/sections/noteLength", 
         ["m21theory/section", "m21theory/random", "m21theory/question", "m21theory/feedback", 'm21theory/misc'], 
         function (section, random, question, feedback, misc) {
     var NL = function (handler, index) {

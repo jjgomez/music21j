@@ -1,4 +1,4 @@
-define("m21theory/tests/pulseIdentify", 
+define("m21theory/sections/pulseIdentify", 
         ["m21theory/section", "m21theory/random", "m21theory/question", "m21theory/feedback"], 
         function (section, random, question, feedback) {
     var PI = function (handler, index) {

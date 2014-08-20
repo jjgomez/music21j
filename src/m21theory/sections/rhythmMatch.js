@@ -1,4 +1,4 @@
-define("m21theory/tests/rhythmMatch", 
+define("m21theory/sections/rhythmMatch", 
         ["m21theory/section", "m21theory/random", "m21theory/question", "m21theory/feedback"], 
         function (section, random, question, feedback) {
     var RhythmDict = function (handler, index) {

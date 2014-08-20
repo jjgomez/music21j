@@ -1,4 +1,4 @@
-define("m21theory/tests/scaleEar", ["m21theory/section", "m21theory/random", 'm21theory/question'], 
+define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 'm21theory/question'], 
         function (section, random, question) {
     
     var ScaleQuestion = function (handler, index) {

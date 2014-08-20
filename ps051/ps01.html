@@ -16,7 +16,7 @@ require(['m21theory'], function() {
     testBank.instructions = "<p>These exercises will help you solidify your knowledge of the rhythms used in music and musical notation.</p>";
     testBank.allowEarlySubmit = true;
     
-    var onPaper = m21theory.tests.get('doOnPaper');
+    var onPaper = m21theory.sections.get('doOnPaper');
     onPaper.title = 'Terms and Conditions';
     onPaper.$specifics = $("<div>Read the syllabus, mark down important " + 
             "dates on your calendar, and agree to the conditions of the syllabus. You " +
@@ -30,26 +30,26 @@ require(['m21theory'], function() {
     
     onPaper.checkboxInstructions = 'If you agree to these conditions... ';
     
-    var noteLength = m21theory.tests.get('noteLength');
-    var noteLength2 = m21theory.tests.get('noteLength');
+    var noteLength = m21theory.sections.get('noteLength');
+    var noteLength2 = m21theory.sections.get('noteLength');
     noteLength2.displayTNName = 'r';
     noteLength2.title = 'Rest Lengths';
     noteLength2.instructions = '<p>Now do the same things with rests (note that rests cannot be tied).</p>';
     
-    var noteLength3 = m21theory.tests.get('noteLength');
+    var noteLength3 = m21theory.sections.get('noteLength');
     noteLength3.randomizeNotesAndRests = true;
     noteLength3.title = 'Note and Rest Lengths';
     noteLength3.instructions = '<p>Now do the same things with a mixture of notes and rests.</p>';
       
-    var pulseMatch = m21theory.tests.get('pulseIdentify');
-    var pulseMatch2 = m21theory.tests.get('pulseIdentify');
+    var pulseMatch = m21theory.sections.get('pulseIdentify');
+    var pulseMatch2 = m21theory.sections.get('pulseIdentify');
     pulseMatch2.instructions = '<p>Same thing, but now at a faster tempo.</p>';
     pulseMatch2.tempo = 136;
     
-    var rhythmMatch1 = m21theory.tests.get('rhythmMatch');
+    var rhythmMatch1 = m21theory.sections.get('rhythmMatch');
     rhythmMatch1.allowableMeters = ['4/4'];
 
-    var rhythmMatch2 = m21theory.tests.get('rhythmMatch');
+    var rhythmMatch2 = m21theory.sections.get('rhythmMatch');
     rhythmMatch2.instructions = '<p>Now the examples will be in 3/4 time.</p>';
     rhythmMatch2.allowableMeters = ['3/4'];
     rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];

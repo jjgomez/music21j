@@ -9,11 +9,11 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
-    var ci = m21theory.tests.get('chordIdentification');
+    var ci = m21theory.sections.get('chordIdentification');
     ci.totalQs = 6;
     ci.maxMistakes = 3;
 
-    var cc = new m21theory.tests.get('chordCreation');
+    var cc = new m21theory.sections.get('chordCreation');
     cc.assignmentId = 'chordCreation';
     cc.instructions = '<p>Nothing but submediants!  Remember that the 3rd (the 2nd note) of the submediant is always the tonic.</p>';
     cc.modeChoices = ['major'];

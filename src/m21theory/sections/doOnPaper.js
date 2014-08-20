@@ -2,7 +2,7 @@
  * doOnPaper -- a placeholder to be overwritten by an assignment to do on paper.
  */
 
-define("m21theory/tests/doOnPaper", 
+define("m21theory/sections/doOnPaper", 
         ["m21theory/section", "m21theory/question", 'jquery'], 
         function (section, question, $) {
     var OnlyQuestion = function (handler, index) {

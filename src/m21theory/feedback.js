@@ -34,8 +34,8 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         $d.append($pb);
         $d.append($("<br/>"));
         
-        for (var i = 0; i < this.bank.allTests.length; i++) {            
-            var $subPB = this.getProgressBar(20, this.bank.allTests[i].studentFeedback);
+        for (var i = 0; i < this.bank.sections.length; i++) {            
+            var $subPB = this.getProgressBar(20, this.bank.sections[i].studentFeedback);
             this.pbSubparts.push( $subPB );
             $d.append($subPB);
         }
@@ -49,8 +49,8 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         var totalRight = 0;
         var totalWrong = 0;
         
-        for (var i = 0; i < this.bank.allTests.length; i++) {
-            var t = this.bank.allTests[i];
+        for (var i = 0; i < this.bank.sections.length; i++) {
+            var t = this.bank.sections[i];
             var $pb = this.pbSubparts[i];
             var numQs = t.totalQs - t.practiceQs;
             var numRight = t.numRight;

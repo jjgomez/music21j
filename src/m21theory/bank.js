@@ -12,12 +12,12 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 	/* Test Bank */
 
 	bank.TestBank = function () {
-		this.allTests = [];
+		this.sections = [];
 		this.autoSubmit = false;
 		this.addStudentData = true;
 		this.startTime = 0;
 		this.submissionBox = true;
-		this.testId = 'unknownTestBank';
+		this.id = 'unknownTestBank';
 		this.title = $('title').text() || "Exercise";
 		this.instructions = "";
 		this.testBankSelector = "#testBank";	
@@ -48,8 +48,8 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 			if (this.addKeyboard) {
 			    misc.addKeyboard(testBank);
 			}
-			for (var i = 0; i < this.allTests.length; i ++) {
-				var thisTest = this.allTests[i];
+			for (var i = 0; i < this.sections.length; i ++) {
+				var thisTest = this.sections[i];
 				thisTest.render(this.testBankSelector);
 			}
 			testBank.append( $("<br clear='all' />") );
@@ -60,7 +60,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 		
 		this.append = function (newTest) {
 			newTest.bank = this;
-			this.allTests.push(newTest);
+			this.sections.push(newTest);
 		};
 		
 		this.questionStatusChanged = function () {

@@ -50,15 +50,27 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		this._studentFeedback = undefined;
 		
 	    Object.defineProperties(this, {
+	        'bankIndex': {
+	            get: function () {
+	                if (this.bank === undefined) {
+	                    return undefined;
+	                }  
+	                for (var i = 0; i < this.bank.sections.length; i++) {
+	                    if (this === this.bank.sections[i]) {
+	                        return i;
+	                    }	                    
+	                }
+	                return undefined;
+	            },
+	        },
 	        'progressBar': {
 	            get: function () {
-	                if (this.bank !== undefined) {	                    
-	                    for (var i = 0; i < this.bank.allTests.length; i++) {
-	                        if (this === this.bank.allTests[i]) {
-	                            return this.bank.scoreboard.pbSubparts[i];
-	                        }
-	                    }
-	                }
+                    var bankIndex = this.bankIndex;
+                    if (bankIndex === undefined) {
+                        return undefined;
+                    }
+                    
+                    return this.bank.scoreboard.pbSubparts[i];
 	            },
 	        },
 	    	'profEmail': {
@@ -387,9 +399,9 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			var totalTime = Math.floor((new Date().getTime() - this.startTime)/1000);
 			var storedThis = this;
 			var profEmail = this.profEmail;
-			var testId = 'unknownTestBank';
+			var bankId = 'unknownTestBank';
 			if (this.bank != undefined) {
-				testId = this.bank.testId;
+				bankId = this.bank.id;
 			}
 			$.ajax({
 				type: "GET",
@@ -398,7 +410,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 						first: userData.studentData.first,
 						last: userData.studentData.last,
 						totalTime: totalTime,
-						testId: testId,
+						bankId: bankId,
 						assignmentId: this.assignmentId,
 						profEmail: profEmail,
 						information: JSON.stringify(this.answerInformation()),

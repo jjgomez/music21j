@@ -145,7 +145,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
         }
         return $questionDiv;
     };    
-    var ThisTest = function () {
+    var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = ScaleWriteQuestion;
 		
@@ -187,7 +187,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
 
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

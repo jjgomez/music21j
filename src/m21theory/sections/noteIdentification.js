@@ -101,7 +101,7 @@ define("m21theory/sections/noteIdentification",
     };
 
     
-    var ThisTest = function () {
+    var ThisSection = function () {
 		section.Generic.call(this);
         this.questionClass = NoteQuestion;
 
@@ -131,8 +131,8 @@ define("m21theory/sections/noteIdentification",
 		};
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
 	
-	return ThisTest;
+	return ThisSection;
 });

@@ -133,7 +133,7 @@ define("m21theory/sections/noteLength",
         //console.log(lyricsSplit);
     };
     
-    var ThisTest = function () {
+    var ThisSection = function () {
         section.Generic.call(this);
         this.questionClass = NL;
 
@@ -165,9 +165,9 @@ define("m21theory/sections/noteLength",
             ],
         };
     };
-    ThisTest.prototype = new section.Generic();
-    ThisTest.prototype.constructor = ThisTest;
+    ThisSection.prototype = new section.Generic();
+    ThisSection.prototype.constructor = ThisSection;
     
-    return ThisTest;
+    return ThisSection;
 
 });

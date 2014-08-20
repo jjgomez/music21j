@@ -92,7 +92,7 @@ define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 
     };
 
     
-    var ThisTest = function () {
+    var ThisSection = function () {
         section.Generic.call(this);
         this.assignmentId = 'scaleEar';
         this.questionClass = ScaleQuestion;
@@ -135,8 +135,8 @@ define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 
         
     };
     
-    ThisTest.prototype = new section.Generic();
-    ThisTest.prototype.constructor = ThisTest;
+    ThisSection.prototype = new section.Generic();
+    ThisSection.prototype.constructor = ThisSection;
     
-    return ThisTest;
+    return ThisSection;
 });

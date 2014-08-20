@@ -205,7 +205,7 @@ define("m21theory/sections/firstSpecies",
 
     
     
-	var ThisTest = function () {
+	var ThisSection = function () {
 		/*
 		 * First species counterpoint in a tonal context.
 		 */		
@@ -294,7 +294,7 @@ define("m21theory/sections/firstSpecies",
 		};
 		
 	};
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

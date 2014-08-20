@@ -98,7 +98,7 @@ define("m21theory/sections/chordCreation",
     };
 
     
-	var ThisTest = function () {
+	var ThisSection = function () {
 		section.Generic.call(this);
 		
 		this.questionClass = CCQuestion;
@@ -255,7 +255,7 @@ define("m21theory/sections/chordCreation",
 
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

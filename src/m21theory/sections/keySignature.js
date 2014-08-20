@@ -40,7 +40,7 @@ define("m21theory/sections/keySignature",
         return $questionDiv;
     };
     
-	var ThisTest = function () {
+	var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = KSQuestion;
 		
@@ -60,10 +60,10 @@ define("m21theory/sections/keySignature",
 		this.usedKeySignatures = [];
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
 
-	ThisTest.prototype.getKeySignature = function () {
+	ThisSection.prototype.getKeySignature = function () {
         if (this.usedKeySignatures.length == (this.maxSharps - this.minSharps)) {
             // could be 13; but might as well, let one be unused...
             this.usedKeySignatures = []; // clear for new work.
@@ -82,5 +82,5 @@ define("m21theory/sections/keySignature",
         return ks;
 	};
 	
-	return ThisTest;
+	return ThisSection;
 });

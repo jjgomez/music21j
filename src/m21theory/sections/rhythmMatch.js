@@ -87,7 +87,7 @@ define("m21theory/sections/rhythmMatch",
         this.$questionDiv = $questionDiv;
         return $questionDiv;
     };
-    var ThisTest = function () {
+    var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = RhythmDict;
 		
@@ -173,7 +173,7 @@ define("m21theory/sections/rhythmMatch",
 
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

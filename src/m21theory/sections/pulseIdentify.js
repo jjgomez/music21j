@@ -113,7 +113,7 @@ define("m21theory/sections/pulseIdentify",
         feedback.alert("*", "ok", {width: '10px', delayFade: 50, fadeTime: 10});
     };
     
-    var ThisTest = function () {
+    var ThisSection = function () {
         section.Generic.call(this);
         this.questionClass = PI;
         
@@ -156,10 +156,10 @@ define("m21theory/sections/pulseIdentify",
         };
     };
     
-    ThisTest.prototype = new section.Generic();
-    ThisTest.prototype.constructor = ThisTest;
+    ThisSection.prototype = new section.Generic();
+    ThisSection.prototype.constructor = ThisSection;
 
-    ThisTest.prototype.getTwoStreams = function () {
+    ThisSection.prototype.getTwoStreams = function () {
         var chosenMeter = random.choice(this.allowableMeters);
         if (this.usedRhythms[chosenMeter] == undefined) {
             this.usedRhythms[chosenMeter] = [];
@@ -185,6 +185,6 @@ define("m21theory/sections/pulseIdentify",
         return [tnScore, tnScoreDisplay];
     };      
     
-    return ThisTest;
+    return ThisSection;
  
 });

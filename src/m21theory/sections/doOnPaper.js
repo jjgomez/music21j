@@ -38,7 +38,7 @@ define("m21theory/sections/doOnPaper",
         return $questionDiv;
     };
     
-    var ThisTest = function () {
+    var ThisSection = function () {
         section.Generic.call(this);
         this.questionClass = OnlyQuestion;
 
@@ -58,8 +58,8 @@ define("m21theory/sections/doOnPaper",
                 "that you have read the instructions here,";
         
     };
-    ThisTest.prototype = new section.Generic();
-    ThisTest.prototype.constructor = ThisTest;
+    ThisSection.prototype = new section.Generic();
+    ThisSection.prototype.constructor = ThisSection;
     
-    return ThisTest;    
+    return ThisSection;    
 });

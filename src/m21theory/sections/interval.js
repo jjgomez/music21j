@@ -61,7 +61,7 @@ define("m21theory/sections/interval",
         
         
     };
-	var ThisTest = function () {
+	var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = IntervalQuestion;
 
@@ -211,7 +211,7 @@ define("m21theory/sections/interval",
 		};
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

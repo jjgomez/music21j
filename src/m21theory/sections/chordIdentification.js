@@ -55,7 +55,7 @@ define("m21theory/sections/chordIdentification",
         return $questionDiv;        
     };
     
-    var ThisTest = function () {
+    var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = CIQuestion;
 		this.useAug2014System = true;
@@ -117,7 +117,7 @@ define("m21theory/sections/chordIdentification",
 		
 	};
 
-	ThisTest.prototype = new section.Generic();
-	ThisTest.prototype.constructor = ThisTest;
-	return ThisTest;
+	ThisSection.prototype = new section.Generic();
+	ThisSection.prototype.constructor = ThisSection;
+	return ThisSection;
 });

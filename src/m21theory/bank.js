@@ -6,19 +6,19 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback'], 
-        function(misc, userData, feedback) {
+define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'jquery'], 
+        function(misc, userData, feedback, $) {
 	var bank = {};
 	/* Test Bank */
 
 	bank.TestBank = function () {
 		this.allTests = [];
 		this.autoSubmit = false;
-		this.addStudentName = true;
+		this.addStudentData = true;
 		this.startTime = 0;
 		this.submissionBox = true;
 		this.testId = 'unknownTestBank';
-		this.title = "";
+		this.title = $('title').text() || "Exercise";
 		this.instructions = "";
 		this.testBankSelector = "#testBank";	
 		this.addKeyboard = true;
@@ -41,7 +41,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback'],
 									.attr('class','testBankInstructions') );
 			}
 
-			if (this.addStudentName) {
+			if (this.addStudentData) {
 				userData.fillNameDiv();
 			}
 			if (this.addKeyboard) {

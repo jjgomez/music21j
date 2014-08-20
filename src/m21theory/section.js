@@ -377,7 +377,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 			if (m21theory.debug) {
 				console.log(textComments);
 			}
-			if (userData.studentName.last == "") {
+			if (userData.studentData.last == "") {
 				alert("You are submitting without a last name! you will not get credit; fill form and submit again...");
 				return false;
 			}
@@ -395,8 +395,8 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 				type: "GET",
 				url: serverSettings.testResponseURL,
 				data: { comments: textComments,
-						first: userData.studentName.first,
-						last: userData.studentName.last,
+						first: userData.studentData.first,
+						last: userData.studentData.last,
 						totalTime: totalTime,
 						testId: testId,
 						assignmentId: this.assignmentId,

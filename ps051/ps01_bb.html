@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns = "http://www.w3.org/1999/xhtml">
+<head>
+ <title>Problem Set 1: Rhythmic Exercises</title>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body><script>
+  var title = document.title;
+  var body = document.body;
+  var loadDiv = document.createElement('div');
+  loadDiv.setAttribute('style', 'font-family: Georgia, serif; text-align: center; position: relative; top: 100px');
+  loadDiv.setAttribute('id', 'loadingBox');
+  var loadH1 = document.createElement('h1');
+  var textNode = document.createTextNode(title + '...');
+  loadH1.appendChild(textNode);
+  var imgNode = document.createElement('img');
+  imgNode.setAttribute('src', '../css/ajax-loader.gif');
+  imgNode.setAttribute('alt', '[loading image]');
+  loadH1.appendChild(imgNode);
+  loadDiv.appendChild(loadH1);
+  loadH4 = document.createElement('h4');
+  loadH4.setAttribute('style', 'font-style: italic');
+  loadH4textNode = document.createTextNode('Loading music21j module. Three-note motto will play when complete.');
+  loadH4.appendChild(loadH4textNode);
+  loadDiv.appendChild(loadH4);  
+  document.body.appendChild(loadDiv);
+</script>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    var styleM21j = function (options) {
+        var params = {}
+        music21.common.merge(params, options);
+        var $head = $('head');
+        var titleText = document.title;
+        $head.append($('<link rel="stylesheet" href="../css/m21theory.css" type="text/css" />'));
+        $('#loadingBox').remove();
+        var $related = $('<div class="related"><ul><li><a href="#">21m.051 Cuthbert</a> &raquo; ' + 
+                '<a href="#">' + titleText + '</a></li></ul></div>');
+        var $mainDocument = $('<div class="document"><div class="documentwrapper">' + 
+                '<div class="sidebar" id="infoDiv"/>' + 
+                '<div class="bodywrapper"><div class="body" id="testBank"></div></div></div></div>');
+        $(document.body).append($related, $mainDocument);    
+    }
+    
+    styleM21j();
+    
+    var onPaper = m21theory.tests.get('doOnPaper');
+    onPaper.title = 'Terms and Conditions';
+    onPaper.$specifics = $("<div>Read the syllabus, mark down important " + 
+            "dates on your calendar, and agree to the conditions of the syllabus. You " +
+            "must accept the conditions to be in 21m.051; your instructor (Cuthbert) agrees " +
+            "to do his absolute best to teach according to his ability. <ul>" +
+            "<li> I agree to follow the terms of the syllabus </li>" +
+            "<li> I agree to report any problems with the online questions in a timely manner.</li>" +
+            "<li> Esp. I agree not to solve these problems through hacking, javascript, etc., but " +
+            "through the provided interface and according to academic honesty.</li>" +
+            "</ul></div>");
+    
+    onPaper.checkboxInstructions = 'If you agree to these conditions... ';
+    
+    var noteLength = m21theory.tests.get('noteLength');
+    var noteLength2 = m21theory.tests.get('noteLength');
+    noteLength2.displayTNName = 'r';
+    noteLength2.title = 'Rest Lengths';
+    noteLength2.instructions = '<p>Now do the same things with rests (note that rests cannot be tied).</p>';
+    
+    var noteLength3 = m21theory.tests.get('noteLength');
+    noteLength3.randomizeNotesAndRests = true;
+    noteLength3.title = 'Note and Rest Lengths';
+    noteLength3.instructions = '<p>Now do the same things with a mixture of notes and rests.</p>';
+      
+    var pulseMatch = m21theory.tests.get('pulseIdentify');
+    var pulseMatch2 = m21theory.tests.get('pulseIdentify');
+    pulseMatch2.instructions = '<p>Same thing, but now at a faster tempo.</p>';
+    pulseMatch2.tempo = 136;
+    
+    var rhythmMatch1 = m21theory.tests.get('rhythmMatch');
+    rhythmMatch1.allowableMeters = ['4/4'];
+
+    var rhythmMatch2 = m21theory.tests.get('rhythmMatch');
+    rhythmMatch2.instructions = '<p>Now the examples will be in 3/4 time.</p>';
+    rhythmMatch2.allowableMeters = ['3/4'];
+    rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.addKeyboard = false;
+    testBank.testId = "ps01";
+    testBank.instructions = "<p>Instructions here...</p>";
+    testBank.allowEarlySubmit = true;
+
+    testBank.append(onPaper);
+    testBank.append(noteLength);
+    testBank.append(noteLength2);
+    testBank.append(noteLength3);
+    testBank.append(pulseMatch);
+    testBank.append(pulseMatch2);
+    testBank.append(rhythmMatch1);
+    testBank.append(rhythmMatch2);
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

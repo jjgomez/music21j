@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'jquery'], 
-        function(misc, userData, feedback, $) {
+define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory/random', 'jquery'], 
+        function(misc, userData, feedback, random, $) {
 	var bank = {};
 	/* Test Bank */
 
@@ -31,6 +31,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'jquery'],
 		this.studentFeedback = true;
 		
 		this.render = function () {
+		    random.setSeedFromGeneratorType();
 			testBank = $(this.testBankSelector);
 			if (this.title != "") {
 				testBank.append( $("<h1>" + this.title + "</h1>")

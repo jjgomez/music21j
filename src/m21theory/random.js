@@ -16,46 +16,65 @@ define([], function(require) {
 	    Javascript does not have a random number seed, so if we
 	    want pseudo-pseudo random numbers, we take the trailing
 	    values of sine(x) where x is an integer.
+	    
+	    All m21theory calls MUST use m21theory.random.random() to
+	    ensure that they are deterministic based on the random seed.
 
 	    valid values are:
-	        'random' -- use Math.random;
+	        'random' -- use Math.random to seed the sine generator;
 	        'fixed'  -- use a sine generator beginning at a fixed index.
-	                    gives the same numbers every time.
-		    
-		    Not implemented, but TODO for future
+	                    gives the same numbers every time.		    
 		    'day'    -- use a sine generator beginning at an index
-		                tied to the current day (so everyone taking a
+		                tied to the current day of the month (so everyone taking a
 		                quiz on the same day gets the same Qs, but
 		                people taking makeups, etc. get different ones).
-		    'hour'	 -- same as day, but tied to the hour.
-		    'month'  -- same as day, but tied to the month.
-		    'semester' -- same as day, but tied to the half year.
-		    'trimester' -- same as day, but tied to the 1/3 year.
-		    'year'   -- same as day, but tied to the year.
+		                will not repeat the next month, year, etc.
+            'year'   -- same as day, but tied to the year.
+		    'semester' -- same as year, but tied to the half year (Jan - June; July-Dec).
+		    'trimester' -- same as year, but tied to the 1/3 year (Jan - Apr; May-Aug; Sep.-Dec).
+            'hour'   -- same as day, but tied to the hour.
+            'month'  -- same as day, but tied to the month.
+            'minute' -- same as day, but tied to the minute. (for testing)
 	*/ 
 
 	random.generatorType = 'random';
-	random.index = undefined;
-	random.seed = 0;
+	random.index = 1;
+	random.seed = 1;
+	random.setSeedFromGeneratorType = function (generatorType) {
+	    if (generatorType == undefined) {
+	        generatorType = random.generatorType;
+	    }
+	    var d = new Date();
+	    var seed = random.seed;
+	    if (generatorType == 'random') {
+	        seed = Math.floor(Math.random() * 65535);
+	    } else if (generatorType == 'fixed') {
+	        // do nothing -- seed needs to be set elsewhere.
+	    } else if (generatorType == 'day') {
+	        seed = d.getDate() * (d.getMonth() + 1) * d.getFullYear();
+        } else if (generatorType == 'minute') {
+            seed = d.getDate() * (d.getMonth() + 1) * d.getFullYear() * (d.getHours() + 1) * (d.getMinutes() + 1);        
+	    } else if (generatorType == 'hour') {
+            seed = d.getDate() * (d.getMonth() + 1) * d.getFullYear() * (d.getHours() + 1);            
+        } else if (generatorType == 'month') {
+            seed = (d.getMonth() + 1) * d.getFullYear();             
+        } else if (generatorType == 'semester') {
+            seed = (Math.floor(d.getMonth()/6) + 1) * d.getFullYear();                         
+        } else if (generatorType == 'trimester') {
+            seed = (Math.floor(d.getMonth()/4) + 1) * d.getFullYear();                        
+        } else if (generatorType == 'year') {
+            seed = d.getFullYear();            
+        }
+	    random.seed = seed;
+	    random.index = 1 + seed;
+	};
+	
 	random.random = function () {
-		var rgt = random.generatorType; 
-		if (rgt == 'random') {
-			return Math.random();
-		} else {
-			if (random.index == undefined) {
-				if (rgt == 'fixed') {
-					random.index = 1 + random.seed;
-				} else {
-					console.error("m21theory.random: Unknown random generator type: '" + rgt + "'; using 'fixed'");
-					random.index = 1 + random.seed;
-				}
-			}
-			var randOut = parseFloat("." + Math.sin(random.index)
-											.toString()
-											.substr(5));		
-			random.index += 1;
-			return randOut;
-		}
+		var randOut = parseFloat("." + Math.sin(random.index)
+										.toString()
+										.substr(5));		
+		random.index += 1;
+		return randOut;
 	};
 
 	// same format as python's random.randint() where low <= n <= high

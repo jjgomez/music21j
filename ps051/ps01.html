@@ -9,6 +9,12 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply();
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.addKeyboard = false;
+    testBank.testId = "ps01";
+    testBank.instructions = "<p>These exercises will help you solidify your knowledge of the rhythms used in music and musical notation.</p>";
+    testBank.allowEarlySubmit = true;
     
     var onPaper = m21theory.tests.get('doOnPaper');
     onPaper.title = 'Terms and Conditions';
@@ -48,12 +54,6 @@ require(['m21theory'], function() {
     rhythmMatch2.allowableMeters = ['3/4'];
     rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];
     
-    var testBank = new m21theory.bank.TestBank();
-    testBank.addKeyboard = false;
-    testBank.testId = "ps01";
-    testBank.instructions = "<p>These exercises will help you solidify your knowledge of the rhythms used in music and musical notation.</p>";
-    testBank.allowEarlySubmit = true;
-
     testBank.append(onPaper);
     testBank.append(noteLength);
     testBank.append(noteLength2);

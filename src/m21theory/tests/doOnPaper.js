@@ -21,7 +21,7 @@ define("m21theory/tests/doOnPaper",
         var $cb = $("<input type='checkbox'/>").click( (function () {             
             this.studentAnswer = this.$checkBox.prop('checked') || false;
             this.checkTrigger();
-            console.log(this.section.numRight, this.section.numWrong);
+            //console.log(this.section.numRight, this.section.numWrong);
         }).bind(this));
         
         this.$checkBox = $cb;
@@ -48,7 +48,7 @@ define("m21theory/tests/doOnPaper",
         this.practiceQs = 0;
         this.studentFeedback = true;
         this.allowEarlySubmit = true;
-        this.instructions = '<p><i>Read the following assignment, do it on paper, and click the complete button.</i></p>';
+        this.instructions = '<p><i>Read the following assignment, do it on paper (if needed), and click the complete button.</i></p>';
         this.$specifics = $('<p>This is an assignment to do on paper. If you are seeing this message ' +
             "Cuthbert screwed up and forgot to put in an assignment. :-) Click submit and send him " +
             "an email, please?." +

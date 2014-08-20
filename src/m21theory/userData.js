@@ -7,7 +7,8 @@
  * 
  */
 
-define(['jquery', 'm21theory/feedback'], function($, feedback) {
+define(['jquery', 'm21theory/feedback', 'm21theory/serverSettings'], 
+        function($, feedback, serverSettings) {
 	// Student Name Routines 
 	// calling m21theory.fillNameDiv() will 
 	// append a name box to a div called "#studentDataDiv"
@@ -97,16 +98,9 @@ define(['jquery', 'm21theory/feedback'], function($, feedback) {
 
 	userData.checkLogin = function () {
 	    var ud = {'studentData': userData.studentData};
-	    
-        $.ajax({
-            type: "GET",
-            url: serverSettings.checkLogin,
-            data: {json: JSON.stringify(ud) },
-            dataType: 'json',
-            error: function (data, errorThrown) { 
-                feedback.alert("SERVER IS DOWN! Email cuthbert@mit.edu or CALL! " + data, "alert"); 
-            },
-            success: (function (successCall) { 
+	    serverSettings.makeAjax(ud, { 
+	        url: serverSettings.checkLogin,
+	        success: (function (successCall) { 
                 if (successCall === null) {
                     feedback.alert("Your email cannot be found in the database","alert");
                 } else if (successCall == false) {
@@ -114,8 +108,8 @@ define(['jquery', 'm21theory/feedback'], function($, feedback) {
                 } else {
                     feedback.alert("Login successful.", "update");
                 }                
-            }).bind(this)        
-        });
+            }).bind(this),	        
+	    });
 	};
 	
 	// end of define

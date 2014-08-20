@@ -303,7 +303,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		    // correct and question are currently unused;
 		    this.recalculateScore();
             this.checkEndCondition();
-            this.bank.questionStatusChanged();
+            this.bank.questionStatusChanged(this.bankIndex, new_status, changed_question);
 		};
 		
 		this.recalculateScore = function () {

@@ -199,6 +199,33 @@ class M21JMysql(object):
             raise M21JMysqlException('studentData not in jsonForm: %s' % self.jsonForm)
         return self.jsonForm['studentData']
 
+
+    def sendComment(self):
+        try:
+            try:
+                userId = self.getUserId()
+            except M21JMysqlException:
+                userId = 0
+            try:
+                j = self.jsonForm
+                self.execute(
+                    '''INSERT INTO comments (bankId, sectionId, 
+                                            userId, comment, seed
+                                            )
+                                    VALUES (%s, %s,
+                                            %s, %s, %s)
+                    ''', (j['bankId'], j['sectionId'],
+                          userId, j['comment'], j['seed']
+                          )
+                    )
+            except Exception as e:
+                self.err(e)
+                self.jsonReply({'success': False})
+                    
+            self.jsonReply({'success': True})
+        except Exception as e:
+            self.err(e)
+        
     def submitSection(self):
         if self.verifyLogin() is False:
             self.jsonReply({'success': False,

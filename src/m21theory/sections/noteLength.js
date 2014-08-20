@@ -10,7 +10,6 @@ define("m21theory/sections/noteLength",
     NL.prototype.constructor = NL;
 
     NL.prototype.render = function () {
-
         var chosenMeter = random.choice(this.section.allowableMeters);
         if (this.section.usedRhythms[chosenMeter] == undefined) {
             this.section.usedRhythms[chosenMeter] = [];
@@ -19,6 +18,7 @@ define("m21theory/sections/noteLength",
             this.section.possibleRhythms[chosenMeter],
             this.section.usedRhythms[chosenMeter]                
         );
+        //console.log(chosenRhythm);
         var tnScore = m21theory.misc.tnRhythmScore(chosenRhythm, chosenMeter, {
             noteValue: this.section.displayTNName,
             randomizeNotesAndRests: this.section.randomizeNotesAndRests,
@@ -147,7 +147,7 @@ define("m21theory/sections/noteLength",
                             'for each of the following notes. If a note follows a <b>tie</b>, skip it, ' +
                             'but add its duration to the last untied note. You may use fractions or decimals' +
                             '</p>';
-        this.totalQs = 6;
+        this.totalQs = 4;
         this.practiceQs = 1;
         this.tempo = 80;
         this.usedRhythms = [];

@@ -103,8 +103,8 @@ define([], function(require) {
 	        }
 	    }
 	    var maxIterations = inList.length;
-	    while (thisChoice === undefined && maxIterations > 0) {
-            if (maxIterations == 1) {
+	    while (thisChoice === undefined && maxIterations > -2) {
+            if (maxIterations == 0) {                
                 // duplicates in inList causing impossibility to use them all...
                 while(usedList.length > 0) {
                     usedList.pop();

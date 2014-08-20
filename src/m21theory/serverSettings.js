@@ -11,6 +11,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
         function($, feedback, common, userData) {
     var s = {}; 
     s.host = '';
+    s.commentUrl = s.host + '/server/cgi-bin/send_comment.cgi';
     s.changePassword = s.host + '/server/cgi-bin/change_pw.cgi';
     s.checkLogin = s.host + '/server/cgi-bin/check_login.cgi';
     s.submitSection = s.host + '/server/cgi-bin/submit_section.cgi';

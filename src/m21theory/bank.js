@@ -23,12 +23,12 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 		this.testBankSelector = "#testBank";	
 		this.addKeyboard = true;
 		this.scoreboard = new feedback.Scoreboard(this);
-		
 		// test defaults...
 		this.profEmail = 'cuthbert';
 		this.allowEarlySubmit = true;
 		this.allowSubmitWithErrors = false;
 		this.studentFeedback = true;
+		this.lastSectionWorkedOn = undefined;
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
@@ -63,7 +63,8 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 			this.sections.push(newTest);
 		};
 		
-		this.questionStatusChanged = function () {
+		this.questionStatusChanged = function (bankId, new_status, changed_question) {
+		    this.lastSectionWorkedOn = this.sections[bankId];
 		    this.scoreboard.updateProgressBars();
 		};
 	};

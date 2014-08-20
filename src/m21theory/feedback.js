@@ -39,7 +39,8 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             this.pbSubparts.push( $subPB );
             $d.append($subPB);
         }
-        
+        var $comments = this.getCommentsSection();
+        $d.append($comments);
         misc.addScrollFixed($d, $where);
         this.updateProgressBars();
         return $d;        
@@ -232,6 +233,140 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
         );
         return $what; // passthrough..
     };
+    feedback.Scoreboard.prototype.getCommentsSection = function () {
+        var $cs = $("<div style='text-align: center'></div>");
+        var $b = $("<button class='lightInput'>Questions? Comments?</button>");
+        $b.on('click', (function () { 
+            var docHeight = $(document).height();
+            var $commentOverlay = $("<div class='overlay'></div>")
+                .height(docHeight)
+                .css({
+                    'opacity' : 0.6,
+                    'position': 'absolute',
+                    'top': 0,
+                    'left': 0,
+                    'background-color': 'black',
+                    'width': '100%',
+                    'z-index': 100       
+                });
+            var ww = $(window).width();
+            var wh = $(window).height();
+            var $commentBody = $("<div class='overlayBody'></div>")
+               .css({
+                   'background-color': '#909090',
+                   'position': 'fixed',
+                   'top': wh * .2,
+                   'left': ww * .2,
+                   'width': ww * .6,
+                   'height': wh * .6,
+                   'z-index': 101,
+                   'border-radius': '40px',
+               });
+            var $closeButton = $("<div>X</div>");
+            $closeButton.on('click', function () { 
+                $('.overlay').remove();
+                $('.overlayBody').remove();
+            });
+            var $commentInnerBody = $("<div>Comment from " + m21theory.userData.studentData.first + "<br/></div>").css({
+                width: '90%',
+                height: '70%',
+                'text-align': 'center',
+                'position': 'relative',
+                left: '5%',
+                top: '5%',
+                'border-radius': '10px',
+                'padding-top': '20px',
+                'font-size': '16pt',
+                'background-color': 'white',
+                border: '2px #999999 solid',
+            });
+            var $ta = $("<textarea></textarea>").css({
+                'margin-top': '10px',
+                'width': '90%',
+                'height': '80%',
+                'background-color': '#ffffd0',
+                'padding': '5px 5px 5px 5px',
+                'border': '1px black dotted',
+            });
+            $commentInnerBody.append($ta);
+            this.$textArea = $ta;            
+            $commentBody.append($closeButton);
+            $commentBody.append($commentInnerBody);
+            $closeButton.css({
+                'font-size': '40px',
+                'position': 'absolute',
+                'top': '-20px',
+                'right': '-20px',
+                'background-color': 'white',
+                'padding': '20px 20px 20px 20px',
+                'border-radius': '20px',
+                'width': '20px',
+                'height': '20px',
+                'opacity': 0.9,
+                'border': '4px #333333 solid',
+                'text-align': 'center',
+                'cursor': 'pointer',
+                'z-index': 102,
+            });
+            this.$closeButton = $closeButton;
+            var $submitButton = $("<button>Send</button>").css({
+                'position': 'absolute',
+                'bottom': '20px',
+                'right': '40px',
+                'font-size': '18pt',
+                'border-radius': '10px',
+                'background-color': '#60df60',
+                'color': 'white',
+                'width': '80px',
+                'height': '40px',
+            }).on('click', (function (e) {
+                var comment = this.$textArea.val();
+                var bank = this.bank;
+                var section = (bank.lastSectionWorkedOn !== undefined) ? bank.lastSectionWorkedOn.id : "unknown";
+                var seed = m21theory.random.seed;
+                var jsonObj = {
+                        'comment': comment,
+                        'bankId': bank.id,
+                        'sectionId': section,
+                        'seed': seed,
+                        };
+                this.commentMessage = comment;
+                m21theory.serverSettings.makeAjax(jsonObj, {
+                    url: m21theory.serverSettings.commentUrl,
+                    success: (function () {
+                        this.$closeButton.click();
+                        feedback.alert("Your message has been sent", 'ok');
+                    }).bind(this),
+                    error: (function () {
+                        this.$closeButton.click();
+                        feedback.alert("There was an error sending your message.  Copy it below and " +
+                                "email it to Cuthbert also noting that there was an error in sending the " +
+                                "comment: <br/>&nbsp;<br/><div style='font-size: 8px; text-align: left'>" + 
+                                this.commentMessage + "</div>", 'alert', {
+                            delayFade: 90 * 1000
+                        });
+                    }).bind(this)
+                });
+            }).bind(this));
+            $commentBody.append($submitButton);
+            var lastSection = this.bank.lastSectionWorkedOn;
+            var lastId = (lastSection !== undefined) ? lastSection.id : "unknown";
+            var $information = $("<div><i>Last section worked on:</i> " + lastId  + 
+                    "<br/><i>Problem set name:</i> " + this.bank.title + "</div>").css({
+                        'position': 'absolute',
+                        'bottom': '25px',
+                        'left': '40px',
+                        'text-align': 'left',
+                    });
+            $commentBody.append($information);
+            $("body").append($commentOverlay);
+            $("body").append($commentBody);
+            $ta.focus();
+        }).bind(this));
+        $cs.append($b);
+        return $cs;
+    };
+    
     
     feedback.alertTypes = {
         'alert': { // something bad happened

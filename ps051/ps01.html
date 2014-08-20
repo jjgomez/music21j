@@ -21,11 +21,11 @@ require(['m21theory'], function() {
     onPaper.id = 'agreedToSyllabus'
     onPaper.$specifics = $("<div><b>Read the syllabus</b>, mark down important " + 
             "dates on your calendar, and agree to the conditions of the syllabus. You " +
-            "must accept the conditions to be in 21m.051; your instructor (Cuthbert) agrees " +
-            "to do his absolute best to teach according to his ability. <ul>" +
-            "<li> I agree to follow the terms of the syllabus </li>" +
+            "must accept the conditions to be in 21m.051; Prof. Cuthbert also agrees " +
+            "to do his absolute best to teach as well as he can according to his ability. <ul>" +
+            "<li> I agree to follow the terms of the syllabus.</li>" +
             "<li> I agree to report any problems with the online questions in a timely manner.</li>" +
-            "<li> Esp. I agree not to solve these problems through hacking, javascript, etc., but " +
+            "<li> I agree <b>not</b> to solve any problems through hacking, Javascript, etc., but " +
             "through the provided interface and according to academic honesty.</li>" +
             "</ul></div>");
     
@@ -54,17 +54,51 @@ require(['m21theory'], function() {
     rhythmMatch2.instructions = '<p>Now the examples will be in 3/4 time.</p>';
     rhythmMatch2.allowableMeters = ['3/4'];
     rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];
+
+    var noteLengthBeams = m21theory.sections.get('noteLength');
+    noteLengthBeams.title = 'Beamed Note Lengths';
+    noteLengthBeams.autoBeam = true;
+    noteLengthBeams.instructions = '<p>Here most of the notes will be beamed; .</p>';
+    noteLengthBeams.totalQs = 3;
+    noteLengthBeams.practiceQs = 0;
+    noteLengthBeams.possibleRhythms = {
+            '4/4': [
+                '2. 16 16 16 16 4 4 32 32 32 32 8 4',
+                '8 16 16 4 16 8 16 4 1',
+                '2 2 4 16 8 16 16 16 16 16~ 16 8 16',
+                '4 8 8 8 4 8 4 4~ 8 8 4',
+            ],
+    };
     
     var alignment = m21theory.sections.get('doOnPaper');
     alignment.title = 'Multiple Part Alignment';
     alignment.id = 'alignment';
     alignment.setFromId("alignmentSpecifics");
-    var p1 = music21.tinyNotation.TinyNotation("2/4 a8 a a a a4 a a16 a8. r4 a4");
-    var p2 = music21.tinyNotation.TinyNotation("2/4 f8. f16 f8. f16 f2 r4 f4 f8 f f f");
-    var p3 = music21.tinyNotation.TinyNotation("2/4 d4 d d8. d16 d4 d2 d4. d8");
-    p1.appendNewCanvas(alignment.$specifics.find('#asPart'));
-    p2.appendNewCanvas(alignment.$specifics.find('#asPart'));
-    p3.appendNewCanvas(alignment.$specifics.find('#asPart'));
+    var p1 = music21.tinyNotation.TinyNotation("2/4 a8 a a a a4 a a2 a16 a8. r4");
+    var p2 = music21.tinyNotation.TinyNotation("2/4 f8. f16 f8. f16 f2 f8 f f f r4 f4");
+    var p3 = music21.tinyNotation.TinyNotation("2/4 d4 d d8. d16 d4  d4. d8 d2");
+    p1.tempo = 80;
+    p2.tempo = 80;
+    p3.tempo = 80;
+    p1.appendNewCanvas(alignment.$specifics.children('#asPart1'));
+    p2.appendNewCanvas(alignment.$specifics.children('#asPart2'));
+    p3.appendNewCanvas(alignment.$specifics.children('#asPart3'));    
+    var s = new music21.stream.Score();
+    s.insert(0, p1);
+    s.insert(0, p2);
+    s.insert(0, p3);
+    s.appendNewCanvas(alignment.$specifics.children('#asScore1'));    
+
+    var a1 = music21.tinyNotation.TinyNotation("3/4 a4 a a a4. a8 a4 a2 a4");
+    var a2 = music21.tinyNotation.TinyNotation("3/4 f4 f2 f8 f f4 f8 f f f2 f8");
+    var a3 = music21.tinyNotation.TinyNotation("3/4 d2 d4 d d d d8. d16 d4 d4");
+    a1.tempo = 100;
+    a2.tempo = 100;
+    a3.tempo = 100;
+    a1.appendNewCanvas(alignment.$specifics.children('#asAssign1'));
+    a2.appendNewCanvas(alignment.$specifics.children('#asAssign2'));
+    a3.appendNewCanvas(alignment.$specifics.children('#asAssign3'));    
+
     
     
     testBank.append(onPaper);
@@ -75,6 +109,7 @@ require(['m21theory'], function() {
     testBank.append(pulseMatch2);
     testBank.append(rhythmMatch1);
     testBank.append(rhythmMatch2);
+    testBank.append(noteLengthBeams);
     testBank.append(alignment);
     testBank.render();
 });
@@ -93,14 +128,16 @@ shorter notes is a good one that you should follow.</p>
 <p>For instance, consider this piece made up of three different parts.  Click each of them to hear
 it. (Each part is on one note, but I've written them on different notes so you can hear them separately):</p>
 
-<div id='asPart'/>
+<div id='asPart1'></div>
+<div id='asPart2'></div>
+<div id='asPart3'></div>
 
 <p>The parts don't look like they belong together because each of the parts is unaligned with the
 others. When the parts are aligned, they look like they belong to the same piece. Click this to hear
 what that sounds like:
 </p>
 
-<div id='asScore1'/>
+<div id='asScore1'></div>
 
 <p>When parts that are meant to be heard together are written together, not only are they aligned
 but their left-most barline is drawn connected to each other. We often also put a bracket or fancy
@@ -113,10 +150,11 @@ so that they line up with each other. Pay close attention to making sure that al
 together are perfectly aligned and that no measure has a lot of extra space or feels cramped.
 </p>
 
-<div id='asAssign1'/>
-<div id='asAssign2'/>
-<div id='asAssign3'/>
+<div id='asAssign1'></div>
+<div id='asAssign2'></div>
+<div id='asAssign3'></div>
 
+<p>Reminder: do this in PENCIL and ERASE any mistakes thoroughly. Never, ever scratch out notes.</p>
 </div>
 </body>
 </html>

@@ -336,16 +336,16 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
                     success: (function () {
                         this.$closeButton.click();
                         feedback.alert("Your message has been sent", 'ok');
-                    }).bind(this),
-                    error: (function () {
+                    }).bind(this),                  
+                    error: (function (xhr) {
                         this.$closeButton.click();
                         feedback.alert("There was an error sending your message.  Copy it below and " +
                                 "email it to Cuthbert also noting that there was an error in sending the " +
                                 "comment: <br/>&nbsp;<br/><div style='font-size: 8px; text-align: left'>" + 
                                 this.commentMessage + "</div>", 'alert', {
                             delayFade: 90 * 1000
-                        });
-                    }).bind(this)
+                        });                        
+                    }).bind(this),
                 });
             }).bind(this));
             $commentBody.append($submitButton);

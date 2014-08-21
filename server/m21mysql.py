@@ -34,6 +34,9 @@ class M21JMysql(object):
         self.pw = None
         self.con = None
         self.mysqlVersion = None
+        
+        self.useJsonP = False  # Cross-domain scripting adds an additional form field, jsonp or callback
+        self.jsonPCallFunction = None  # which specifies a callback function in the reply.
     
         self.parseForm() # self.jsonForm from self.form
         try:
@@ -126,11 +129,22 @@ class M21JMysql(object):
             return
         jsonString = self.form.getfirst('json')
         self.jsonForm = json.loads(jsonString)
+        if 'jsonp' in self.form:
+            self.useJsonP = True
+            self.jsonPCallFunction = self.form.getfirst('jsonp')        
+        elif 'callback' in self.form:
+            self.useJsonP = True
+            self.jsonPCallFunction = self.form.getfirst('callback') 
+            
         return self.jsonForm
 
     def jsonReply(self, pyObj):
         self.printJsonHeader()
-        print(json.dumps(pyObj))        
+        jsonString = json.dumps(pyObj)
+        if self.useJsonP is not True:
+            print(jsonString)
+        else:
+            print(self.jsonPCallFunction + "(" + jsonString + ")\n")
         
     def getMysqlPW(self, userdir = None):
         if userdir is None:
@@ -202,29 +216,28 @@ class M21JMysql(object):
 
     def sendComment(self):
         try:
-            try:
-                userId = self.getUserId()
-            except M21JMysqlException:
-                userId = 0
-            try:
-                j = self.jsonForm
-                self.execute(
-                    '''INSERT INTO comments (bankId, sectionId, 
-                                            userId, comment, seed
-                                            )
-                                    VALUES (%s, %s,
-                                            %s, %s, %s)
-                    ''', (j['bankId'], j['sectionId'],
-                          userId, j['comment'], j['seed']
-                          )
-                    )
-            except Exception as e:
-                self.err(e)
-                self.jsonReply({'success': False})
-                    
-            self.jsonReply({'success': True})
+            userId = self.getUserId()
+        except M21JMysqlException:
+            userId = 0
+        try:
+            j = self.jsonForm
+            self.execute(
+                '''INSERT INTO comments (bankId, sectionId, 
+                                        userId, comment, seed
+                                        )
+                                VALUES (%s, %s,
+                                        %s, %s, %s)
+                ''', (j['bankId'], j['sectionId'],
+                      userId, j['comment'], j['seed']
+                      )
+                )
         except Exception as e:
             self.err(e)
+            self.jsonReply({'success': False})
+            raise e
+        
+        self.jsonReply({'success': True})
+
         
     def submitSection(self):
         if self.verifyLogin() is False:
@@ -354,7 +367,11 @@ class M21JMysql(object):
         print("")
 
     def printJsonHeader(self):
-        print("Content-Type: text/json")
+        if self.useJsonP:
+            ct = 'application/javascript'
+        else:
+            ct = 'text/json'
+        print("Content-Type: " + ct)
         print("")
                 
     def printFooter(self):

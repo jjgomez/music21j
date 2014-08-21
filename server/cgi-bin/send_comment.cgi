@@ -1,8 +1,12 @@
 #!/usr/bin/python
 
 import cgi_helper
+import cgitb
+import sys
 
-f = cgi_helper.form()
-m = cgi_helper.m21my(f)
-m.sendComment()
-
+try:
+    f = cgi_helper.form()
+    m = cgi_helper.m21my(f)
+    m.sendComment()
+except Exception as e:
+    cgitb.handler(sys.exc_info())

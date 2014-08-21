@@ -13,6 +13,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
     
     // hacky!!!!
     s._host = undefined;
+    s.useJsonP = false;
     
     s.setUrls = function () {
         this.commentUrl = this.host + '/server/cgi-bin/send_comment.cgi';
@@ -28,6 +29,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
             this.host = l.origin + '/m21j';
         } else if (l.hostname == 'web.mit.edu') {
             this.host = 'http://ciconia.mit.edu/m21j'; // web.mit.edu has no mysql...
+            this.useJsonP = true; // NOT YET SUPPORTED, but necessary for cross domain XHR requests.
         } else {
             this.host = '';
         }
@@ -62,9 +64,15 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
                 success: function (jsonData) { 
                     feedback.alert(jsonData, 'ok');
                 },
-                error: function (data, errorThrown) { 
+                error: function (xhr, errorThrown) { 
+                    if (m21theory.debug) {
+                        var $tempDiv = $("<div style='background-color: white; text-align: left; z-index: 1000'></div>");
+                        var $tt = $(xhr.responseText);
+                        $tempDiv.append($tt);
+                        $(document.body).append($tempDiv);                            
+                    }
                     alert("Got a problem! -- print this page as a PDF and email it to cuthbert@mit.edu: " + errorThrown);
-                    console.log(data);
+                    console.log(xhr.responseText);
                 },
         };
         common.merge(params, options);

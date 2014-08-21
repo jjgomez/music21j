@@ -360,6 +360,43 @@ class M21JMysql(object):
     def printFooter(self):
         print ('''</body></html>''')
 
+    def checkServerPassword(self):
+        storedPW = self.getMysqlPW()
+        submittedPW = self.jsonForm['gradebookPw']
+        if (storedPW == submittedPW):
+            return True
+        else:
+            return False
+
+    def gradebook(self):
+        if self.checkServerPassword() is not True:
+            self.jsonReply({'password': False})
+        else:
+            if 'function' not in self.jsonForm:
+                self.jsonReply({'password': True,
+                                'error': 'no function specified'
+                                })
+            else:
+                jrFunc = self.jsonForm['function']
+                if jrFunc == 'getComments':
+                    self.gradesComments()
+                else:
+                    self.jsonReply({'password': True,
+                                    'error': 'illegal function',
+                                    })
+                
+
+    def gradesComments(self):
+        recentComments = self.query('SELECT comment,userId FROM comments ORDER BY lastUpdated DESC limit 20')
+        #self.err(recentComments)
+        self.err(json.dumps(recentComments))
+        
+        self.jsonReply({'password': True,
+                        'comments': recentComments,
+                        'error': None,
+                        })
+        return;
+
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')
     cur = m.con.cursor()

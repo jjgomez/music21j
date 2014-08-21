@@ -10,13 +10,39 @@
 define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'], 
         function($, feedback, common, userData) {
     var s = {}; 
-    s.host = '';
-    s.commentUrl = s.host + '/server/cgi-bin/send_comment.cgi';
-    s.changePassword = s.host + '/server/cgi-bin/change_pw.cgi';
-    s.checkLogin = s.host + '/server/cgi-bin/check_login.cgi';
-    s.submitSection = s.host + '/server/cgi-bin/submit_section.cgi';
-    s.testResponseURL = "http://ciconia.mit.edu/m21j/testSectionResponse2.cgi";
-
+    
+    // hacky!!!!
+    s._host = undefined;
+    
+    s.setUrls = function () {
+        this.commentUrl = this.host + '/server/cgi-bin/send_comment.cgi';
+        this.gradebookUrl = this.host + '/server/cgi-bin/gradebook.cgi';
+        this.changePassword = this.host + '/server/cgi-bin/change_pw.cgi';
+        this.checkLogin = this.host + '/server/cgi-bin/check_login.cgi';
+        this.submitSection = this.host + '/server/cgi-bin/submit_section.cgi';        
+    };
+    
+    s.setHostFromLocation = function () {
+        var l = window.location;
+        if (l.hostname == 'ciconia.mit.edu' ) {
+            this.host = l.origin + '/m21j';
+        } else if (l.hostname == 'web.mit.edu') {
+            this.host = 'http://ciconia.mit.edu/m21j'; // web.mit.edu has no mysql...
+        } else {
+            this.host = '';
+        }
+        console.log(this.commentUrl);
+    };
+    
+    Object.defineProperties( s, {
+       'host': {
+           get: function () { return this._host; },
+           set: function (h) { this._host = h; this.setUrls(); },
+       },
+    });
+    
+    s.setHostFromLocation();
+    
     serverSettings = s;
     
     s.makeAjax = function (objToMakeJSON, options) {

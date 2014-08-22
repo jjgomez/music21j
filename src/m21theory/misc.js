@@ -8,7 +8,7 @@
  */
 define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, MIDI, $, random) {
 	var misc = {};
-	misc.playMotto = function (MIDI) {
+	misc.playMotto = function (MIDI, long) {
 	    //return;
 		var delay = 0; // play one note every quarter second
 		var note = 65; // the MIDI note
@@ -20,6 +20,16 @@ define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, M
 		MIDI.noteOff(0, note + 6, delay + 0.75 + 0.8);
 		MIDI.noteOn(0, note + 4, velocity - 90, delay + 1.35);
 		MIDI.noteOff(0, note + 4, delay + 0.75 + 1.35);
+		if (long == true) {
+	        MIDI.noteOn(0, note + 5, velocity - 50, delay + 2.0);
+	        MIDI.noteOff(0, note + 5, delay + 1.25 + 2.0);		    
+            MIDI.noteOn(0, note + 6, velocity - 25, delay + 2.5);
+            MIDI.noteOff(0, note + 6, delay + 1.25 + 2.5);          
+            MIDI.noteOn(0, note + 7, velocity, delay + 3.0);
+            MIDI.noteOff(0, note + 7, delay + 2.25 + 3.0);          
+            MIDI.noteOn(0, note + 12, velocity, delay + 4.0);
+            MIDI.noteOff(0, note + 12, delay + 2.25 + 4.0);          
+		}
 	};
     misc.tnRhythmScore = function (chosenRhythm, chosenMeter, options) {
         var params = {

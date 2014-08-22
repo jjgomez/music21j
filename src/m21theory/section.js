@@ -25,6 +25,7 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 
 		this.totalQs = 34;
 		this.practiceQs = 4;
+		this.weight = 1;
 		
 		this.numRight = 0;
 		this.numWrong = 0;
@@ -327,9 +328,9 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 		    		
 		this.currentOutcome = undefined;
 		this.checkEndCondition = function () {
-			if (this.numRight == this.totalQs - this.practiceQs) {
-				//console.log("end condition met...");
-				var outcome = undefined;
+			var outcome = undefined;
+		    if (this.numRight == this.totalQs - this.practiceQs) {
+				//console.log("end condition met...");				
 				if (this.studentFeedback === true) {
 					if (this.numMistakes <= this.maxMistakes) {
 						outcome = 'success';
@@ -343,11 +344,13 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 				this.changeOutcome(outcome);
 			} else if (this.numRight + this.numWrong == this.totalQs - this.practiceQs) {
 				if (this.studentFeedback === true) {
-					this.changeOutcome('errors');
+				    outcome = 'errors';
 				} else {
-					this.changeOutcome('noFeedback');			
+					outcome = 'noFeedback';			
 				}
+                this.changeOutcome(outcome);
 			}
+			return outcome;
 		};
 		
 		this.changeOutcome = function (outcome) {
@@ -433,62 +436,6 @@ define(['m21theory/random', 'm21theory/userData', 'm21theory/question',
 	        });	
 		};
 		
-		this.submitWorkOld = function () {
-			var textCommentsArea = this.submissionContents;
-			if (m21theory.debug) {
-				console.log(textCommentsArea);
-			}
-			var ta = textCommentsArea.find(".commentTextArea");
-			if (m21theory.debug) {
-				console.log(ta);
-			}
-			var textComments = ta.val();
-			if (m21theory.debug) {
-				console.log(textComments);
-			}
-			if (userData.studentData.last == "") {
-				alert("You are submitting without a last name! you will not get credit; fill form and submit again...");
-				return false;
-			}
-			if (this.studentFeedback == 'onSubmit') {
-				feedback.alert('You got ' + this.numRight + ' right and ' + this.numWrong + ' wrong.', 'update');
-			}
-			var totalTime = Math.floor((new Date().getTime() - this.startTime)/1000);
-			var storedThis = this;
-			var profEmail = this.profEmail;
-			var bankId = 'unknownTestBank';
-			if (this.bank != undefined) {
-				bankId = this.bank.id;
-			}
-			
-			
-			
-			$.ajax({
-				type: "GET",
-				url: serverSettings.testResponseURL,
-				data: { comments: textComments,
-						first: userData.studentData.first,
-						last: userData.studentData.last,
-						totalTime: totalTime,
-						bankId: bankId,
-						sectionId: this.id,
-						profEmail: profEmail,
-						information: JSON.stringify(this.answerInformation()),
-						},
-				dataType: 'json',
-				success: function (data) { 
-					var newOutcome = $("<br clear='all'>" + "<div class='submissionContents' style='float: right'>" + 
-										data.reply + "</div><br clear='all'>");
-					storedThis.submissionSection.empty();
-					storedThis.submissionSection.append(newOutcome);
-					storedThis.submissionContents = newOutcome;
-					storedThis.progressBar.text("SUBMITTED");
-					},
-				error: function (data, errorThrown) { 
-						alert("Got a problem -- print this page as a PDF and email it to cuthbert@mit.edu: " + data); 
-					}
-				});
-		};
 	};
 
 	// end of define

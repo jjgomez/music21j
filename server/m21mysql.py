@@ -158,7 +158,7 @@ class M21JMysql(object):
             else:
                 username = getpass.getuser()
                 userdir = os.path.expanduser("~" + username)
-                self.err(userdir)
+                # likely to be /Library/Webserver on Mac
         #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         #logging.debug(username)
         
@@ -271,6 +271,40 @@ class M21JMysql(object):
                                         %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
                                         )
                 ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
+                      userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
+                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed']
+                      )
+                )
+            except Exception as e:
+                self.err(e)
+                self.jsonReply({'success': False,
+                                'login': True,
+                                'dbSuccess': False,
+                                })
+            self.jsonReply({'success': True,
+                            'login': True,
+                            'dbSuccess': True,                            
+                            })
+
+    def submitBank(self):
+        if self.verifyLogin() is False:
+            self.jsonReply({'success': False,
+                            'login': False,
+                            })
+        else:
+            userId = self.getUserId()
+            j = self.jsonForm
+            try:
+                self.execute(
+                '''INSERT INTO bank (bankId,  
+                                        userId, numRight, numWrong, numMistakes, numUnanswered,
+                                        totalQs, startTime, endTime, seed
+                                        )
+                                VALUES (%s,
+                                        %s, %s, %s, %s, %s,
+                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                        )
+                ''', (j['bankId'],
                       userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
                       j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed']
                       )

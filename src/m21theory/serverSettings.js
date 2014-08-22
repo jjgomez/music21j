@@ -21,6 +21,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
         this.changePassword = this.host + '/server/cgi-bin/change_pw.cgi';
         this.checkLogin = this.host + '/server/cgi-bin/check_login.cgi';
         this.submitSection = this.host + '/server/cgi-bin/submit_section.cgi';        
+        this.submitBank = this.host + '/server/cgi-bin/submit_bank.cgi';        
     };
     
     s.setHostFromLocation = function () {

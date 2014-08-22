@@ -115,6 +115,8 @@ define("m21theory/sections/pulseIdentify",
         var currentTime = Date.now();
         var timeOffset = currentTime - this.timeStart;
         this.noteTiming.push(timeOffset);
+        var n = new music21.note.Note('F#5');
+        n.playMidi();
         feedback.alert("*", "ok", {width: '10px', delayFade: 50, fadeTime: 10});
     };
     

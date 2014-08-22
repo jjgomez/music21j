@@ -15,7 +15,7 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 		this.sections = [];
 		this.autoSubmit = true;
 		this.addStudentData = true;
-		this.startTime = 0;
+		this.startTime = Date.now();
 		this.submissionBox = true;
 		this.id = 'unknownTestBank';
 		this.title = $('title').text() || "Exercise";
@@ -29,6 +29,8 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 		this.allowSubmitWithErrors = false;
 		this.studentFeedback = true;
 		this.lastSectionWorkedOn = undefined;
+		this.playedLongMotto = false;
+		
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
@@ -66,6 +68,82 @@ define(['m21theory/misc', 'm21theory/userData', 'm21theory/feedback', 'm21theory
 		this.questionStatusChanged = function (bankId, new_status, changed_question) {
 		    this.lastSectionWorkedOn = this.sections[bankId];
 		    this.scoreboard.updateProgressBars();
+		    this.checkAllOutcomes();
+		};
+		this.checkAllOutcomes = function () {
+		    for (var i = 0; i < this.sections.length; i++) {
+		        var o = this.sections[i].checkEndCondition();
+		        if (o === undefined) {
+		            return false;
+		        }
+		    }
+            if (this.autoSubmit == true) {
+                this.submitWork();
+            }
+		};
+        this.submitWork = function () {
+            var scores = this.answerInformation();
+            this.lastScore = scores;
+            var info = {
+                    studentData: userData.studentData,
+                    bankId: this.id,
+                    numRight: scores.right,
+                    numWrong: scores.wrong,
+                    numMistakes: scores.mistakes,
+                    numUnanswered: scores.unanswered,
+                    totalQs: scores.totalQs,
+                    startTime: this.startTime,
+                    endTime: Date.now(),
+                    seed: random.seed,                  
+            };
+            serverSettings.makeAjax(info, { 
+                url: serverSettings.submitBank,
+                success: (function (retObj) {
+                    if (retObj.success == true) {
+                        feedback.alert('Assignment successfully submitted', 'ok', 
+                                {
+                                    top: '400px', 
+                                    delayFade: 1000
+                                 });
+                        this.scoreboard.mainPB.find('.correctBar').text('SUBMITTED');
+                        // SWITCH OUTCOME...
+                    } else {
+                        if (retObj.login == false) {
+                            feedback.alert('You need to LOG IN before submitting', 'alert');
+                        } else {
+                            feedback.alert('Oh crap, something happened...', 'alert');
+                            console.log(retObj);
+                        }
+                    }
+                    if (this.playedLongMotto == false) {
+                        this.playedLongMotto = true;
+                        m21theory.misc.playMotto(MIDI, true);
+                    }
+                    if (this.studentFeedback == 'onSubmit') {
+                        feedback.alert('You got ' + this.lastScore.numRight + ' points out of ' + 
+                                this.lastScore.totalQs + ' total.', 'update', {top: '0px'});
+                    }
+                }).bind(this),
+            }); 
+        };
+		
+		this.answerInformation = function () {
+		    var a = {
+		      right: 0,
+		      wrong: 0,
+		      unanswered: 0,
+		      mistakes: 0,
+		      totalQs: 0,
+		    };
+		    
+		    for (var i = 0; i < this.sections.length; i++) {
+		        var s = this.sections[i];
+		        var o = s.answerInformation();
+		        for (var k in a) {
+		            a[k] += o[k] * s.weight;
+		        }
+            }
+		    return a;
 		};
 	};
 	// end of define

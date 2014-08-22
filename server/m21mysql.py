@@ -42,8 +42,8 @@ class M21JMysql(object):
         self.parseForm() # self.jsonForm from self.form
         try:
             self.connect()
-        except M21JMysqlException:
-            pass # okay at this point; maybe the user intended to connect later
+        except M21JMysqlException as e:
+            raise(e) # okay at this point; maybe the user intended to connect later
     
     def __del__(self):
         if self.con:

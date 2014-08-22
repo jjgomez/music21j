@@ -195,7 +195,10 @@ class M21JMysql(object):
         
         storedPWtuple = self.queryOne('SELECT password FROM users WHERE email = %s', (email, ))
         #self.err(storedPWtuple.password)
-        storedPW = codecs.encode(storedPWtuple.password, 'rot_13') # very simple password security :-)
+        if storedPWtuple is not None:
+            storedPW = codecs.encode(storedPWtuple.password, 'rot_13') # very simple password security :-)
+        else:
+            storedPW = None
         
         if password == storedPW:
             return True

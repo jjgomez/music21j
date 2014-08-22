@@ -239,7 +239,46 @@ define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, M
         return dqs;
 	};
 	
-	
+	misc.niceTimestamp = function (ts, include_seconds) {
+	    var now;
+	    if (ts === undefined) {
+	        now = Date.now();
+	    } if (ts.getMonth === undefined) {
+	        if (ts < 10000000000) {
+	            ts = ts * 1000; // seconds to milliseconds
+	        }
+	        now = new Date(ts);
+	    } else {
+	        now = ts;
+	    }
+	    // Create an array with the current month, day and time
+	    var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+	   
+	    // Create an array with the current hour, minute and second
+	    
+	    var time = [ now.getHours(), now.getMinutes()];
+	    if (include_seconds == true) {
+	        time.push( now.getSeconds() );
+	    }
+	    // Determine AM or PM suffix based on the hour
+	    var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+	   
+	    // Convert hour from military time
+	    time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;
+	   
+	    // If hour is 0, set it to 12
+	    time[0] = time[0] || 12;
+	   
+	    // If seconds and minutes are less than 10, add a zero
+	    for ( var i = 1; i < time.length; i++ ) {
+	      if ( time[i] < 10 ) {
+	        time[i] = "0" + time[i];
+	      }
+	    }
+	   
+	    // Return the formatted string
+	    return date.join("/") + " " + time.join(":") + " " + suffix;
+	};
 	// end of define
 	if (typeof(m21theory) != "undefined") {
 		m21theory.misc = misc;

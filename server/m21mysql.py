@@ -5,6 +5,7 @@ import os
 import json
 import collections
 import codecs
+import datetime
 
 import MySQLdb as mdb
 
@@ -117,7 +118,11 @@ class M21JMysql(object):
             cursor.execute(query, params)
             names = " ".join(d[0] for d in cursor.description)
             klass = collections.namedtuple('Results', names)
-            result = klass(*(cursor.fetchone()))
+            oneRow = cursor.fetchone()
+            if oneRow is not None:
+                result = klass(*oneRow)
+            else:
+                result = None
         finally:
             cursor.close()
         return result
@@ -191,6 +196,7 @@ class M21JMysql(object):
         storedPWtuple = self.queryOne('SELECT password FROM users WHERE email = %s', (email, ))
         #self.err(storedPWtuple.password)
         storedPW = codecs.encode(storedPWtuple.password, 'rot_13') # very simple password security :-)
+        
         if password == storedPW:
             return True
         else:
@@ -377,18 +383,29 @@ class M21JMysql(object):
     def printFooter(self):
         print ('''</body></html>''')
 
-    def checkServerPassword(self):
-        storedPW = self.getMysqlPW()
-        submittedPW = self.jsonForm['gradebookPw']
-        if (storedPW == submittedPW):
-            return True
-        else:
+#     def checkServerPassword(self):
+#         storedPW = self.getMysqlPW()
+#         submittedPW = self.jsonForm['gradebookPw']
+#         if (storedPW == submittedPW):
+#             return True
+#         else:
+#             return False
+        
+    def checkIfAdmin(self):
+        if not self.verifyLogin():
             return False
+        ud = self.getStudentData()
+        sec = self.queryOne("SELECT id, section FROM admins WHERE email = %s", (ud['email'], ))
+        if sec is None or sec == "":
+            return False
+        return sec
 
     def gradebook(self):
-        if self.checkServerPassword() is not True:
-            self.jsonReply({'password': False})
+        section = self.checkIfAdmin()
+        if section is False:
+            self.jsonReply({'error': 'This user is not authorized to view the gradebook'});
         else:
+            self.section = section
             if 'function' not in self.jsonForm:
                 self.jsonReply({'password': True,
                                 'error': 'no function specified'
@@ -402,12 +419,38 @@ class M21JMysql(object):
                                     'error': 'illegal function',
                                     })
                 
+    def namedTuplesToJS(self, listOfNamedTuples):
+        listOut = []
+        for row in listOfNamedTuples:
+            listOut.append(self.namedTupleToJS(row))
+        return listOut
+
+    def namedTupleToJS(self, nt):
+        rcd = {}
+        for fn in nt._fields:
+            v = getattr(nt, fn)
+            if isinstance(v, datetime.datetime):
+                v = int(v.strftime('%s'))  # convert to epoch
+            rcd[fn] = v
+        return rcd
+
+    def getUserInfoFromId(self, userId):
+        ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
+        return ui
 
     def gradesComments(self):
-        recentComments = self.query('SELECT comment,userId FROM comments ORDER BY lastUpdated DESC limit 20')
+        q = self.query('SELECT comment, userId, lastUpdated, bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20')
+        recentComments = self.namedTuplesToJS(q)
+        for r in recentComments:
+            self.err(r)
+            ui = self.getUserInfoFromId(r['userId'])
+            if ui is not None:
+                userInfo = self.namedTupleToJS(ui)
+            else:
+                userInfo = {}
+            r['userInfo'] = userInfo
         #self.err(recentComments)
-        self.err(json.dumps(recentComments))
-        
+        #self.err(json.dumps(recentComments))            
         self.jsonReply({'password': True,
                         'comments': recentComments,
                         'error': None,

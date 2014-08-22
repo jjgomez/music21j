@@ -12,33 +12,60 @@
 <script type="text/javascript">
 require(['m21theory'], function() {
     m21theory.style.apply({loadCss: false});
+    
+    m21theory.userData.fillNameDiv();
+    
     var serverSettings = m21theory.serverSettings;
-    var ajax = serverSettings.makeAjax;
-    var $grade_password = $("<div>Gradebook Password: <input type='password' id='gradebookPw'></div>")
+    var ajax = function (func, successCall, funcParams) {
+        var jsonObj = music21.common.merge({
+            function: func,
+        }, funcParams);
+        var params = { 
+                url: serverSettings.gradebookUrl, 
+                success: successCall,
+            }
+        
+        serverSettings.makeAjax(jsonObj, params);
+    }
     var $bb = $('.body#testBank');
-    $bb.append($grade_password);
+        
     
     var $commands = $("<ul></ul>");
     var $comments = $("<li><a href='#'>Get comments</a></li>").on('click', function () {
-        var gpw = $("#gradebookPw").val();
-        ajax({
-            gradebookPw: gpw,
-            function: 'getComments'    
-        }, {
-            url: serverSettings.gradebookUrl,
-            success: function (js) {
-                for (var i = 0; i < js.comments.length; i++) { 
-                    console.log(js.comments[i]);
-                    var $inDiv = $("<div>" + js.comments[i][0] + "</div>");
-                    $bb.append($inDiv);   
-                }
-                console.log($bb);
-            },
-        });    
+        ajax('getComments', handleComments);
+    });
     
-    })
+    
     $commands.append($comments);
     $bb.append($commands);
+    var $commentsOut = $('<div id="comments"></div>');
+    $bb.append($commentsOut);
+
+    
+    var handleComments = function (js) {
+        if (js.error !== undefined && js.error !== null) {
+            m21theory.feedback.alert(js.error, 'alert');
+            return;
+        }        
+        $commentsOut.empty();
+        $commentsOut.append($("<h1>Recent comments</h1>"));
+        for (var i = 0; i < js.comments.length; i++) { 
+            var jsc = js.comments[i];
+            var $inDiv = $("<div></div>");
+            var $h3 = $("<h3 style='width: 100%'></h3>");
+            var $link = $("<a href='mailto:" + jsc.userInfo.email + "'></a>");
+            $link.append($("<span>" + jsc.userInfo.first + " " + jsc.userInfo.last + "</span>"));
+            $h3.append($link);
+            $h3.append("<small> (" + jsc.userId + ") </small>")
+            $h3.append($("<div style='float: right; font-size: 10pt'> " + m21theory.misc.niceTimestamp(jsc.lastUpdated) + " </div>"));
+            $inDiv.append($h3);
+            $inDiv.append($("<div style='float: right'><i>" + jsc.bankId + " " + jsc.sectionId + "</i></div>"));
+            $inDiv.append($("<div>" + jsc.comment + "</div>"));
+            $commentsOut.append($inDiv);   
+        }    
+    };
+
+    
 });
 
 </script>

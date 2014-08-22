@@ -6,8 +6,8 @@ oldhtml = cgitb.html
 def newHTML((etype, evalue, etb), context=5):
     x = oldhtml((etype, evalue, etb), context)
     return x + "\n</body></html>\n"
-
 cgitb.html = newHTML
+
 import sys
 import os
 import cgi

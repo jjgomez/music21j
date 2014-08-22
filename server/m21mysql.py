@@ -158,7 +158,7 @@ class M21JMysql(object):
             else:
                 username = getpass.getuser()
                 userdir = os.path.expanduser("~" + username)
-        
+                self.err(userdir)
         #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
         #logging.debug(username)
         

@@ -13,7 +13,7 @@ var knownSectionTypes = ['interval','chordCreation','chordIdentification','first
 
 var knownSectionTypesPrefixed = [];
 for (var i = 0; i < knownSectionTypes.length; i ++) {
-	knownSectionTypesPrefixed.push("m21theory/sections/" + knownSectionTypes[i]);
+	knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
 }
 var dependencies = ['require'].concat(knownSectionTypesPrefixed);
 

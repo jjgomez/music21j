@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/random', 'm21theory/userData', 'm21theory/question', 
-        'm21theory/feedback', 'm21theory/serverSettings'], 
+define(['./random', './userData', './question', 
+        './feedback', './serverSettings'], 
         function(random, userData, question, feedback, serverSettings) {
 	var section = {};
 

@@ -6,7 +6,7 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'], 
+define(['./random', './userData', 'jquery', './misc'], 
         function (random, userData, $, misc) {
     var feedback = {};
     

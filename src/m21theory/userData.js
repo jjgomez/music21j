@@ -7,7 +7,7 @@
  * 
  */
 
-define(['jquery', 'm21theory/feedback', 'm21theory/serverSettings'], 
+define(['jquery', './feedback', './serverSettings'], 
         function($, feedback, serverSettings) {
 	// Student Name Routines 
 	// calling m21theory.fillNameDiv() will 

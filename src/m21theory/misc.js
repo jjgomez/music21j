@@ -6,7 +6,7 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['music21','loadMIDI', 'jquery', 'm21theory/random'], function(music21, MIDI, $, random) {
+define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, random) {
 	var misc = {};
 	misc.playMotto = function (MIDI, long) {
 	    //return;

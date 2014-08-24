@@ -7,7 +7,7 @@
  * 
  */
 
-define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'], 
+define(['jquery', './feedback', 'music21/common', './userData'], 
         function($, feedback, common, userData) {
     var s = {}; 
     
@@ -34,7 +34,7 @@ define(['jquery', 'm21theory/feedback', 'music21/common', 'm21theory/userData'],
         } else {
             this.host = '';
         }
-        console.log(this.commentUrl);
+        //console.log(this.commentUrl);
     };
     
     Object.defineProperties( s, {

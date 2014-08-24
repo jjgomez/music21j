@@ -20,7 +20,7 @@ define(['jquery', 'music21/common'],
         $(document.body).append($related, $mainDocument);        
     };
     
-    if (m21theory !== undefined) {
+    if (typeof m21theory != "undefined") {
         m21theory.style = style;
     }
     return style;

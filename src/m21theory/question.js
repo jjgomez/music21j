@@ -139,7 +139,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery'], function (random, u
     question.Question.prototype.constructor = question.Question;
     
     
-    if (m21theory !== undefined) {
+    if (typeof m21theory != "undefined") {
         m21theory.question = question;
     }
     return question;

@@ -429,7 +429,7 @@ define(['m21theory/random', 'm21theory/userData', 'jquery', 'm21theory/misc'],
             .fadeOut(fadeTime, function () { this.remove(); } );
         $(tdiv).append(alertDiv);
     };
-    if (m21theory !== undefined) {
+    if (typeof m21theory != "undefined") {
         m21theory.feedback = feedback;
     }
     

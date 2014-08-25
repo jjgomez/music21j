@@ -29,6 +29,12 @@ class M21JMysql(object):
         self.userdir = None
         
         self.hostpath = '' # 'http://web.mit.edu/music21/music21j'
+        if ('REQUEST_URI' in os.environ):
+            uri = os.environ['REQUEST_URI']
+            if '/server' in uri:
+                index = uri.index('/server')
+                hostpath = uri[0:index]
+                self.hostpath = hostpath
         
         self.title = "Music21j Project"
 

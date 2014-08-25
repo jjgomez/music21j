@@ -6,7 +6,7 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['./random', './userData', 'jquery'], function (random, userData, $) {
+define(['./random', './userData', 'jquery', './feedback'], function (random, userData, $, feedback) {
     var question = {};
     
     question.GeneralQuestion = function (section, index) {
@@ -83,14 +83,57 @@ define(['./random', './userData', 'jquery'], function (random, userData, $) {
         this.answerStatus = isCorrect ? "correct" : "incorrect";
         if (isCorrect != true && this.ignoreMistakes == false) {
             this.incorrectAnswerAttempts += 1;
-        }        
+        }
+        this.questionStatusChanged();
         this.section.questionStatusChanged(this.answerStatus, this);
         this.changeStatusClass(isCorrect);
         if (isCorrect && this.section.studentFeedback && this.correctCallback !== undefined) {
             this.correctCallback();
         }
     };
-
+    question.GeneralQuestion.prototype.questionStatusChanged = function () { 
+        var bankId = 'unknownTestBank';
+        var sectionId = 'unknownSection';
+        var sectionIndex = -1;
+        var startTime = 0;
+        if (this.section != undefined) {
+            sectionId = this.section.id;
+            startTime = this.section.startTime;
+            sectionIndex = this.section.bankIndex;
+            if (this.section.bank != undefined) {
+                bankId = this.section.bank.id;
+            }            
+        }
+        var info = {
+            studentData: userData.studentData,
+            bankId: bankId,
+            sectionId: sectionId,
+            sectionIndex: sectionIndex,
+            questionIndex: this.index,
+            answerStatus: this.answerStatus,
+            startTime: startTime,
+            endTime: Date.now(),
+            seed: random.seed,
+            studentAnswer: this.getStudentAnswer(),
+            storedAnswer: this.getStoredAnswer(),
+        };
+        serverSettings.makeAjax(info, { 
+            url: serverSettings.submitQuestion,
+            success: function (d) { 
+                if (d.success != true) {
+                    if (d.login != true) {
+                        feedback.alert('Not logged in -- answers not stored; log in now', 'update');
+                    } else if (d.dbSuccess != true) {
+                        feedback.alert('Database error -- contact Cuthbert and try again later!', 'update');
+                    }
+                }                
+            },
+            error: function () { 
+                feedback.alert('Server unavailable -- question not stored', 'update', 
+                        {delayFade: 1000}); 
+                },
+        });
+    };
     question.GeneralQuestion.prototype.changeStatusClass = function (isCorrect) {
         var possibleClasses = 'correct incorrect answered unanswered';
         if (isCorrect) {

@@ -7,13 +7,9 @@ define("m21theory/sections/noteIdentification",
     };
     NoteQuestion.prototype = new question.Question();
     NoteQuestion.prototype.constructor = NoteQuestion;
-    NoteQuestion.prototype.getStudentAnswer = function () {
-        return question.Question.prototype.getStudentAnswer.call(this)
-            .toLowerCase().replace(/\s*/g, "").replace(/n/g, "");
-    };
     NoteQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer){
         return (storedAnswer.toLowerCase().replace(/\s*/g, "") == 
-            studentAnswer );
+            studentAnswer.toLowerCase().replace(/\s*/g, "").replace(/n/g, "") );
     };
     NoteQuestion.prototype.lyricsChanged = function () {
         misc.lyricsFromValue(this.$inputBox, this.stream);

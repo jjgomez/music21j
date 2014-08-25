@@ -31,16 +31,51 @@ require(['m21theory'], function() {
         
     
     var $commands = $("<ul></ul>");
+    var $viewBankGrades =  $("<li><a href='#'>View Grades for Banks</a></li>").on('click', function () {
+        ajax('viewBankGrades', handleBankGrades);
+    });
+    $commands.append($viewBankGrades);
     var $comments = $("<li><a href='#'>Get comments</a></li>").on('click', function () {
         ajax('getComments', handleComments);
-    });
-    
-    
+    });    
     $commands.append($comments);
+    
     $bb.append($commands);
+    
+    var $viewBankGradesOut = $('<div id="comments"></div>');
+    $bb.append($viewBankGradesOut);
     var $commentsOut = $('<div id="comments"></div>');
     $bb.append($commentsOut);
 
+    var oneBankGrade = function (g) {
+        var $inDiv = $("<div></div>");
+        var $h3 = $("<h3 style='width: 100%'></h3>");
+        var $link = $("<a href='mailto:" + g.userInfo.email + "'></a>");
+        $link.append($("<span>" + g.userInfo.first + " " + g.userInfo.last + "</span>"));
+        $h3.append($link);
+        $h3.append("<small> (" + g.userId + ") </small>")
+        $h3.append($("<div style='float: right; font-size: 10pt'> " + m21theory.misc.niceTimestamp(g.lastUpdated) + " </div>"));
+        $inDiv.append($h3);
+        $inDiv.append($("<div style='float: right'><a href='http://localhost:8000/ps051/" + g.bankId + ".html?seed=" + 
+                + g.seed + "'><i>" + 
+                g.bankId + " " + g.seed + "</a></i></div>"));
+        $inDiv.append($("<div>" + g.numRight + "/" + g.totalQs + " " + 
+                parseInt(g.numRight*100/g.totalQs).toString()  + "%</div>"));
+        return $inDiv;        
+    };
+    
+    var handleBankGrades = function (js) {
+        if (js.error !== undefined && js.error !== null) {
+            m21theory.feedback.alert(js.error, 'alert');
+            return;
+        }                
+        $viewBankGradesOut.empty();
+        $viewBankGradesOut.append($("<h1>Recent grades</h1>"));
+        for (var i = 0; i < js.grades.length; i++) {
+            var g = js.grades[i];
+            $viewBankGradesOut.append( oneBankGrade(g) );   
+        }
+    };
     
     var handleComments = function (js) {
         if (js.error !== undefined && js.error !== null) {

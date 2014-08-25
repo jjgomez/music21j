@@ -20,6 +20,8 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         this.gradebookUrl = this.host + '/server/cgi-bin/gradebook.cgi';
         this.changePassword = this.host + '/server/cgi-bin/change_pw.cgi';
         this.checkLogin = this.host + '/server/cgi-bin/check_login.cgi';
+
+        this.submitQuestion = this.host + '/server/cgi-bin/submit_question.cgi';
         this.submitSection = this.host + '/server/cgi-bin/submit_section.cgi';        
         this.submitBank = this.host + '/server/cgi-bin/submit_bank.cgi';        
     };

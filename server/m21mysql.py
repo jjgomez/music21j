@@ -247,6 +247,52 @@ class M21JMysql(object):
         
         self.jsonReply({'success': True})
 
+    def submitQuestion(self):
+        if self.verifyLogin() is False:
+            self.jsonReply({'success': False,
+                            'login': False,
+                            })
+        else:
+            userId = self.getUserId()
+            j = self.jsonForm
+            if 'sectionId' not in j:
+                j['sectionId'] = "unknownSection"
+
+            for ans in ('studentAnswer', 'storedAnswer'):                
+                if ans not in j:
+                    j[ans] = ''
+                if j[ans] != unicode(j[ans]):
+                    j[ans] = json.dumps(j[ans])
+                
+                
+            #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+            #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+            try:
+                self.execute(
+                '''REPLACE INTO question (bankId, sectionId, sectionIndex, questionIndex, 
+                                        userId, answerStatus, studentAnswer, storedAnswer,
+                                        startTime, endTime, seed
+                                        )
+                                VALUES (%s, %s, %s, %s,
+                                        %s, %s, %s, %s,
+                                        FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                        )
+                ''', (j['bankId'], j['sectionId'], j['sectionIndex'], j['questionIndex'],
+                      userId, j['answerStatus'], j['studentAnswer'], j['storedAnswer'],
+                      j['startTime']/1000, j['endTime']/1000, j['seed']
+                      )
+                )
+            except Exception as e:
+                self.err(e)
+                self.jsonReply({'success': False,
+                                'login': True,
+                                'dbSuccess': False,
+                                })
+            self.jsonReply({'success': True,
+                            'login': True,
+                            'dbSuccess': True,                            
+                            })
+
         
     def submitSection(self):
         if self.verifyLogin() is False:
@@ -258,13 +304,15 @@ class M21JMysql(object):
             j = self.jsonForm
             if 'sectionId' not in j:
                 j['sectionId'] = "unknownSection"
+            if 'outcome' not in j:
+                j['outcome'] = 'unknown'
             #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
             #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
             try:
                 self.execute(
-                '''INSERT INTO section (bankId, sectionId, sectionIndex, 
+                '''REPLACE INTO section (bankId, sectionId, sectionIndex, 
                                         userId, numRight, numWrong, numMistakes, numUnanswered,
-                                        totalQs, startTime, endTime, seed
+                                        totalQs, startTime, endTime, seed, outcome,
                                         )
                                 VALUES (%s, %s, %s,
                                         %s, %s, %s, %s, %s,
@@ -272,7 +320,7 @@ class M21JMysql(object):
                                         )
                 ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
                       userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
-                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed']
+                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['outcome']
                       )
                 )
             except Exception as e:
@@ -296,7 +344,7 @@ class M21JMysql(object):
             j = self.jsonForm
             try:
                 self.execute(
-                '''INSERT INTO bank (bankId,  
+                '''REPLACE INTO bank (bankId,  
                                         userId, numRight, numWrong, numMistakes, numUnanswered,
                                         totalQs, startTime, endTime, seed
                                         )
@@ -427,6 +475,25 @@ class M21JMysql(object):
 #             return True
 #         else:
 #             return False
+                
+    def namedTuplesToJS(self, listOfNamedTuples):
+        listOut = []
+        for row in listOfNamedTuples:
+            listOut.append(self.namedTupleToJS(row))
+        return listOut
+
+    def namedTupleToJS(self, nt):
+        rcd = {}
+        for fn in nt._fields:
+            v = getattr(nt, fn)
+            if isinstance(v, datetime.datetime):
+                v = int(v.strftime('%s'))  # convert to epoch
+            rcd[fn] = v
+        return rcd
+
+    def getUserInfoFromId(self, userId):
+        ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
+        return ui
         
     def checkIfAdmin(self):
         if not self.verifyLogin():
@@ -450,49 +517,41 @@ class M21JMysql(object):
             else:
                 jrFunc = self.jsonForm['function']
                 if jrFunc == 'getComments':
-                    self.gradesComments()
+                    self.gradesGetComments()
+                elif jrFunc == 'viewBankGrades':
+                    self.gradesViewBankGrades()
                 else:
                     self.jsonReply({'password': True,
                                     'error': 'illegal function',
                                     })
-                
-    def namedTuplesToJS(self, listOfNamedTuples):
-        listOut = []
-        for row in listOfNamedTuples:
-            listOut.append(self.namedTupleToJS(row))
-        return listOut
 
-    def namedTupleToJS(self, nt):
-        rcd = {}
-        for fn in nt._fields:
-            v = getattr(nt, fn)
-            if isinstance(v, datetime.datetime):
-                v = int(v.strftime('%s'))  # convert to epoch
-            rcd[fn] = v
-        return rcd
+    def queryJSreturn(self, query, params=None):
+        q = self.query(query, params)
+        jsq = self.namedTuplesToJS(q)
+        if len(jsq) > 0 and 'userId' in jsq[0]:
+            for r in jsq:
+                ui = self.getUserInfoFromId(r['userId'])       
+                if ui is not None:
+                    userInfo = self.namedTupleToJS(ui)
+                else:
+                    userInfo = {}
+                r['userInfo'] = userInfo
+        return jsq
 
-    def getUserInfoFromId(self, userId):
-        ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
-        return ui
-
-    def gradesComments(self):
-        q = self.query('SELECT comment, userId, lastUpdated, bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20')
-        recentComments = self.namedTuplesToJS(q)
-        for r in recentComments:
-            self.err(r)
-            ui = self.getUserInfoFromId(r['userId'])
-            if ui is not None:
-                userInfo = self.namedTupleToJS(ui)
-            else:
-                userInfo = {}
-            r['userInfo'] = userInfo
-        #self.err(recentComments)
-        #self.err(json.dumps(recentComments))            
+    def gradesViewBankGrades(self):
+        q = self.queryJSreturn('SELECT userId, lastUpdated, bankId, numRight, numWrong, numMistakes, totalQs, seed FROM bank ORDER BY lastUpdated DESC')
+        self.jsonReply({'password': True,
+                        'grades': q,
+                        'error': None,
+                        })
+        
+        
+    def gradesGetComments(self):
+        recentComments = self.queryJSreturn('SELECT comment, userId, lastUpdated, bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20')
         self.jsonReply({'password': True,
                         'comments': recentComments,
                         'error': None,
                         })
-        return;
 
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')

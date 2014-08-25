@@ -359,20 +359,23 @@ define(['./random', './userData', './question',
 				this.submissionSection.empty();
 				this.submissionSection.append(thisOutcome);
 				this.submissionContents = thisOutcome;	
-				this.currentOutcome = outcome;
 				if (outcome == 'noFeedback' || outcome == 'success' || outcome == 'moreWork') {
 				    if (this.autoSubmit == true) {
-				        this.submitWork();
 				        var newOutcome = 'submitted';
 				        if (outcome == 'moreWork') {
 				            newOutcome = 'submittedMoreWork';
 				        }
-                        var newOutcomeContents = this.possibleOutcomes[newOutcome];
-				        this.currentOutcome = newOutcome;                  
+				        if (newOutcome != this.currentOutcome) {
+	                        this.currentOutcome = newOutcome;              
+	                        this.submitWork();				            
+				        }
+				        var newOutcomeContents = this.possibleOutcomes[newOutcome];
                         this.submissionSection.empty();
                         this.submissionSection.append(newOutcomeContents);
                         this.submissionContents = newOutcomeContents;                              
 				    }
+				} else {
+	                this.currentOutcome = outcome;
 				}
 				
 			}
@@ -406,7 +409,8 @@ define(['./random', './userData', './question',
 	               	totalQs: scores.totalQs,
 	               	startTime: this.startTime,
 	               	endTime: Date.now(),
-	               	seed: random.seed,	               	
+	               	seed: random.seed,
+	               	outcome: this.currentOutcome,
 	        };
 	        serverSettings.makeAjax(info, { 
 	            url: serverSettings.submitSection,

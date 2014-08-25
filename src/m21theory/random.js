@@ -6,7 +6,7 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define([], function(require) {
+define(['music21/common'], function(common) {
 	var random = {};
 	// ---------------
 	// Random number routines...
@@ -42,7 +42,17 @@ define([], function(require) {
 	random.seed = 1;
 	random.setSeedFromGeneratorType = function (generatorType) {
 	    if (generatorType == undefined) {
-	        generatorType = random.generatorType;
+	        var urlSeed = music21.common.urlParam('seed');
+	        if (urlSeed !== undefined && urlSeed !== null && urlSeed != "") {
+	            random.seed = parseInt(urlSeed);
+	            if (isNaN(random.seed)) {
+	                generatorType = random.generatorType;
+	            } else {
+	                generatorType = 'fixed';	                
+	            }
+	        } else {
+	            generatorType = random.generatorType;	            
+	        }
 	    }
 	    var d = new Date();
 	    var seed = random.seed;

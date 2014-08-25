@@ -16,6 +16,21 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `admins`
+--
+
+DROP TABLE IF EXISTS `admins`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `admins` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `email` char(255) DEFAULT NULL,
+  `section` char(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `bank`
 --
 
@@ -25,18 +40,20 @@ DROP TABLE IF EXISTS `bank`;
 CREATE TABLE `bank` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
-  `bankId` int(11) NOT NULL,
+  `bankId` char(255) NOT NULL DEFAULT '',
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
-  `randomSeed` int(11) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `seed` int(11) DEFAULT NULL,
+  `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `numRight` int(11) DEFAULT NULL,
   `numWrong` int(11) DEFAULT NULL,
   `numMistakes` int(11) DEFAULT NULL,
   `totalQs` int(11) DEFAULT NULL,
-  `url` char(1) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `url` char(255) DEFAULT NULL,
+  `numUnanswered` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `userId` (`userId`,`bankId`,`seed`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +72,7 @@ CREATE TABLE `comments` (
   `seed` int(11) DEFAULT NULL,
   `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=137 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -67,7 +84,7 @@ DROP TABLE IF EXISTS `question`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `question` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `lastUpdated` timestamp NULL DEFAULT NULL,
+  `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `userId` int(11) DEFAULT NULL,
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
@@ -75,8 +92,13 @@ CREATE TABLE `question` (
   `answerStatus` char(255) DEFAULT NULL,
   `studentAnswer` mediumtext,
   `storedAnswer` mediumtext,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+  `bankId` char(255) DEFAULT NULL,
+  `sectionId` char(255) DEFAULT NULL,
+  `questionIndex` int(11) DEFAULT NULL,
+  `sectionIndex` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `questionIndex` (`userId`,`bankId`,`seed`,`sectionIndex`,`questionIndex`)
+) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -101,8 +123,10 @@ CREATE TABLE `section` (
   `startTime` datetime DEFAULT NULL,
   `endTime` datetime DEFAULT NULL,
   `seed` int(11) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8;
+  `outcome` char(40) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `submission` (`userId`,`bankId`,`sectionIndex`,`seed`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,7 +145,7 @@ CREATE TABLE `users` (
   `section` varchar(11) DEFAULT NULL,
   `instructor` varchar(255) DEFAULT NULL,
   `enrolled` varchar(255) DEFAULT NULL,
-  `lastModified` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
@@ -136,4 +160,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-21 18:04:46
+-- Dump completed on 2014-08-25 17:29:14

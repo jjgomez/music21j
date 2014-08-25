@@ -30,6 +30,8 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         var l = window.location;
         if (l.hostname == 'ciconia.mit.edu' ) {
             this.host = l.origin + '/m21j';
+        } else if (l.hostname == 'zachara.mit.edu' ) {
+            this.host = l.origin + '/m21j';
         } else if (l.hostname == 'web.mit.edu') {
             this.host = 'http://ciconia.mit.edu/m21j'; // web.mit.edu has no mysql...
             this.useJsonP = true; // NOT YET SUPPORTED, but necessary for cross domain XHR requests.

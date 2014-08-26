@@ -312,17 +312,19 @@ class M21JMysql(object):
                 j['sectionId'] = "unknownSection"
             if 'outcome' not in j:
                 j['outcome'] = 'unknown'
+            if 'sectionIndex' not in j:
+                j['sectionIndex'] = -1
             #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
             #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
             try:
                 self.execute(
                 '''REPLACE INTO section (bankId, sectionId, sectionIndex, 
                                         userId, numRight, numWrong, numMistakes, numUnanswered,
-                                        totalQs, startTime, endTime, seed, outcome,
+                                        totalQs, startTime, endTime, seed, outcome
                                         )
-                                VALUES (%s, %s, %s,
-                                        %s, %s, %s, %s, %s,
-                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                VALUES (%s, %s, '%s',
+                                        '%s', '%s', '%s', '%s', '%s',
+                                        '%s', FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), '%s', %s
                                         )
                 ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
                       userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],

@@ -72,7 +72,7 @@ CREATE TABLE `comments` (
   `seed` int(11) DEFAULT NULL,
   `lastUpdated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=141 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -96,9 +96,10 @@ CREATE TABLE `question` (
   `sectionId` char(255) DEFAULT NULL,
   `questionIndex` int(11) DEFAULT NULL,
   `sectionIndex` int(11) DEFAULT NULL,
+  `numMistakes` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `questionIndex` (`userId`,`bankId`,`seed`,`sectionIndex`,`questionIndex`)
-) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=268 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -126,7 +127,7 @@ CREATE TABLE `section` (
   `outcome` char(40) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `submission` (`userId`,`bankId`,`sectionIndex`,`seed`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,4 +161,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-08-25 17:29:14
+-- Dump completed on 2014-08-27 13:20:29

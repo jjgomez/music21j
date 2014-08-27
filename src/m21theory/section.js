@@ -50,6 +50,9 @@ define(['./random', './userData', './question',
 		this._profEmail = undefined;
 		this._studentFeedback = undefined;
 		
+        this._restoreAnswers = undefined;
+
+		
 	    Object.defineProperties(this, {
 	        'bankIndex': {
 	            get: function () {
@@ -150,7 +153,23 @@ define(['./random', './userData', './question',
 				set: function (newAllow) {
 					this._studentFeedback = newAllow;
 				}
-	    	}
+	    	},
+	    	'restoreAnswers': {
+                get: function () {
+                    var allow = this._restoreAnswers;
+                    if (allow == undefined) {
+                        if (this.bank != undefined) {
+                            allow = this.bank.restoreAnswers;
+                        } else {
+                            allow = true;
+                        }
+                    }
+                    return allow;
+                },
+                set: function (newAllow) {
+                    this._restoreAnswers = newAllow;
+                }	    	    
+	    	}            
 	    });
 		
 
@@ -179,13 +198,13 @@ define(['./random', './userData', './question',
 				"<div class='submissionContents' style='float: right'><b>You got them all!</b><br/>" +
 				"You can submit your work here... <input class='emptyButton' type='button' /> ..."+
 				"<b>But you need more practice</b> (too many mistakes). " +
-				"After submitting hit <b>reload to try again</b> and " +
+				"After submitting return to the main menu and <b>try a new sheet</b> and " +
 				"see if you can work slowly and have fewer errors next time.<br/></div><br clear='all'/>");
             this.possibleOutcomes['submittedMoreWork'] =   $("<br clear='all'/>" + 
                     "<div class='submissionContents' style='float: right'><b>Submitted!</b>" +
                     "<br/>Your work has been submitted and recorded. "+
                     "But if you'd like to keep trying and improving, <b>highly recommended, because " +
-                    "you could get better at this</b>, hit reload to get a new problem set, then click " + 
+                    "you could get better at this</b>, return to the main menu to try a new sheet, then click " + 
                     "<input class='emptyButton' type='button' />" +
                     "to submit again. <br/></div><br clear='all'/>");
 
@@ -208,13 +227,13 @@ define(['./random', './userData', './question',
 		
 			if (this.allowEarlySubmit) {
 				this.possibleOutcomes['incomplete'] =  $("<br clear='all'/>" + 
-				"<div class='submissionContents' style='float: right'><i>more work to do...</i><br>" +
+				"<div class='submissionContents' style='float: right'><i>Unanswered questions remain...</i><br>" +
 				"You can submit your work here if you are out of time <br/> or cannot understand the problems..." +
 				"<input class='emptyButton' type='button' /> ...<br/></div><br clear='all'/>");
 			} else {
 				this.possibleOutcomes['incomplete'] = $("<br clear='all'/>" + 
 					"<div class='submissionContents' style='float: right'>" +
-					"<i>A submission box will appear here when you are done</i>" +
+					"<i><i>Unanswered questions remain...</i>. A submission box will appear here when you are done</i>" +
 					"</div><br clear='all'/>"
 					);
 			}
@@ -282,12 +301,12 @@ define(['./random', './userData', './question',
 		            q.isPractice = true;
 		            this.practiceQuestions.push(q);
 		        } else {
-                     this.questions.push(q);
+                    this.questions.push(q);
 		        }
 		        q.append();
 		    }
 		};
-
+				
 		this.renderPostBody = function (newTestSection) {
 			// does nothing here...
 		};
@@ -327,7 +346,7 @@ define(['./random', './userData', './question',
 		};
 		    		
 		this.currentOutcome = undefined;
-		this.checkEndCondition = function () {
+		this.checkEndCondition = function (params) {
 			var outcome = undefined;
 		    if (this.numRight == this.totalQs - this.practiceQs) {
 				//console.log("end condition met...");				
@@ -341,20 +360,25 @@ define(['./random', './userData', './question',
 				} else {
 					outcome = 'noFeedback';
 				}
-				this.changeOutcome(outcome);
+				this.changeOutcome(outcome, params);
 			} else if (this.numRight + this.numWrong == this.totalQs - this.practiceQs) {
 				if (this.studentFeedback === true) {
 				    outcome = 'errors';
 				} else {
 					outcome = 'noFeedback';			
 				}
-                this.changeOutcome(outcome);
+                this.changeOutcome(outcome, params);
 			}
 			return outcome;
 		};
 		
-		this.changeOutcome = function (outcome) {
-			if (outcome != this.currentOutcome) {
+		this.changeOutcome = function (outcome, options) {
+		    var params = {
+		            submit: this.autoSubmit,
+		    };
+		    music21.common.merge(params, options);
+		    
+		    if (outcome != this.currentOutcome) {
 				var thisOutcome = this.possibleOutcomes[outcome];
 				this.submissionSection.empty();
 				this.submissionSection.append(thisOutcome);
@@ -367,7 +391,9 @@ define(['./random', './userData', './question',
 				        }
 				        if (newOutcome != this.currentOutcome) {
 	                        this.currentOutcome = newOutcome;              
-	                        this.submitWork();				            
+	                        if (params.submit == true) { // not true if restoring from db...
+	                            this.submitWork();        	                            
+	                        }
 				        }
 				        var newOutcomeContents = this.possibleOutcomes[newOutcome];
                         this.submissionSection.empty();

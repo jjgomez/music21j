@@ -211,11 +211,12 @@ class M21JMysql(object):
         else:
             return False
 
-    def getUserId(self):
-        studentData = self.getStudentData()
-        if 'email' not in studentData:
-            raise M21JMysqlException('Email not in studentData')
-        email = studentData['email']
+    def getUserId(self, email=None):
+        if email is None:
+            studentData = self.getStudentData()
+            if 'email' not in studentData:
+                raise M21JMysqlException('Email not in studentData')
+            email = studentData['email']
         info = self.queryOne('SELECT id FROM users WHERE email = %s', (email, ))
         if info is None:
             raise M21JMysqlException('Email not in database!')
@@ -277,15 +278,15 @@ class M21JMysql(object):
                 self.execute(
                 '''REPLACE INTO question (bankId, sectionId, sectionIndex, questionIndex, 
                                         userId, answerStatus, studentAnswer, storedAnswer,
-                                        startTime, endTime, seed
+                                        startTime, endTime, seed, numMistakes
                                         )
                                 VALUES (%s, %s, %s, %s,
                                         %s, %s, %s, %s,
-                                        FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                        FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
                                         )
                 ''', (j['bankId'], j['sectionId'], j['sectionIndex'], j['questionIndex'],
                       userId, j['answerStatus'], j['studentAnswer'], j['storedAnswer'],
-                      j['startTime']/1000, j['endTime']/1000, j['seed']
+                      j['startTime']/1000, j['endTime']/1000, j['seed'], j['numMistakes']
                       )
                 )
             except Exception as e:
@@ -560,6 +561,50 @@ class M21JMysql(object):
                         'comments': recentComments,
                         'error': None,
                         })
+
+    def retrieveAnswer(self):
+        if self.verifyLogin() is False:
+            self.jsonReply({'success': False,
+                            'login': False,
+                            })
+            return;
+        if 'for' in self.jsonForm:
+            if self.checkIfAdmin() is False:
+                self.jsonReply({'success': False,
+                            'login': False,
+                            })
+                return;
+            forStudent = self.jsonForm['for']
+        else:
+            forStudent = self.getStudentData()['email']
+            
+        if ('seed' not in self.jsonForm or 'bankId' not in self.jsonForm):
+            self.jsonReply({'success': False,
+                            'login': True,
+                            })
+            return;
+        seed = self.jsonForm['seed']
+        bankId = self.jsonForm['bankId']
+        
+        uid = self.getUserId(forStudent)
+        sectionsIncluded = self.query('''SELECT DISTINCT(sectionIndex) AS si FROM question
+            WHERE seed = %s AND bankId = %s ORDER BY sectionIndex
+        ''', (seed, bankId))
+
+        sectionDict = {};
+
+        for r in sectionsIncluded:
+            sectionIndex = r.si                    
+            answerInfo = self.queryJSreturn('''SELECT answerStatus, storedAnswer, studentAnswer, 
+                                        questionIndex, numMistakes FROM question 
+                WHERE seed = %s AND bankId = %s AND sectionIndex = %s ORDER BY questionIndex
+            ''', (seed, bankId, sectionIndex))
+            sectionDict[sectionIndex] = answerInfo
+        self.jsonReply({'success': True,
+                        'login': True,
+                        'sectionDict': sectionDict,
+                        })
+
 
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')

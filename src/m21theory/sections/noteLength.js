@@ -77,6 +77,22 @@ define("m21theory/sections/noteLength",
         var saArray = this.normalizeAnswer(sa);
         return saArray;
     };    
+    
+    NL.prototype.studentAnswerForStorage = function () {
+        var sa = question.Question.prototype.getStudentAnswer.call(this);
+        return sa;
+    };    
+
+    NL.prototype.restoreStudentAnswer = function (dbAnswer) {
+        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
+            if (this.$inputBox != undefined) {
+                this.$inputBox.val(dbAnswer);
+            }
+            this.studentAnswer = dbAnswer;
+            this.lyricsChanged();
+        }
+    };
+
     NL.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
         if (studentAnswer.length != storedAnswer.length) {
             return false;

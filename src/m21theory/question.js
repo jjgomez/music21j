@@ -6,7 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['./random', './userData', 'jquery', './feedback'], function (random, userData, $, feedback) {
+define(['./random', './userData', 'jquery', './feedback', './serverSettings'], 
+        function (random, userData, $, feedback, serverSettings) {
     var question = {};
     
     question.GeneralQuestion = function (section, index) {
@@ -65,10 +66,55 @@ define(['./random', './userData', 'jquery', './feedback'], function (random, use
         return sa;
     };
     
+    
+    // if we want to store a different version for the database. For overriding...
+    question.GeneralQuestion.prototype.studentAnswerForStorage = function () {
+        var sa = this.getStudentAnswer();
+        if (sa instanceof music21.stream.Stream) {
+            return ""; // no stream storage (yet...)
+        } else {
+            return sa;
+        }
+    };
+    
+    /**
+     * For storing...
+     * 
+     * @param dbAnswer
+     * @returns
+     */
+    question.GeneralQuestion.prototype.restoreStudentAnswer = function (dbAnswer) {
+        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
+            if (this.$inputBox != undefined) {
+                this.$inputBox.val(dbAnswer);
+            }
+            this.studentAnswer = dbAnswer;
+        }
+    };
+        
     // to be overridden...
     question.GeneralQuestion.prototype.getStoredAnswer = function () {
         return this.storedAnswer;
     };
+    
+    question.GeneralQuestion.prototype.storedAnswerForStorage = function () {
+        var sa = this.getStoredAnswer();
+        if (sa instanceof music21.stream.Stream) {
+            return ""; // no stream storage (yet...)
+        } else {
+            return sa;
+        }
+        
+    };
+    
+    
+    // Don't do anything... should be right...
+    question.GeneralQuestion.prototype.restoreStoredAnswer = function (dbAnswer) {
+        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
+            // this.storedAnswer = dbAnswer;
+        }
+    };
+    
     
     // returns true false..
     question.GeneralQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer) {        
@@ -78,6 +124,7 @@ define(['./random', './userData', 'jquery', './feedback'], function (random, use
     question.GeneralQuestion.prototype.validateAnswer = function () {
         var studentAnswer = this.getStudentAnswer();
         var storedAnswer = this.getStoredAnswer();
+        console.log(studentAnswer, storedAnswer);
         var isCorrect = this.checkAnswer(studentAnswer, storedAnswer);
         //console.log(studentAnswer, storedAnswer, isCorrect);
         this.answerStatus = isCorrect ? "correct" : "incorrect";
@@ -114,8 +161,9 @@ define(['./random', './userData', 'jquery', './feedback'], function (random, use
             startTime: startTime,
             endTime: Date.now(),
             seed: random.seed,
-            studentAnswer: this.getStudentAnswer(),
-            storedAnswer: this.getStoredAnswer(),
+            studentAnswer: this.studentAnswerForStorage(),
+            storedAnswer: this.storedAnswerForStorage(),
+            numMistakes: this.incorrectAnswerAttempts,
         };
         serverSettings.makeAjax(info, { 
             url: serverSettings.submitQuestion,
@@ -168,7 +216,25 @@ define(['./random', './userData', 'jquery', './feedback'], function (random, use
         this.testSectionBody.append($section);
     };
     
-    
+    question.GeneralQuestion.prototype.restoreAnswers = function (dbAnswer) {
+        if (dbAnswer.studentAnswer !== undefined) {
+            this.restoreStudentAnswer(dbAnswer.studentAnswer);            
+        }
+        if (dbAnswer.storedAnswer !== undefined) {
+            this.restoreStoredAnswer(dbAnswer.storedAnswer);            
+        }
+        if (dbAnswer.numMistakes !== undefined) {
+            this.incorrectAnswerAttempts = dbAnswer.numMistakes;
+        }
+        if (dbAnswer.answerStatus !== undefined) {
+            this.answerStatus = dbAnswer.answerStatus;
+            if (dbAnswer.answerStatus == 'correct' || dbAnswer.answerStatus == 'incorrect') {
+                var isCorrect = (dbAnswer.answerStatus == 'correct') ? true : false;
+                this.changeStatusClass(isCorrect);
+            }            
+        }
+    };
+        
     question.PracticeQuestion = function (section, index) {
         question.GeneralQuestion.call(this, section, index);
     };

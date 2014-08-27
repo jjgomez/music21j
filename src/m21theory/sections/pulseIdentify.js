@@ -101,7 +101,9 @@ define("m21theory/sections/pulseIdentify",
         }        
         return correct;
     };
-    
+    PI.prototype.storedAnswerForStorage = function () {
+        return "";
+    };
     
     PI.prototype.keydownHandler = function (e) {
         switch(e.which) {

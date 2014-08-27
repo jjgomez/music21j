@@ -28,7 +28,7 @@ define(['jquery', './feedback', './serverSettings'],
 								"<tr><td style='text-align: right'><b>Email: </b><span id='email'></span>" +
                                 " &raquo; " + 
                                 "</td><td><b>Password: </b>&nbsp;<span id='password'></span>" +
-								"</td><td><b>Save info on this computer? </b><span id='saveinfo'></span></tr></table>");
+								"</td></tr><tr><td colspan='2' style='text-align: center'><b>Save info on this computer? </b><span id='saveinfo'></span></td></tr></table>");
 		var $nameDiv = $("<div>").attr("id","studentDataDiv");
 		$nameDiv.append(nameDivContents);
         

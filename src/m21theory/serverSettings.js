@@ -24,6 +24,8 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         this.submitQuestion = this.host + '/server/cgi-bin/submit_question.cgi';
         this.submitSection = this.host + '/server/cgi-bin/submit_section.cgi';        
         this.submitBank = this.host + '/server/cgi-bin/submit_bank.cgi';        
+        
+        this.retrieveAnswer = this.host + '/server/cgi-bin/retrieve_answer.cgi';
     };
     
     s.setHostFromLocation = function () {

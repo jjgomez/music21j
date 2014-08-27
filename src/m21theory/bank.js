@@ -30,7 +30,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
 		this.studentFeedback = true;
 		this.lastSectionWorkedOn = undefined;
 		this.playedLongMotto = false;
-		
+		this.restoreAnswers = true;
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
@@ -57,8 +57,41 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
 			testBank.append( $("<br clear='all' />") );
 			this.scoreboard.render();
 			this.startTime = new Date().getTime();
+            if (this.restoreAnswers) {
+	            serverSettings.makeAjax({
+	                'seed': random.seed,
+	                'bankId': this.id,
+                }, {
+                    url: serverSettings.retrieveAnswer,
+                    success: (function (j) { this.restoreAnswersCallback(j); }).bind(this),
+                });  // this is actually a tinybit unsafe since in theory callback could register
+            }        // before questions are created.  Would that actually happen? NAH!	                        
+
 		};
 		
+		this.restoreAnswersCallback = function (j) {
+            if (j.success != true) {
+                return j;
+            } else if (j.sectionDict === undefined) {
+                return j;
+            } else {
+                for (var sectionIndex in j.sectionDict) {
+                    var answerList = j.sectionDict[sectionIndex];
+                    var thisSection = this.sections[sectionIndex];
+                    for (var i = 0; i < answerList.length; i++) {
+                        var a = answerList[i];
+                        var qListIndex = a.questionIndex - thisSection.practiceQs;
+                        var q = thisSection.questions[qListIndex];
+                        if (q !== undefined) {
+                            q.restoreAnswers(a);
+                        }
+                    }                    
+                    thisSection.recalculateScore();
+                    thisSection.checkEndCondition({submit: false});                    
+                }
+                this.scoreboard.updateProgressBars();
+            }
+        };
 		
 		this.append = function (newTest) {
 			newTest.bank = this;

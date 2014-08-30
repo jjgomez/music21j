@@ -42,7 +42,7 @@ define(['music21/common'], function(common) {
 	random.seed = 1;
 	random.setSeedFromGeneratorType = function (generatorType) {
 	    if (generatorType == undefined) {
-	        var urlSeed = music21.common.urlParam('seed');
+	        var urlSeed = common.urlParam('seed');
 	        if (urlSeed !== undefined && urlSeed !== null && urlSeed != "") {
 	            random.seed = parseInt(urlSeed);
 	            if (isNaN(random.seed)) {

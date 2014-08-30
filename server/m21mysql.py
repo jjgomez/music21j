@@ -355,15 +355,15 @@ class M21JMysql(object):
                 self.execute(
                 '''REPLACE INTO bank (bankId,  
                                         userId, numRight, numWrong, numMistakes, numUnanswered,
-                                        totalQs, startTime, endTime, seed
+                                        totalQs, startTime, endTime, seed, url
                                         )
                                 VALUES (%s,
                                         %s, %s, %s, %s, %s,
-                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s
+                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
                                         )
                 ''', (j['bankId'],
                       userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
-                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed']
+                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['url']
                       )
                 )
             except Exception as e:
@@ -568,13 +568,13 @@ class M21JMysql(object):
                             'login': False,
                             })
             return;
-        if 'for' in self.jsonForm:
+        if 'forUser' in self.jsonForm:
             if self.checkIfAdmin() is False:
                 self.jsonReply({'success': False,
                             'login': False,
                             })
                 return;
-            forStudent = self.jsonForm['for']
+            forStudent = self.jsonForm['forUser']
         else:
             forStudent = self.getStudentData()['email']
             
@@ -588,8 +588,8 @@ class M21JMysql(object):
         
         uid = self.getUserId(forStudent)
         sectionsIncluded = self.query('''SELECT DISTINCT(sectionIndex) AS si FROM question
-            WHERE seed = %s AND bankId = %s ORDER BY sectionIndex
-        ''', (seed, bankId))
+            WHERE seed = %s AND bankId = %s AND userId = %s ORDER BY sectionIndex
+        ''', (seed, bankId, uid))
 
         sectionDict = {};
 
@@ -597,8 +597,8 @@ class M21JMysql(object):
             sectionIndex = r.si                    
             answerInfo = self.queryJSreturn('''SELECT answerStatus, storedAnswer, studentAnswer, 
                                         questionIndex, numMistakes FROM question 
-                WHERE seed = %s AND bankId = %s AND sectionIndex = %s ORDER BY questionIndex
-            ''', (seed, bankId, sectionIndex))
+                WHERE seed = %s AND bankId = %s AND sectionIndex = %s AND userId = %s ORDER BY questionIndex
+            ''', (seed, bankId, sectionIndex, uid))
             sectionDict[sectionIndex] = answerInfo
         self.jsonReply({'success': True,
                         'login': True,

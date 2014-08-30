@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['./random', './userData', 'jquery', './misc'], 
-        function (random, userData, $, misc) {
+define(['./random', './userData', 'jquery', './misc', 'music21/common'], 
+        function (random, userData, $, misc, common) {
     var feedback = {};
     
     feedback.Scoreboard = function (bank) {
@@ -41,6 +41,8 @@ define(['./random', './userData', 'jquery', './misc'],
         }
         var $comments = this.getCommentsSection();
         $d.append($comments);
+        var $submitBank = this.bank.getSubmitButton();
+        $d.append($submitBank);
         misc.addScrollFixed($d, $where);
         this.updateProgressBars();
         return $d;        
@@ -409,9 +411,9 @@ define(['./random', './userData', 'jquery', './misc'],
         };
         
         if (feedback.alertTypes[type] != undefined) {
-            music21.common.merge(cssParams, feedback.alertTypes[type]);            
+            common.merge(cssParams, feedback.alertTypes[type]);            
         }
-        music21.common.merge(cssParams, params);
+        common.merge(cssParams, params);
         var delayFade = cssParams.delayFade;
         var fadeTime = cssParams.fadeTime;
         delete(cssParams.delayFade);

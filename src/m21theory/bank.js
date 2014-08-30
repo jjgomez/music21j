@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['./misc', './userData', './feedback', './random', 'jquery'], 
-        function(misc, userData, feedback, random, $) {
+define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/common'], 
+        function(misc, userData, feedback, random, $, common) {
 	var bank = {};
 	/* Test Bank */
 
@@ -58,10 +58,16 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
 			this.scoreboard.render();
 			this.startTime = new Date().getTime();
             if (this.restoreAnswers) {
-	            serverSettings.makeAjax({
-	                'seed': random.seed,
-	                'bankId': this.id,
-                }, {
+                var params = {
+                        'seed': random.seed,
+                        'bankId': this.id,
+                };
+                var urlFor = common.urlParam('forUser');
+                if (urlFor !== undefined && urlFor !== null && urlFor != "") {
+                    params.forUser = urlFor;
+                }
+                
+	            serverSettings.makeAjax(params, {
                     url: serverSettings.retrieveAnswer,
                     success: (function (j) { this.restoreAnswersCallback(j); }).bind(this),
                 });  // this is actually a tinybit unsafe since in theory callback could register
@@ -114,9 +120,28 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
                 this.submitWork();
             }
 		};
-        this.submitWork = function () {
+        this.submitWork = function (options) {
+            var params = {
+                playMotto: undefined,
+                submitAllSections: false,
+            };
+            common.merge(params, options);
+            if (params.submitAllSections) {
+                for (var i = 0; i < this.sections.length; i++) {
+                    this.sections[i].submitWork();
+                }
+            }
             var scores = this.answerInformation();
+
+            if (params.playMotto === undefined) {
+                if (scores.right == scores.totalQs) {
+                    params.playMotto = true;
+                }
+            }
+                        
             this.lastScore = scores;
+            var h = window.location.href;
+            h = h.substring(h.lastIndexOf('/') + 1);
             var info = {
                     studentData: userData.studentData,
                     bankId: this.id,
@@ -127,7 +152,8 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
                     totalQs: scores.totalQs,
                     startTime: this.startTime,
                     endTime: Date.now(),
-                    seed: random.seed,                  
+                    seed: random.seed,
+                    url: h
             };
             serverSettings.makeAjax(info, { 
                 url: serverSettings.submitBank,
@@ -148,7 +174,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
                             console.log(retObj);
                         }
                     }
-                    if (this.playedLongMotto == false) {
+                    if (this.playedLongMotto == false && params.playMotto == true) {
                         this.playedLongMotto = true;
                         m21theory.misc.playMotto(MIDI, true);
                     }
@@ -177,6 +203,18 @@ define(['./misc', './userData', './feedback', './random', 'jquery'],
 		        }
             }
 		    return a;
+		};
+		
+		this.getSubmitButton = function () {
+		    var $b = $("<button>Submit All</button>")
+		        .on('click', (function() {
+		            this.submitWork({submitAllSections: true}); 
+		            
+		         }).bind(this) )
+		        .addClass('lightInput');
+		    var $d = $("<div style='text-align: center'></div>");
+		    $d.append($b);
+		    return $d;
 		};
 	};
 	// end of define

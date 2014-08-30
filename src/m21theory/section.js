@@ -7,8 +7,8 @@
  * 
  */
 define(['./random', './userData', './question', 
-        './feedback', './serverSettings'], 
-        function(random, userData, question, feedback, serverSettings) {
+        './feedback', './serverSettings', 'music21/common'], 
+        function(random, userData, question, feedback, serverSettings, common) {
 	var section = {};
 
 
@@ -376,7 +376,7 @@ define(['./random', './userData', './question',
 		    var params = {
 		            submit: this.autoSubmit,
 		    };
-		    music21.common.merge(params, options);
+		    common.merge(params, options);
 		    
 		    if (outcome != this.currentOutcome) {
 				var thisOutcome = this.possibleOutcomes[outcome];

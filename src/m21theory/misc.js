@@ -6,7 +6,9 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, random) {
+define(['loadMIDI', 'jquery', './random', 
+        'music21/common', 'music21/tinyNotation', 'music21/clef', 'music21/stream', 'music21/keyboard'], 
+        function(MIDI, $, random, common, tinyNotation, clef, stream, keyboard) {
 	var misc = {};
 	misc.playMotto = function (MIDI, long) {
 	    //return;
@@ -36,7 +38,7 @@ define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, 
                 noteValue: 'b',
                 randomizeNotesAndRests: false,
         };
-        music21.common.merge(params, options);
+        common.merge(params, options);
         tn = "";
         if (chosenMeter !== undefined) {
             tn = chosenMeter + " " + tn;            
@@ -67,7 +69,7 @@ define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, 
             tn += note;
         }
         
-        var tnStream = music21.tinyNotation.TinyNotation(tn);           
+        var tnStream = tinyNotation.TinyNotation(tn);           
         for (var j = 0; j < tnStream.length; j++ ) {
             tnStream.get(j).renderOptions.staffLines = 1;
             tnStream.get(j).get(0).volume = 85;
@@ -77,9 +79,9 @@ define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, 
             tnStreamFlatNotes.get(j).stemDirection = 'up';
         }
         
-        tnStream.clef = new music21.clef.PercussionClef();
+        tnStream.clef = new clef.PercussionClef();
         // for practice questions
-        tnScore = new music21.stream.Score();
+        tnScore = new stream.Score();
         tnScore.renderOptions.scaleFactor.x = 0.9;
         tnScore.renderOptions.scaleFactor.y = 0.9;
         tnScore.append(tnStream);
@@ -95,7 +97,7 @@ define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, 
 	    }
 	    
 	    var keyboardNewDiv = $('<div/>');	    
-	    var k = new music21.keyboard.Keyboard();
+	    var k = new keyboard.Keyboard();
 	    k.appendKeyboard(keyboardNewDiv, startDNN, endDNN, {hideable: true});
 	    k.markMiddleC();
 	    
@@ -189,7 +191,7 @@ define(['music21','loadMIDI', 'jquery', './random'], function(music21, MIDI, $, 
 	        convertNaturals: true,
 	        skipTies: false,
 	    };
-	    music21.common.merge(params, options);
+	    common.merge(params, options);
 	    var returnVal;
 	    if (typeof val == 'string') {
 	        returnVal = val.split(params.separator);

@@ -19,6 +19,7 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         this.commentUrl = this.host + '/server/cgi-bin/send_comment.cgi';
         this.gradebookUrl = this.host + '/server/cgi-bin/gradebook.cgi';
         this.changePassword = this.host + '/server/cgi-bin/change_pw.cgi';
+        this.addUser = this.host + '/server/cgi-bin/add_user.cgi';
         this.checkLogin = this.host + '/server/cgi-bin/check_login.cgi';
 
         this.submitQuestion = this.host + '/server/cgi-bin/submit_question.cgi';

@@ -446,6 +446,87 @@ class M21JMysql(object):
                              'type': 'alert'}
                     self.jsonReply(reply)
 
+    def addUser(self):
+        self.title = 'Add User'        
+        reply = ""
+        if self.jsonForm is None or 'first' not in self.jsonForm:
+            self.printHeader()
+            print(r'''
+        <script>
+        require(['m21theory'], function () {
+           m21theory.style.apply({loadCss: false});
+           var $t = $("#testBank");
+           $t.append('<h1>Add User</h1><hr/><p>Enter your information below.</p>');
+           $t.append('<table><tr><td>First Name:</td><td><input type="text" id="first" size=20 class="lightInput" /></td></tr>' + 
+               '<tr><td>Last Name:</td><td><input type="text" id="last" size=20 class="lightInput" /></td></tr>' + 
+               '<tr><td>Email:</td><td><input type="text" id="email" size=20 class="lightInput" /></td></tr>' + 
+               '<tr><td>Password:</td><td><input type="password" id="password" size=20 class="lightInput" /></td></tr>' + 
+               '<tr><td>Password Again:</td><td><input type="password" id="passwordVerify" size=20 class="lightInput" /></td></tr>' + 
+               '</table>');
+           var $b = $('<button class="lightInput">Register</button>');
+           $b.click( function (e) {  
+               var al = m21theory.feedback.alert;
+               var newPw = $('#password').val();
+               var newPwVerify = $('#passwordVerify').val();
+               var first = $('#first').val();
+               var last = $('#last').val();
+               var email = $('#email').val();
+               if (newPw != newPwVerify) {
+                   al("Your passwords do not match! Re verify!", 'alert');
+               } else if (last == '') {
+                   al("You need to give a last name.", 'alert');
+               } else if (first == '') {
+                   al("You need to give a first name.", 'alert');
+               } else if (newPw.length < 5) {
+                   al("Please choose a longer password.", 'alert');
+               } else if (email.indexOf('@') < 1 || email.indexOf('.') < 2) {
+                   al("Something seems screwy with your email.", 'alert');
+               } else {
+                   m21theory.serverSettings.makeAjax({
+                          'password': newPw,
+                          'first': first,
+                          'last': last,
+                          'email': email,
+                       },
+                       { 
+                       url: m21theory.serverSettings.addUser,
+                       success: function (json) {
+                               m21theory.feedback.alert(json.msg, json.type);
+                           },
+                       } );
+               }
+           } );
+           $t.append($b);
+        });
+        </script>            
+            ''')
+            self.printFooter()
+        else:
+            password = self.jsonForm['password']
+            last = self.jsonForm['last']
+            first = self.jsonForm['first']
+            email = self.jsonForm['email']
+            
+            exists = self.queryOne('SELECT email FROM users WHERE email = %s', (email, ))
+            self.err(exists)
+            if exists:
+                reply = {'msg': 'This email is already in use; if you want to change your password, use the change password form',
+                         'type': 'alert'}
+                self.jsonReply(reply)
+                return
+            obfuscated = codecs.encode(password, 'rot_13') # yeah...
+            try:
+                self.execute("INSERT INTO users (first, last, email, password) VALUES (%s, %s, %s, %s)", 
+                             (first, last, email, obfuscated)
+                             )
+                reply = {'msg': 'Your username has been successfully added',
+                         'type': 'ok'}
+                self.jsonReply(reply)
+            except :
+                reply = {'msg': 'There was an error in updating the database.  Apologies! Please contact the prof and try again later.',
+                         'type': 'alert'}
+                self.jsonReply(reply)                        
+
         
     def printHeader(self):
         self.printHTTPHeader()

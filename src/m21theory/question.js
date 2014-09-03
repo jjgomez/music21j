@@ -59,7 +59,7 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
     question.GeneralQuestion.prototype.getStudentAnswer = function () {
         var sa = undefined;
         if (this.$inputBox != undefined) {
-            sa = this.$inputBox.val();
+            sa = this.$inputBox.val().replace(/^\s+|\s+$/g,'');
         } else if (this.studentAnswer != undefined) {
             return this.studentAnswer;
         }

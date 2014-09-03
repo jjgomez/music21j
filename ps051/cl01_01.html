@@ -13,11 +13,21 @@ require(['m21theory'], function() {
     var testBank = new m21theory.bank.TestBank();
     testBank.addKeyboard = false;
     testBank.id = "cl01_01";
-    testBank.instructions = "<p>Seeing if you understand note lengths</p>";
+    m21theory.random.seed = 1;
+    m21theory.random.generatorType = "fixed";
+    
+    testBank.instructions = "<p>A quick exercise on understanding note lengths</p>";
     testBank.allowEarlySubmit = true;
     
     var noteLength = m21theory.sections.get('noteLength');
-        
+    noteLength.possibleRhythms = {
+            '4/4': [
+                '8 8 4 2 1',
+                '4 2 4 16 16 8 4 2',
+                '1 4 8 8 32 32 16 8 4',
+                '2 8 8 8 8 1',
+                ],
+        };
     testBank.append(noteLength);
     testBank.render();
 });

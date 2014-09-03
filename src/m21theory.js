@@ -23,7 +23,7 @@ var getM21attribute = function (attrName) {
     for (var i = 0; i < scripts.length; i++) {
         var s = scripts[i];
         var dataMain = s.getAttribute('data-main');
-        if (dataMain && ((/music21/.test(dataMain)) || (/m21/.test(dataMain)))) {
+        if (dataMain && ((/m21theory/.test(dataMain)) || (/music21/.test(dataMain)))) {
            var m21Attribute = s.getAttribute(attrName);
            //console.log(m21Attribute);
            return m21Attribute;
@@ -59,6 +59,7 @@ if (typeof (m21theory) === "undefined") {
 	m21theory = {};
 }
 m21theory.debug = false;
+m21theory.playMotto = (getM21attribute('playMotto') != 'false') ? true : false
 
 require.config({
     paths: {
@@ -89,8 +90,10 @@ if ( typeof define === "function" && define.amd) {
                           'm21theory/serverSettings', 'm21theory/style'], 
     		function (music21) { 
         
-        music21.MIDI.loadSoundfont('acoustic_grand_piano', function() { 
-                m21theory.misc.playMotto(music21.MIDI); 
+        music21.MIDI.loadSoundfont('acoustic_grand_piano', function() {               
+                if (m21theory.playMotto) {
+                    m21theory.misc.playMotto(music21.MIDI);                     
+                }
             });
 
     	// this may get loaded twice, but I think the cache handles it...

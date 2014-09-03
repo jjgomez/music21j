@@ -174,7 +174,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
                             console.log(retObj);
                         }
                     }
-                    if (this.playedLongMotto == false && params.playMotto == true) {
+                    if (this.playedLongMotto == false && m21theory.playMotto == true && params.playMotto == true) {
                         this.playedLongMotto = true;
                         m21theory.misc.playMotto(MIDI, true);
                     }

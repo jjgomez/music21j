@@ -56,7 +56,7 @@ require(['m21theory', 'music21'], function() {
         $h3.append("<small> (" + g.userId + ") </small>")
         $h3.append($("<div style='float: right; font-size: 10pt'> " + m21theory.misc.niceTimestamp(g.lastUpdated) + " </div>"));
         $inDiv.append($h3);
-        $inDiv.append($("<div style='float: right'><a href='http://localhost:8000/ps051/" + g.bankId + ".html?seed=" + 
+        $inDiv.append($("<div style='float: right'><a href='../../ps051/" + g.bankId + ".html?seed=" + 
                 + g.seed + "'><i>" + 
                 g.bankId + " " + g.seed + "</a></i></div>"));
         $inDiv.append($("<div>" + g.numRight + "/" + g.totalQs + " " + 

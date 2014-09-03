@@ -36,7 +36,7 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         } else if (l.hostname == 'zachara.mit.edu' ) {
             this.host = l.origin + '/m21j';
         } else if (l.hostname == 'web.mit.edu') {
-            this.host = 'http://ciconia.mit.edu/m21j'; // web.mit.edu has no mysql...
+            this.host = 'http://zachara.mit.edu/m21j'; // web.mit.edu has no mysql...
             this.useJsonP = true; // NOT YET SUPPORTED, but necessary for cross domain XHR requests.
         } else {
             this.host = '';
@@ -79,10 +79,13 @@ define(['jquery', './feedback', 'music21/common', './userData'],
                         $tempDiv.append($tt);
                         $(document.body).append($tempDiv);                            
                     }
-                    alert("Got a problem! -- print this page as a PDF and email it to cuthbert@mit.edu: " + errorThrown);
+                    m21theory.feedback.alert("Got a problem! -- print this page as a PDF and email it to cuthbert@mit.edu: " + errorThrown);
                     console.log(xhr.responseText);
                 },
         };
+        if (this.useJsonP == true) {
+            params.dataType = 'jsonp';
+        }
         common.merge(params, options);
         $.ajax(params);
     };

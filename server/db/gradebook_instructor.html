@@ -73,7 +73,9 @@ require(['m21theory', 'music21'], function() {
         $viewBankGradesOut.append($("<h1>Recent grades</h1>"));
         for (var i = 0; i < js.grades.length; i++) {
             var g = js.grades[i];
-            $viewBankGradesOut.append( oneBankGrade(g) );   
+            if (g.bankId.indexOf('cl') != 0) {
+                $viewBankGradesOut.append( oneBankGrade(g) );                
+            }
         }
     };
     

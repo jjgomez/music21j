@@ -59,7 +59,7 @@ if (typeof (m21theory) === "undefined") {
 	m21theory = {};
 }
 m21theory.debug = false;
-m21theory.playMotto = (getM21attribute('playMotto') != 'false') ? true : false
+m21theory.playMotto = (getM21attribute('playMotto') != 'false') ? true : false;
 
 require.config({
     paths: {

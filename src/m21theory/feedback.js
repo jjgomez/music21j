@@ -154,7 +154,7 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
         
         if (numRight == numQs && $pb.data('hasGlowed') != true) {
             if (this.bank.studentFeedback == true) {
-                this.glow($rightBar);                    
+                feedback.glow($rightBar);                    
                 $rightBar.text('DONE');
             };
             $pb.data('hasGlowed', true);
@@ -199,41 +199,6 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
             height: '100%',
         });
         return $pb;
-    };
-    feedback.Scoreboard.prototype.glow = function ($what, size, animateTime) {
-        var stepFunc = function (currentTempPropertyValue) {            
-            var goldColor = "#006644";
-            var computed = '0px 0px ' + currentTempPropertyValue + 'px ' + goldColor;                
-            $(this).css('box-shadow', computed);
-        };
-        var stepFunc2 = function (currentTempPropertyValue) {            
-            var goldColor = "#006644";
-            var computed = '0px 0px ' + (size - currentTempPropertyValue) + 'px ' + goldColor;                
-            $(this).css('box-shadow', computed);
-        };
-        
-        var storedTextShadow = $what.css('box-shadow');
-        size = size || 50;
-        animateTime = animateTime || 3000;        
-        $what.css('-m21j-TempProperty', 0);
-        $what.animate({'-m21j-TempProperty': size}, {
-            duration: animateTime,
-            step: stepFunc,
-            complete: function () { 
-                $(this).animate({'-m21j-TempProperty': size}, {
-                    duration: animateTime,
-                    step: stepFunc2,   
-                    complete: function () { 
-                        $what.css('-m21j-TempProperty', "");
-                        if (storedTextShadow !== undefined) {
-                            $what.css('box-shadow', storedTextShadow);
-                        }
-                    }
-                }); 
-            },
-        }
-        );
-        return $what; // passthrough..
     };
     feedback.Scoreboard.prototype.getCommentsSection = function () {
         var $cs = $("<div style='text-align: center'></div>");
@@ -431,6 +396,47 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
             .fadeOut(fadeTime, function () { this.remove(); } );
         $(tdiv).append(alertDiv);
     };
+    
+    feedback.glow = function ($what, size, animateTime) {
+        var stepFunc = function (currentTempPropertyValue) {            
+            var goldColor = "#006644";
+            var computed = '0px 0px ' + currentTempPropertyValue + 'px ' + goldColor;                
+            $(this).css('box-shadow', computed);
+        };
+        var stepFunc2 = function (currentTempPropertyValue) {            
+            var goldColor = "#006644";
+            var computed = '0px 0px ' + (size - currentTempPropertyValue) + 'px ' + goldColor;                
+            $(this).css('box-shadow', computed);
+        };
+        
+        var storedTextShadow = $what.css('box-shadow');
+        size = size || 50;
+        animateTime = animateTime || 3000;        
+        $what.css('-m21j-TempProperty', 0);
+        $what.animate({'-m21j-TempProperty': size}, {
+            duration: animateTime,
+            step: stepFunc,
+            complete: function () { 
+                $(this).animate({'-m21j-TempProperty': size}, {
+                    duration: animateTime,
+                    step: stepFunc2,   
+                    complete: function () { 
+                        $what.css('-m21j-TempProperty', "");
+                        if (storedTextShadow !== undefined) {
+                            $what.css('box-shadow', storedTextShadow);
+                        } else {
+                            $what.css('box-shadow', '');
+                        }
+                    }
+                }); 
+            },
+        }
+        );
+        return $what; // passthrough..
+    };
+
+    
+    
     if (typeof m21theory != "undefined") {
         m21theory.feedback = feedback;
     }

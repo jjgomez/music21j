@@ -40,6 +40,7 @@ define(['./random', './userData', './question',
         this.practiceQuestions = [];
         this.questions = [];
 		
+		this.useJazz = false;
 		
 		// hidden variables masked by properties
         this._autoSubmit = undefined;

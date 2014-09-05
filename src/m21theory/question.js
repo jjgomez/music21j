@@ -35,7 +35,7 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
         }
         
         this.correctCallback = undefined; // callback for correct answers, such as playing.
-        this.checkTrigger = (function () { this.validateAnswer(); }).bind(this);
+        this.checkTrigger = (function () { return this.validateAnswer(); }).bind(this);
         
         Object.defineProperties(this, {
             '$feedbackDiv': {
@@ -137,6 +137,7 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
         if (isCorrect && this.section.studentFeedback && this.correctCallback !== undefined) {
             this.correctCallback();
         }
+        return this.answerStatus;
     };
     question.GeneralQuestion.prototype.questionStatusChanged = function () { 
         var bankId = 'unknownTestBank';

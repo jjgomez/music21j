@@ -34,6 +34,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 		
 		this.useJazz = false;
 		this.keyboardObj = undefined;
+		this.keyboardOctaveShift = 0;
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
@@ -51,7 +52,18 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 				userData.fillNameDiv();
 			}
 			if (this.addKeyboard) {
-			    this.keyboardObj = misc.addKeyboard($testBank);
+			    var k = misc.addKeyboard($testBank);
+			    if (this.keyboardOctaveShift < 0) {
+			        for (var i = this.keyboardOctaveShift; i < 0; i++) {
+	                    $('.keyboardOctaveDown').click();               			            
+			        }
+			    } else if (this.keyboardOctaveShift > 0) {
+			        for (var i = 0; i < this.keyboardOctaveShift; i++) {			            
+	                    $('.keyboardOctaveUp').click();
+			        }
+			    }
+			    this.keyboardObj = k;
+
 			}
 			if (this.useJazz) {
                 var midiCallbacksPlay = [music21.miditools.makeChords, 

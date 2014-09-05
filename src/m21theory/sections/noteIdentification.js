@@ -31,7 +31,15 @@ define("m21theory/sections/noteIdentification",
                 p.diatonicNoteNum = chosenDiatonicNoteNum;
                 var newAlter = random.choice(this.section.allowableAccidentals);
                 p.accidental = new music21.pitch.Accidental( newAlter );
-
+                
+                if (this.section.practiceScales == true) {
+                    // override -- ignore all that...                    
+                    p.diatonicNoteNum = 30 + this.index + j;
+                    if (j > 4) {
+                        p.diatonicNoteNum = p.diatonicNoteNum - ( (j - 4) * 2);
+                    }
+                }
+                
                 n = new music21.note.Note("C");
                 n.duration.quarterLength = 0.5; // Not Working: type = 'eighth';
                 n.pitch = p;
@@ -42,30 +50,33 @@ define("m21theory/sections/noteIdentification",
             s.append(n);
             answerList.push(n.pitch.name.replace(/\-/, 'b'));
         }
-        // last answer is always an earlier note with same accidental
-        var foundPitch = undefined;
-        for (var j = 0; j < this.section.numNotes; j++) {
-            var p = s.get(j).pitch;
-            if (p.accidental.alter != 0) {
-                foundPitch = p;
-                break;
+        
+        if (this.section.practiceScales != true) {
+            // last answer is always an earlier note with same accidental
+            var foundPitch = undefined;
+            for (var j = 0; j < this.section.numNotes; j++) {
+                var p = s.get(j).pitch;
+                if (p.accidental.alter != 0) {
+                    foundPitch = p;
+                    break;
+                }
             }
+            if (foundPitch == undefined) {
+                // default
+                var chosenDiatonicNoteNum = random.randint(minDiatonicNoteNum,
+                                                                maxDiatonicNoteNum);
+                foundPitch = new music21.pitch.Pitch("C");
+                foundPitch.diatonicNoteNum = chosenDiatonicNoteNum;
+                var newAlter = random.choice(this.section.allowableAccidentals);
+                foundPitch.accidental = new music21.pitch.Accidental( newAlter );
+            }
+            var n = new music21.note.Note("C");
+            n.duration.quarterLength = 0.5; // Not Working: type = 'eighth';
+            n.pitch.diatonicNoteNum = foundPitch.diatonicNoteNum;
+            n.pitch.accidental = new music21.pitch.Accidental(foundPitch.accidental.alter);
+            s.append(n);
+            answerList.push(n.pitch.name.replace(/\-/, 'b'));            
         }
-        if (foundPitch == undefined) {
-            // default
-            var chosenDiatonicNoteNum = random.randint(minDiatonicNoteNum,
-                                                            maxDiatonicNoteNum);
-            foundPitch = new music21.pitch.Pitch("C");
-            foundPitch.diatonicNoteNum = chosenDiatonicNoteNum;
-            var newAlter = random.choice(this.section.allowableAccidentals);
-            foundPitch.accidental = new music21.pitch.Accidental( newAlter );
-        }
-        var n = new music21.note.Note("C");
-        n.duration.quarterLength = 0.5; // Not Working: type = 'eighth';
-        n.pitch.diatonicNoteNum = foundPitch.diatonicNoteNum;
-        n.pitch.accidental = new music21.pitch.Accidental(foundPitch.accidental.alter);
-        s.append(n);
-        answerList.push(n.pitch.name.replace(/\-/, 'b'));
         
         // done adding pitches
         s.makeAccidentals();
@@ -76,6 +87,9 @@ define("m21theory/sections/noteIdentification",
         
         var $questionDiv = $("<div style='width: 420px; float: left; padding-bottom: 20px'></div>");
         $questionDiv.append(nc);
+        if (this.section.useJazz == true) {
+            $questionDiv.on('click', this.setActiveJazz.bind(this) );            
+        } 
                                 
         if (this.isPractice) {
             $questionDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'>" +
@@ -85,17 +99,61 @@ define("m21theory/sections/noteIdentification",
         } else {
             this.stream = s;
             var bindLyrics = (function () { this.lyricsChanged(); } ).bind(this);
+            this.storedAnswer = streamAnswer;
+            
+            var $inputWrapper = $("<div style='padding-left: 70px; position: relative; top: 10px'/>");
             this.$inputBox = $("<input type='text' size='24' class='unanswered'/>")
                              .change( this.checkTrigger )
                              .on('input propertychange paste', bindLyrics );
-            this.storedAnswer = streamAnswer;
-            $questionDiv.append( $("<div style='padding-left: 70px; position: relative; top: 10px'/>")
-                             .append(this.$inputBox) );
+            if (this.section.useJazz == true) {
+                this.$inputBox.css('display', 'none');
+                var $b = $("<button>clear</button>").on('click', this.clearJazz.bind(this));
+                $inputWrapper.append($b);
+            }
+            
+            $inputWrapper.append(this.$inputBox);
+            $questionDiv.append( $inputWrapper );
         }
         this.$questionDiv = $questionDiv;
         return $questionDiv;
     };
 
+    NoteQuestion.prototype.setActiveJazz = function () {
+        if (this.isPractice) { return; }
+        console.log('setting Jazz to ', this.index);
+        music21.jazzMidi.callBacks.sendOutChord = this.receiveJazz.bind(this);
+        m21theory.feedback.glow(this.$questionDiv, 30);
+        return true;
+    };
+    
+    NoteQuestion.prototype.receiveJazz = function (n) {
+        var p = n.pitch;
+        if (n.pitches !== undefined) {
+            p = n.pitches[0]; // take lowest pitch from a chord;
+        }
+        var newVal = this.$inputBox.val();
+        if (newVal.length > 0) {
+            newVal += " ";
+        }
+        newVal += p.name;
+        this.$inputBox.val(newVal);
+        this.lyricsChanged();
+        if (newVal.split(/\s+/).length == this.stream.length) {
+            var status = this.checkTrigger();
+            if (status == 'correct') {
+                if (this.section !== undefined && (this.index + 1) < this.section.totalQs) {
+                    this.section.questions[ this.index + 1 - this.section.practiceQs ].setActiveJazz();
+                }
+            }
+        }
+        
+        //m21theory.feedback.alert(p.nameWithOctave, 'ok');
+    };
+    
+    NoteQuestion.prototype.clearJazz = function (n) {
+        this.$inputBox.val("");
+        this.lyricsChanged();
+    };
     
     var ThisSection = function () {
 		section.Generic.call(this);
@@ -116,6 +174,8 @@ define("m21theory/sections/noteIdentification",
 		this.lastPs = 0.0;
 		this.numNotes = 7;
         
+		this.practiceScales = false;
+		
 		this.getStream = function () {
 	        var s = new music21.stream.Stream();
 	        s.renderOptions.scaleFactor.x = 0.9;

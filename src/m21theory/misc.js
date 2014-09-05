@@ -90,10 +90,10 @@ define(['loadMIDI', 'jquery', './random',
 
 	misc.addKeyboard = function(where, startDNN, endDNN) {    	    
 	    if (startDNN === undefined) {
-	        startDNN = 18;
+	        startDNN = 22;
 	    }
 	    if (endDNN === undefined) {
-	        endDNN = 39;
+	        endDNN = 36;
 	    }
 	    
 	    var keyboardNewDiv = $('<div/>');	    
@@ -101,6 +101,7 @@ define(['loadMIDI', 'jquery', './random',
 	    k.startPitch = startDNN;
 	    k.endPitch = endDNN;
 	    k.hideable = true;
+	    k.scrollable = true;
 
 	    k.appendKeyboard(keyboardNewDiv);
 	    k.markMiddleC();

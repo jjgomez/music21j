@@ -135,7 +135,7 @@ define("m21theory/sections/noteIdentification",
         if (newVal.length > 0) {
             newVal += " ";
         }
-        newVal += p.name;
+        newVal += p.name.replace(/\-/, 'b');
         this.$inputBox.val(newVal);
         this.lyricsChanged();
         if (newVal.split(/\s+/).length == this.stream.length) {

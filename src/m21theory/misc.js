@@ -98,10 +98,15 @@ define(['loadMIDI', 'jquery', './random',
 	    
 	    var keyboardNewDiv = $('<div/>');	    
 	    var k = new keyboard.Keyboard();
-	    k.appendKeyboard(keyboardNewDiv, startDNN, endDNN, {hideable: true});
+	    k.startPitch = startDNN;
+	    k.endPitch = endDNN;
+	    k.hideable = true;
+
+	    k.appendKeyboard(keyboardNewDiv);
 	    k.markMiddleC();
 	    
-	    misc.addScrollFixed(keyboardNewDiv, where);	    
+	    misc.addScrollFixed(keyboardNewDiv, where);
+	    return k;
 	};
 	
 	/**

@@ -124,7 +124,7 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
     question.GeneralQuestion.prototype.validateAnswer = function () {
         var studentAnswer = this.getStudentAnswer();
         var storedAnswer = this.getStoredAnswer();
-        console.log(studentAnswer, storedAnswer);
+        //console.log(studentAnswer, storedAnswer);
         var isCorrect = this.checkAnswer(studentAnswer, storedAnswer);
         //console.log(studentAnswer, storedAnswer, isCorrect);
         this.answerStatus = isCorrect ? "correct" : "incorrect";

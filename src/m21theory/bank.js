@@ -32,15 +32,18 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 		this.playedLongMotto = false;
 		this.restoreAnswers = true;
 		
+		this.useJazz = false;
+		this.keyboardObj = undefined;
+		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
-			testBank = $(this.testBankSelector);
+			var $testBank = $(this.testBankSelector);
 			if (this.title != "") {
-				testBank.append( $("<h1>" + this.title + "</h1>")
+				$testBank.append( $("<h1>" + this.title + "</h1>")
 									.attr('class','testBankTitle'));
 			}
 			if (this.instructions != "") {
-				testBank.append(  $("<div>" + this.instructions + "</div>")
+				$testBank.append(  $("<div>" + this.instructions + "</div>")
 									.attr('class','testBankInstructions') );
 			}
 
@@ -48,13 +51,26 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 				userData.fillNameDiv();
 			}
 			if (this.addKeyboard) {
-			    misc.addKeyboard(testBank);
+			    this.keyboardObj = misc.addKeyboard($testBank);
 			}
+			if (this.useJazz) {
+                var midiCallbacksPlay = [music21.miditools.makeChords, 
+                                         music21.miditools.sendToMIDIjs];
+			    if (this.keyboardObj) {
+			        midiCallbacksPlay.push(music21.keyboard.jazzHighlight.bind(this.keyboardObj));			        
+			    }
+			    $testBank.append('<div id="midiSelectionHolder">MIDI in selection: <span id="putMidiSelectHere" /></div>');
+			    var Jazz = music21.jazzMidi.createPlugin();
+	            music21.jazzMidi.createSelector($("#putMidiSelectHere"), Jazz);
+	            music21.jazzMidi.callBacks.general = midiCallbacksPlay;
+			}
+			
+			
 			for (var i = 0; i < this.sections.length; i ++) {
 				var thisTest = this.sections[i];
 				thisTest.render(this.testBankSelector);
 			}
-			testBank.append( $("<br clear='all' />") );
+			$testBank.append( $("<br clear='all' />") );
 			this.scoreboard.render();
 			this.startTime = new Date().getTime();
             if (this.restoreAnswers) {

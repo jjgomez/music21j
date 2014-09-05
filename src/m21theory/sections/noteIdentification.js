@@ -120,7 +120,7 @@ define("m21theory/sections/noteIdentification",
 
     NoteQuestion.prototype.setActiveJazz = function () {
         if (this.isPractice) { return; }
-        console.log('setting Jazz to ', this.index);
+        //console.log('setting Jazz to ', this.index);
         music21.jazzMidi.callBacks.sendOutChord = this.receiveJazz.bind(this);
         m21theory.feedback.glow(this.$questionDiv, 30);
         return true;

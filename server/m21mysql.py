@@ -31,7 +31,7 @@ class M21JMysql(object):
         self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
         self.smtpHost = 'outgoing.mit.edu'
         self.profEmail = 'cuthbert@mit.edu'
-        self.adminEmails = ['cuthbert@mit.edu','cuthbert@post.harvard.edu'] #'bhadley@mit.edu','tencate@mit.edu']
+        self.adminEmails = ['cuthbert@mit.edu', 'bhadley@mit.edu','tencate@mit.edu']
         
         self.hostpath = '' # 'http://web.mit.edu/music21/music21j'
         if ('REQUEST_URI' in os.environ):

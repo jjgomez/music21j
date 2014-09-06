@@ -35,6 +35,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 		this.useJazz = false;
 		this.keyboardObj = undefined;
 		this.keyboardOctaveShift = 0;
+		this.keyboardShowNames = false;
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();
@@ -61,6 +62,10 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 			        for (var i = 0; i < this.keyboardOctaveShift; i++) {			            
 	                    $('.keyboardOctaveUp').click();
 			        }
+			    }
+			    k.showNames = this.keyboardShowNames;
+			    if (k.showNames) {
+			        k.markNoteNames();
 			    }
 			    this.keyboardObj = k;
 

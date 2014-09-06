@@ -27,6 +27,9 @@ class M21JMysql(object):
         self.user = user
         self.db = db
         self.userdir = None
+
+        self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
+        
         
         self.hostpath = '' # 'http://web.mit.edu/music21/music21j'
         if ('REQUEST_URI' in os.environ):
@@ -582,8 +585,16 @@ class M21JMysql(object):
         return rcd
 
     def getUserInfoFromId(self, userId):
+        '''
+        returns a dict rather than named tuplet...
+        '''
         ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
-        return ui
+        if ui is not None:
+            userInfo = self.namedTupleToJS(ui)
+            userInfo['imageURI'] = self.imagesURI + userId + '.jpg' # should this be scrubbed for students???
+        else:
+            userInfo = {}
+        return userInfo
         
     def checkIfAdmin(self):
         if not self.verifyLogin():
@@ -620,12 +631,7 @@ class M21JMysql(object):
         jsq = self.namedTuplesToJS(q)
         if len(jsq) > 0 and 'userId' in jsq[0]:
             for r in jsq:
-                ui = self.getUserInfoFromId(r['userId'])       
-                if ui is not None:
-                    userInfo = self.namedTupleToJS(ui)
-                else:
-                    userInfo = {}
-                r['userInfo'] = userInfo
+                r['userInfo'] = self.getUserInfoFromId(r['userId'])
         return jsq
 
     def gradesViewBankGrades(self):

@@ -37,9 +37,11 @@ define(['jquery', './feedback', 'music21/common', './userData'],
             this.host = l.origin + '/m21j';
         } else if (l.hostname == 'web.mit.edu') {
             this.host = 'http://zachara.mit.edu/m21j'; // web.mit.edu has no mysql...
-            this.useJsonP = true; // NOT YET SUPPORTED, but necessary for cross domain XHR requests.
-        } else {
-            this.host = '';
+            this.useJsonP = true; // necessary for cross domain XHR requests.
+        } else if (l.hostname == 'localhost' && common.urlParam('dbRemote') != '') { // starting to use main DB -- dangerous!
+            this.host = 'http://zachara.mit.edu/m21j';
+            this.useJsonP = true; // necessary for cross domain XHR requests.
+            console.log("HIII");
         }
         //console.log(this.commentUrl);
     };

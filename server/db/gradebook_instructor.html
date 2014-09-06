@@ -48,6 +48,7 @@ require(['m21theory', 'music21'], function() {
     $bb.append($commentsOut);
 
     var oneBankGrade = function (g) {
+        console.log(g);
         var $inDiv = $("<div></div>");
         var $h3 = $("<h3 style='width: 100%'></h3>");
         var $link = $("<a href='mailto:" + g.userInfo.email + "'></a>");
@@ -58,7 +59,7 @@ require(['m21theory', 'music21'], function() {
         $inDiv.append($h3);
         $inDiv.append($("<div style='float: right'><a href='../../ps051/" + g.bankId + ".html?seed=" + 
                 + g.seed + "&forUser=" + g.userInfo.email + "'><i>" + 
-                g.bankId + " " + g.seed + "</a></i></div>"));
+                g.bankId + " " + g.seed + "</a></i><img src='" + g.userInfo.imageURI + "' /></div>"));
         $inDiv.append($("<div>" + g.numRight + "/" + g.totalQs + " " + 
                 parseInt(g.numRight*100/g.totalQs).toString()  + "%</div>"));
         return $inDiv;        

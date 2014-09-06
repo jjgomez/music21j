@@ -591,7 +591,7 @@ class M21JMysql(object):
         ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
         if ui is not None:
             userInfo = self.namedTupleToJS(ui)
-            userInfo['imageURI'] = self.imagesURI + userId + '.jpg' # should this be scrubbed for students???
+            userInfo['imageURI'] = self.imagesURI + str(userId) + '.jpg' # should this be scrubbed for students???
         else:
             userInfo = {}
         return userInfo

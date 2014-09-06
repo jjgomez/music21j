@@ -257,7 +257,7 @@ define(['loadMIDI', 'jquery', './random',
         return dqs;
 	};
 	
-	misc.niceTimestamp = function (ts, include_seconds) {
+	misc.niceTimestamp = function (ts, include_seconds, include_year, html_context) {
 	    var now;
 	    if (ts === undefined) {
 	        now = Date.now();
@@ -270,7 +270,11 @@ define(['loadMIDI', 'jquery', './random',
 	        now = ts;
 	    }
 	    // Create an array with the current month, day and time
-	    var date = [ now.getMonth() + 1, now.getDate(), now.getFullYear() ];
+	    var date = [ now.getMonth() + 1, now.getDate() ];
+	    
+	    if (include_year !== false) {
+	        date.push(now.getFullYear());
+	    }
 	   
 	    // Create an array with the current hour, minute and second
 	    
@@ -280,6 +284,9 @@ define(['loadMIDI', 'jquery', './random',
 	    }
 	    // Determine AM or PM suffix based on the hour
 	    var suffix = ( time[0] < 12 ) ? "AM" : "PM";
+	    if (html_context == true) {
+	        suffix = "<small>" + suffix + "</small>";
+	    }
 	   
 	    // Convert hour from military time
 	    time[0] = ( time[0] < 12 ) ? time[0] : time[0] - 12;

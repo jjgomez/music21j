@@ -172,8 +172,9 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
             }
                         
             this.lastScore = scores;
-            var h = window.location.href;
+            var h = window.location.pathname;
             h = h.substring(h.lastIndexOf('/') + 1);
+
             var info = {
                     studentData: userData.studentData,
                     bankId: this.id,

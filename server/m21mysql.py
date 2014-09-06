@@ -234,7 +234,10 @@ class M21JMysql(object):
             raise M21JMysqlException('studentData not in jsonForm: %s' % self.jsonForm)
         return self.jsonForm['studentData']
 
-
+    def getBanks(self):
+        banks = self.queryJSreturn("SELECT bankId, url, max(lastUpdated) AS lastUpdated FROM bank WHERE url IS NOT NULL GROUP BY bankId ORDER BY lastUpdated DESC")
+        self.jsonReply({'banks': banks})
+        
     def sendComment(self):
         try:
             userId = self.getUserId()
@@ -271,6 +274,9 @@ class M21JMysql(object):
             raise e
         finally:            
             self.sendEmail(comment, {'subject': subject, 'replyTo': replyTo })
+
+
+    ### Submissions
 
     def submitQuestion(self):
         if self.verifyLogin() is False:
@@ -610,7 +616,11 @@ class M21JMysql(object):
         else:
             userInfo = {}
         return userInfo
-        
+    
+    
+    ####----- admin tools....
+    
+    
     def checkIfAdmin(self):
         if not self.verifyLogin():
             return False
@@ -636,6 +646,8 @@ class M21JMysql(object):
                     self.gradesGetComments()
                 elif jrFunc == 'viewBankGrades':
                     self.gradesViewBankGrades()
+                elif jrFunc == 'listBanks':
+                    self.getBanks()
                 else:
                     self.jsonReply({'password': True,
                                     'error': 'illegal function',
@@ -650,7 +662,7 @@ class M21JMysql(object):
         return jsq
 
     def gradesViewBankGrades(self):
-        q = self.queryJSreturn('SELECT userId, lastUpdated, bankId, numRight, numWrong, numMistakes, totalQs, seed FROM bank ORDER BY lastUpdated DESC')
+        q = self.queryJSreturn('SELECT * FROM bank ORDER BY lastUpdated DESC')
         self.jsonReply({'password': True,
                         'grades': q,
                         'error': None,

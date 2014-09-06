@@ -1,7 +1,7 @@
 import cgitb
-def noRest():
+def noReset():
     return "Content-Type: text/html\n\n<html>\n"
-cgitb.reset = noRest
+cgitb.reset = noReset
 oldhtml = cgitb.html
 def newHTML((etype, evalue, etb), context=5):
     x = oldhtml((etype, evalue, etb), context)

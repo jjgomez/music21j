@@ -54,22 +54,39 @@ require(['m21theory', 'music21'], function() {
     var handleListBanks = function (js) {
         $listBanksOut.empty();
         $listBanksOut.append($("<h1>Recent Assignments</h1>"));
+        var $ps = $("<div></div>");
+        var $cl = $("<div></div>");
         for (var i = 0; i < js.banks.length; i++) {
             var g = js.banks[i];
-            var $anchor = $("<a href='#'>" + g.bankId + " </a>")
+            var $div = $ps;
+            if (g.bankId.indexOf('cl') == 0) {
+                $div = $cl;
+            }
+            
+            var $anchor = $("<a href='#'><b>" + g.bankId + "</b> </a>")
                 .data('bankId', g.bankId)
                 .on('click', bankClickHandler);
-            $listBanksOut.append( $anchor );      
+            $div.append( $anchor );      
+            var $anchor2 = $("<a href='#'>(2) </a>")
+                .data('bankId', g.bankId)
+                .data('section', 2)
+                .on('click', bankClickHandler);
+            $div.append( $anchor2 );      
+            var $anchor3 = $(" <a href='#'>(3)</a>")
+                .data('bankId', g.bankId)
+                .data('section', 3)
+                .on('click', bankClickHandler);
+            $div.append( $anchor3 );      
             if (i != js.banks.length - 1) {
-                $listBanksOut.append( $("<span> &middot; </span>"));
+                $div.append( $("<span> &middot; </span>"));
             }
         }
+        $listBanksOut.append($ps);
+        $listBanksOut.append($cl);        
     }
 
     var bankClickHandler = function () {
-        var bankId = $(this).data('bankId');
-        m21theory.feedback.alert(bankId);
-        ajax('viewBankGrades', bankGrades.bind(bankId));
+        ajax('viewBankGrades', bankGrades.bind(this));
     }
     var sortGrades = function (a, b) {
         if (a.userInfo.last < b.userInfo.last) {
@@ -94,7 +111,9 @@ require(['m21theory', 'music21'], function() {
     };
     
     var bankGrades = function (js) {
-        bankId = this;
+        var bankId = $(this).data('bankId');
+        var section = $(this).data('section');
+        
         if (js.error !== undefined && js.error !== null) {
             m21theory.feedback.alert(js.error, 'alert');
             return;
@@ -107,6 +126,9 @@ require(['m21theory', 'music21'], function() {
         
         for (var i = 0; i < grades.length; i++) {
             var g = grades[i];
+            if (section !== undefined && section != g.userInfo.section) {
+                continue;
+            }
             if (g.bankId == bankId) {
                 $table.append( oneBankGrade(g) );                
             }
@@ -122,8 +144,8 @@ require(['m21theory', 'music21'], function() {
         music21.common.merge(params, options);
         
         var $tr = $("<tr></tr>");
-        var $last  = $("<td>" + g.userInfo.last + "</td>");
-        var $first = $("<td>" + g.userInfo.first + "</td>");
+        var $last  = $("<td>" + g.userInfo.last.slice(0, 12) + "</td>");
+        var $first = $("<td>" + g.userInfo.first.slice(0, 12) + "</td>");
         var $uid = $("<td><small> (" + g.userId + ") </small></td>");
         
         var em = g.userInfo.email;

@@ -609,9 +609,10 @@ class M21JMysql(object):
         '''
         returns a dict rather than named tuplet...
         '''
-        ui = self.queryOne('SELECT first, last, email FROM users WHERE id = %s', (userId, ))
+        ui = self.queryOne('SELECT * FROM users WHERE id = %s', (userId, ))
         if ui is not None:
             userInfo = self.namedTupleToJS(ui)
+            del(userInfo['password'])
             userInfo['imageURI'] = self.imagesURI + str(userId) + '.jpg' # should this be scrubbed for students???
         else:
             userInfo = {}

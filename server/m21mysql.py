@@ -29,7 +29,9 @@ class M21JMysql(object):
         self.userdir = None
 
         self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
-        
+        self.smtpHost = 'outgoing.mit.edu'
+        self.profEmail = 'cuthbert@mit.edu'
+        self.adminEmails = ['cuthbert@mit.edu','cuthbert@post.harvard.edu'] #'bhadley@mit.edu','tencate@mit.edu']
         
         self.hostpath = '' # 'http://web.mit.edu/music21/music21j'
         if ('REQUEST_URI' in os.environ):
@@ -238,6 +240,12 @@ class M21JMysql(object):
             userId = self.getUserId()
         except M21JMysqlException:
             userId = 0
+            
+        comment = j['comment']
+        userInfo = getUserInfoFromId(userId)
+        subject = "New comment from " + userInfo['first'] + " " + userInfo['last']
+        replyTo = userInfo['email']
+        
         try:
             j = self.jsonForm
             self.execute(
@@ -247,15 +255,18 @@ class M21JMysql(object):
                                 VALUES (%s, %s,
                                         %s, %s, %s)
                 ''', (j['bankId'], j['sectionId'],
-                      userId, j['comment'], j['seed']
+                      userId, comment, j['seed']
                       )
                 )
+            self.jsonReply({'success': True})
         except Exception as e:
             self.err(e)
             self.jsonReply({'success': False})
+            subject = "SERVER ERROR: " + subject
+            
             raise e
-        
-        self.jsonReply({'success': True})
+        finally:
+            self.sendEmail(comment, {'subject': subject, 'replyTo': replyTo })
 
     def submitQuestion(self):
         if self.verifyLogin() is False:
@@ -692,6 +703,29 @@ class M21JMysql(object):
                         'sectionDict': sectionDict,
                         })
 
+    def sendEmail(self, message="No message", options = {}):
+        from email.mime.text import MIMEText
+        import smtplib                    
+        
+        msg = MIMEText(message.encode('utf-8'), 'plain', 'utf-8')
+        msg['To'] = ','.join(self.adminEmails)
+        msg['From'] = self.profEmail
+        
+        if 'subject' in options:
+            subject = options['subject']
+        else:
+            subject = 'New Message'
+            
+        subject = '[21m.051 m21theory] ' + subject
+        msg['Subject'] = subject
+        
+        if 'replyTo' in options:
+            msg['Reply-To'] = options['replyTo']        
+        
+        s = smtplib.SMTP(self.smtpHost)
+        s.sendmail(self.profEmail, self.adminEmails, msg.as_string())
+        s.quit()
+        
 
 if (__name__ == '__main__'):
     m = M21JMysql(db='cuthbert')

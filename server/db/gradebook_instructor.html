@@ -59,9 +59,9 @@ require(['m21theory', 'music21'], function() {
         $inDiv.append($h3);
         $inDiv.append($("<div style='float: right'><a href='../../ps051/" + g.bankId + ".html?seed=" + 
                 + g.seed + "&forUser=" + g.userInfo.email + "'><i>" + 
-                g.bankId + " " + g.seed + "</a></i><img src='" + g.userInfo.imageURI + "' /></div>"));
+                g.bankId + " " + g.seed + "</a></i></div>"));
         $inDiv.append($("<div>" + g.numRight + "/" + g.totalQs + " " + 
-                parseInt(g.numRight*100/g.totalQs).toString()  + "%</div>"));
+                parseInt(g.numRight*100/g.totalQs).toString()  + "%</div><br clear='all' />"));
         return $inDiv;        
     };
     
@@ -97,8 +97,8 @@ require(['m21theory', 'music21'], function() {
             $h3.append("<small> (" + jsc.userId + ") </small>")
             $h3.append($("<div style='float: right; font-size: 10pt'> " + m21theory.misc.niceTimestamp(jsc.lastUpdated) + " </div>"));
             $inDiv.append($h3);
-            $inDiv.append($("<div style='float: right'><i>" + jsc.bankId + " " + jsc.sectionId + "</i></div>"));
-            $inDiv.append($("<div>" + jsc.comment + "</div>"));
+            $inDiv.append($("<div><img src='" + jsc.userInfo.imageURI + "' style='height: 100px; float: right'/>" + jsc.comment + "</div>"));
+            $inDiv.append($("<div><i>" + jsc.bankId + " " + jsc.sectionId + "</i></div><br clear='all'/>"));
             $commentsOut.append($inDiv);   
         }    
     };

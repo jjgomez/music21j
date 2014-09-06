@@ -6,8 +6,8 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/common'], 
-        function(misc, userData, feedback, random, $, common) {
+define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/common', './serverSettings'], 
+        function(misc, userData, feedback, random, $, common, serverSettings) {
 	var bank = {};
 	/* Test Bank */
 
@@ -99,11 +99,10 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
                 if (urlFor !== undefined && urlFor !== null && urlFor != "") {
                     params.forUser = urlFor;
                 }
-                
 	            serverSettings.makeAjax(params, {
                     url: serverSettings.retrieveAnswer,
                     success: (function (j) { this.restoreAnswersCallback(j); }).bind(this),
-                });  // this is actually a tinybit unsafe since in theory callback could register
+                });  // this is actually a tinybit unsafe since in theory, callback could register
             }        // before questions are created.  Would that actually happen? NAH!	                        
 
 		};

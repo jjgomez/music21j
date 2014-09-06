@@ -241,13 +241,17 @@ class M21JMysql(object):
         except M21JMysqlException:
             userId = 0
             
+        j = self.jsonForm
         comment = j['comment']
-        userInfo = getUserInfoFromId(userId)
-        subject = "New comment from " + userInfo['first'] + " " + userInfo['last']
-        replyTo = userInfo['email']
-        
+        userInfo = self.getUserInfoFromId(userId)
+        if userInfo is not None and 'first' in userInfo:
+            subject = "New comment from " + userInfo['first'] + " " + userInfo['last']
+            replyTo = userInfo['email']
+        else:
+            subject = "New comment"
+            replyTo = None
+
         try:
-            j = self.jsonForm
             self.execute(
                 '''INSERT INTO comments (bankId, sectionId, 
                                         userId, comment, seed
@@ -265,7 +269,7 @@ class M21JMysql(object):
             subject = "SERVER ERROR: " + subject
             
             raise e
-        finally:
+        finally:            
             self.sendEmail(comment, {'subject': subject, 'replyTo': replyTo })
 
     def submitQuestion(self):
@@ -522,7 +526,7 @@ class M21JMysql(object):
             email = self.jsonForm['email']
             
             exists = self.queryOne('SELECT email FROM users WHERE email = %s', (email, ))
-            self.err(exists)
+            #self.err(exists)
             if exists:
                 reply = {'msg': 'This email is already in use; if you want to change your password, use the change password form',
                          'type': 'alert'}
@@ -706,7 +710,6 @@ class M21JMysql(object):
     def sendEmail(self, message="No message", options = {}):
         from email.mime.text import MIMEText
         import smtplib                    
-        
         msg = MIMEText(message.encode('utf-8'), 'plain', 'utf-8')
         msg['To'] = ','.join(self.adminEmails)
         msg['From'] = self.profEmail
@@ -719,7 +722,7 @@ class M21JMysql(object):
         subject = '[21m.051 m21theory] ' + subject
         msg['Subject'] = subject
         
-        if 'replyTo' in options:
+        if 'replyTo' in options and options['replyTo'] is not None:
             msg['Reply-To'] = options['replyTo']        
         
         s = smtplib.SMTP(self.smtpHost)

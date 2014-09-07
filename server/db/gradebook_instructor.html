@@ -10,7 +10,7 @@
 </head>
 <body>
 <script type="text/javascript">
-require(['m21theory', 'music21'], function() {
+require(['m21theory', 'music21'], function(m21theory, music21) {
     m21theory.style.apply({loadCss: false});
     
     m21theory.userData.fillNameDiv();
@@ -121,7 +121,8 @@ require(['m21theory', 'music21'], function() {
         }                
         $viewBankGradesOut.empty();
         $viewBankGradesOut.append($("<h1>" + bankId + "</h1>"));
-        var $table = $("<table style='border-spacing: 10px; border-collapse: separate;'></table>");
+        
+        var gradesFiltered = [];
         var grades = js.grades;
         grades.sort( sortGrades );
         
@@ -131,9 +132,11 @@ require(['m21theory', 'music21'], function() {
                 continue;
             }
             if (g.bankId == bankId) {
-                $table.append( oneBankGrade(g) );                
+                gradesFiltered.push(g);
             }
         }
+
+        var $table = makeGradeTable(gradesFiltered);
         $viewBankGradesOut.append($table);
     }
     
@@ -151,6 +154,7 @@ require(['m21theory', 'music21'], function() {
         var fullName = userId;
         var imgSrc = "";
         var email = "";
+        var sectionInfo = "unknown";
         
         var grades = [];
         for (var i = 0; i < js.grades.length; i++) {
@@ -161,22 +165,28 @@ require(['m21theory', 'music21'], function() {
         }        
         
         if (grades.length > 0) {
-            fullName = grades[0].userInfo.first + " " + grades[0].userInfo.last;
-            email = grades[0].userInfo.email;
-            imgSrc = grades[0].userInfo.imageURI;
+            var ui = grades[0].userInfo; // all same student
+            fullName = ui.first + " " + ui.last;
+            email = ui.email;
+            imgSrc = ui.imageURI;
+            if (ui.section == 2) {
+                sectionInfo = "2-3:30";
+            } else if (ui.section == 3) {
+                sectionInfo = "3:30-5";
+            } else {
+                sectionInfo = ui.section;
+            }
         }
         
         var $oneStudentInfo = $("<div style='float: right; padding-right: 10px; width: 300px'></div>");
-        $oneStudentInfo.append($("<h1>" + fullName + "</h1><br/>" + 
+        $oneStudentInfo.append($("<h1>" + fullName + "</h1>" + 
+                "<p>Section: " + sectionInfo + "</p>" +
                 "<h2><i><a href='mailto:" + email + "'>" + email + "</a></i></h2>"));
         $oneStudentInfo.append($("<img src='" + imgSrc + "' height='200'/></h1>"));
 
-        var $table = $("<table style='border-spacing: 10px; border-collapse: separate;'></table>");
-        
-        for (var i = 0; i < grades.length; i++) {
-            var g = grades[i];
-            $table.append( oneBankGrade(g, {displayStudentInfo: false}) );
-        }
+        var tableOptions = {displayStudentInfo: false};
+        var $table = makeGradeTable(grades, tableOptions);
+
         m21theory.feedback.overlay([$oneStudentInfo, $table], undefined, {
             horizontalFraction: .8,
             verticalFraction: .8,
@@ -185,13 +195,56 @@ require(['m21theory', 'music21'], function() {
          });
     }
     
+    var bankTitle = function (options) {
+        var params = {
+                displayBankId: true,
+                displayStudentInfo: true,
+        }
+        music21.common.merge(params, options);
+        var $tr = $("<tr></tr>");
+        
+       
+        var $last  = $("<th style='text-align: left'>Last</th>");
+        var $first = $("<th style='text-align: left'>First</th>");
+        var $uid = $("<th style='text-align: left'><small> (ID) </small></th>");
+        
+        var $email = $("<th style='text-align: left'>Email</a></th>");
+        var $totalTime = $("<th style='text-align: right'>Time</th>");
+        var $endTime = $("<th style='text-align: left'>Submitted</th>");
+        var $link = $("<th style='text-align: left'>Ps, Seed</th>"); 
+
+        var $score = $("<th style='text-align: right'>Score</th>");
+        var $numRight = $("<th style='text-align: right; color: #00aa00'>R</th>")
+        var $numWrong = $("<th style='text-align: right; color: #aa0000'>W</th>")
+        var $numUnanswered = $("<th style='text-align: right; color: #0000aa'>U</th>")
+        var $numMistakes = $("<th style='text-align: right; color: #aaaa00'>M</th>")
+        
+        
+        if (params.displayStudentInfo != false) {
+            $tr.append($last);
+            $tr.append($first);
+            $tr.append($uid);
+            $tr.append($email);                           
+        }
+        $tr.append($totalTime);
+        $tr.append($endTime);
+        $tr.append($link);               
+        $tr.append($score);               
+        $tr.append($numRight);  
+        $tr.append($numWrong);  
+        $tr.append($numUnanswered);  
+        $tr.append($numMistakes);  
+        
+        var $thead = $("<thead/>").append($tr);
+        return $thead;        
+    };
+    
     var oneBankGrade = function (g, options) {
         var params = {
                 displayBankId: true,
                 displayStudentInfo: true,
         }
         music21.common.merge(params, options);
-        
         var $tr = $("<tr></tr>");
         
         var $lastAnchor = $("<a href='#'>" + g.userInfo.last.slice(0, 12) + "</a>")
@@ -203,11 +256,15 @@ require(['m21theory', 'music21'], function() {
         
         var em = g.userInfo.email;
         var $email = $("<td style='text-align: left'><a href='mailto:" + em + "'>" + em.slice(0, em.indexOf('@')) + "</a></td>");
-        var $endTime = $("<td style='text-align: left'> " + m21theory.misc.niceTimestamp(g.endTime, false, false, true) + " </td>");
-        var $link = $("<td style='text-align: left'><a href='../../ps051/" + g.bankId + ".html?seed=" + 
+        var $totalTime = $("<td style='text-align: right'> " + m21theory.misc.niceTimeDiff(g.startTime, g.endTime) + " </td>")
+            .attr('sortData', g.endTime - g.startTime);
+        ;
+        var $endTime = $("<td style='text-align: left'> " + m21theory.misc.niceTimestamp(g.endTime, false, false, true) + " </td>")
+            .attr('sortData', g.endTime);
+        var $link = $("<td style='text-align: left'><i><a href='../../ps051/" + g.bankId + ".html?seed=" + 
                 + g.seed + "&forUser=" + g.userInfo.email + "'><i>" + 
                 (params.displayBankId ? g.bankId + " " : "") + 
-                g.seed + "</a></i></td>"); 
+                g.seed + "</a></i></td>").attr('sortData', g.bankId + ' ' + g.seed.toString()); 
 
         var $score = $("<td style='text-align: right'><b>" + parseInt(g.numRight*100/g.totalQs).toString()  + "%</b></td>");
         var $numRight = $("<td style='text-align: right; color: #00aa00'>" + g.numRight + "</td>")
@@ -222,6 +279,7 @@ require(['m21theory', 'music21'], function() {
             $tr.append($uid);
             $tr.append($email);                           
         }
+        $tr.append($totalTime);
         $tr.append($endTime);
         $tr.append($link);               
         $tr.append($score);               
@@ -230,9 +288,33 @@ require(['m21theory', 'music21'], function() {
         $tr.append($numUnanswered);  
         $tr.append($numMistakes);  
         
-        return $tr;        
+        return $tr;
     };
+    
+    /**
+     *  Make a table out of the grades that have already been filtered.
+     *
+     */
+    var makeGradeTable = function (grades, options) {
+        var $table = $("<table style='border-spacing: 10px; border-collapse: separate;'></table>");
+        $table.append( bankTitle(options) );
+        var $tbody = $("<tbody/>");
+        for (var i = 0; i < grades.length; i++) {
+            var g = grades[i];
+            $tbody.append( oneBankGrade(g, options) );
+        }        
+        $table.append($tbody);
+        $table.tablesorter({textExtraction: function (node) { 
+            if (node.getAttribute('sortData') != null) {
+                return node.getAttribute('sortData');
+            } else {
+                return node.textContent;
+            }
+        }});
         
+        return $table;
+    };
+    
     var handleBankGrades = function (js) {
         if (js.error !== undefined && js.error !== null) {
             m21theory.feedback.alert(js.error, 'alert');
@@ -240,18 +322,22 @@ require(['m21theory', 'music21'], function() {
         }                
         $viewBankGradesOut.empty();
         $viewBankGradesOut.append($("<h1>Recent grades</h1>"));
-        var $table = $("<table style='border-spacing: 10px; border-collapse: separate;'></table>");
+
         var maxGrades = 30;
         if (js.grades.length < maxGrades) {
             maxGrades = js.grades.length;
         }
         
+        var grades = [];
+        
         for (var i = 0; i < maxGrades; i++) {
             var g = js.grades[i];
             if (g.bankId.indexOf('cl') != 0) {
-                $table.append( oneBankGrade(g) );                
+                grades.push(g);
             }
         }
+        var $table = makeGradeTable(grades);
+        
         $viewBankGradesOut.append($table);
     };
     

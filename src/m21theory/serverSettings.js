@@ -86,8 +86,7 @@ define(['jquery', './feedback', 'music21/common', './userData'],
                     console.log(xhr.responseText);
                 },
         };
-        if (this.useJsonP == true) {
-            console.log('using jsonP');
+        if (this.useJsonP == true) {            
             params.dataType = 'jsonp';
         }
         common.merge(params, options);        

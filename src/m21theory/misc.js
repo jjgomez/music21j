@@ -257,6 +257,32 @@ define(['loadMIDI', 'jquery', './random',
         return dqs;
 	};
 	
+	misc.niceTimeDiff = function (tsStart, tsEnd, include_seconds) {
+	    var tsDiff = tsEnd - tsStart;
+        if (tsDiff > 10000000000) {
+            tsDiff = ts / 1000; // milliseconds to seconds
+        }
+        var days = 0;
+        var hours = 0;
+        var minutes = Math.floor(tsDiff/60);
+        if (minutes > 60) {
+            hours = Math.floor(minutes / 60);
+            minutes = minutes % 60;
+        }
+	    if (hours > 24) {
+	        days = Math.floor(hours / 24);
+	        hours = hours % 24;
+	    }
+	    var timeString = minutes.toString() + "m";
+	    if (hours > 0 || days > 0) {
+	        timeString = hours.toString() + "h " + timeString;	        
+	    }
+        if (days > 0) {
+            timeString = days.toString() + "d " + timeString;   
+        }
+        return timeString;
+	};
+	
 	misc.niceTimestamp = function (ts, include_seconds, include_year, html_context) {
 	    var now;
 	    if (ts === undefined) {

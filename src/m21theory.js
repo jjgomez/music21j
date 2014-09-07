@@ -65,12 +65,17 @@ require.config({
     paths: {
         'jquery': 'ext/jquery/jquery-2.1.1.min',
         'jquery-ui': 'ext/jqueryPlugins/jqueryUI/jquery-ui.min',
+        'jqueryTableSorter': 'ext/jqueryPlugins/tablesorter/jquery.tablesorter.min',
         'vexflow': 'ext/vexflow/vexflow-min',
         'es6-shim': 'ext/es6-shim',
         //'vexflowMods': 'ext/vexflowMods',
         'unpickler': 'ext/jsonpickle/unpickler',
     },
     shim: {
+        'jqueryTableSorter': {
+            deps: [ 'jquery' ],
+            exports: 'jQuery'
+        },
         'jquery-ui': {
             deps: [ 'jquery' ],
             exports: 'jQuery.ui'
@@ -83,7 +88,7 @@ require.config({
 });
 
 if ( typeof define === "function" && define.amd) {
-    define( "m21theory", ['music21', 
+    define( "m21theory", ['music21', 'jquery', 'jqueryTableSorter',
                           'm21theory/userData', 'm21theory/random', 'm21theory/misc',
                           'm21theory/bank', 'm21theory/section', 'm21theory/sections',
                           'm21theory/question', 'm21theory/feedback',
@@ -95,7 +100,7 @@ if ( typeof define === "function" && define.amd) {
                     m21theory.misc.playMotto(music21.MIDI);                     
                 }
             });
-
+        return m21theory;
     	// this may get loaded twice, but I think the cache handles it...
 	});
 }

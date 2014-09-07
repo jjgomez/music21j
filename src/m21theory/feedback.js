@@ -204,50 +204,9 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
         var $cs = $("<div style='text-align: center'></div>");
         var $b = $("<button class='lightInput'>Questions? Comments?</button>");
         $b.on('click', (function () { 
-            var docHeight = $(document).height();
-            var $commentOverlay = $("<div class='overlay'></div>")
-                .height(docHeight)
-                .css({
-                    'opacity' : 0.6,
-                    'position': 'absolute',
-                    'top': 0,
-                    'left': 0,
-                    'background-color': 'black',
-                    'width': '100%',
-                    'z-index': 100       
-                });
-            var ww = $(window).width();
-            var wh = $(window).height();
-            var $commentBody = $("<div class='overlayBody'></div>")
-               .css({
-                   'background-color': '#909090',
-                   'position': 'fixed',
-                   'top': wh * .2,
-                   'left': ww * .2,
-                   'width': ww * .6,
-                   'height': wh * .6,
-                   'z-index': 101,
-                   'border-radius': '40px',
-               });
-            var $closeButton = $("<div>X</div>");
-            $closeButton.on('click', function () { 
-                $('.overlay').remove();
-                $('.overlayBody').remove();
-            });
-            var $commentInnerBody = $("<div>Comment from " + m21theory.userData.studentData.first + "<br/></div>").css({
-                width: '90%',
-                height: '70%',
-                'text-align': 'center',
-                'position': 'relative',
-                left: '5%',
-                top: '5%',
-                'border-radius': '10px',
-                'padding-top': '20px',
-                'font-size': '16pt',
-                'background-color': 'white',
-                border: '2px #999999 solid',
-            });
-            var $ta = $("<textarea></textarea>").css({
+            var $commentHeader = $("<div>Comment from " + m21theory.userData.studentData.first + "<br/></div>")
+                .css({'font-size': '16pt',});
+            var $ta = $("<textarea id='commentTextArea'></textarea>").css({
                 'margin-top': '10px',
                 'width': '90%',
                 'height': '80%',
@@ -255,27 +214,7 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
                 'padding': '5px 5px 5px 5px',
                 'border': '1px black dotted',
             });
-            $commentInnerBody.append($ta);
-            this.$textArea = $ta;            
-            $commentBody.append($closeButton);
-            $commentBody.append($commentInnerBody);
-            $closeButton.css({
-                'font-size': '40px',
-                'position': 'absolute',
-                'top': '-20px',
-                'right': '-20px',
-                'background-color': 'white',
-                'padding': '20px 20px 20px 20px',
-                'border-radius': '20px',
-                'width': '20px',
-                'height': '20px',
-                'opacity': 0.9,
-                'border': '4px #333333 solid',
-                'text-align': 'center',
-                'cursor': 'pointer',
-                'z-index': 102,
-            });
-            this.$closeButton = $closeButton;
+
             var $submitButton = $("<button>Send</button>").css({
                 'position': 'absolute',
                 'bottom': '20px',
@@ -287,7 +226,7 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
                 'width': '80px',
                 'height': '40px',
             }).on('click', (function (e) {
-                var comment = this.$textArea.val();
+                var comment = $("#commentTextArea").val();
                 var bank = this.bank;
                 var section = (bank.lastSectionWorkedOn !== undefined) ? bank.lastSectionWorkedOn.id : "unknown";
                 var seed = m21theory.random.seed;
@@ -301,11 +240,11 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
                 m21theory.serverSettings.makeAjax(jsonObj, {
                     url: m21theory.serverSettings.commentUrl,
                     success: (function () {
-                        this.$closeButton.click();
+                        $(".overlayCloseButton").click();
                         feedback.alert("Your message has been sent", 'ok');
                     }).bind(this),                  
                     error: (function (xhr) {
-                        this.$closeButton.click();
+                        $(".overlayCloseButton").click();
                         feedback.alert("There was an error sending your message.  Copy it below and " +
                                 "email it to Cuthbert also noting that there was an error in sending the " +
                                 "comment: <br/>&nbsp;<br/><div style='font-size: 8px; text-align: left'>" + 
@@ -315,7 +254,6 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
                     }).bind(this),
                 });
             }).bind(this));
-            $commentBody.append($submitButton);
             var lastSection = this.bank.lastSectionWorkedOn;
             var lastId = (lastSection !== undefined) ? lastSection.id : "unknown";
             var $information = $("<div><i>Last section worked on:</i> " + lastId  + 
@@ -325,9 +263,13 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
                         'left': '40px',
                         'text-align': 'left',
                     });
-            $commentBody.append($information);
-            $("body").append($commentOverlay);
-            $("body").append($commentBody);
+            
+            var appendInner = [$commentHeader, $ta];
+            var appendOuter = [$submitButton, $information];
+            
+            
+            feedback.overlay(appendInner, appendOuter);
+                        
             $ta.focus();
         }).bind(this));
         $cs.append($b);
@@ -435,6 +377,89 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
         return $what; // passthrough..
     };
 
+    feedback.overlay = function (appendInner, appendOuter, options) {
+        var params = {
+           horizontalFraction: .6,
+           verticalFraction: .6,
+           innerHorizontalFraction: .9,
+           innerVerticalFraction: .7,
+        };
+        music21.common.merge(params, options);
+        
+        var docHeight = $(document).height();
+        var $commentOverlay = $("<div class='overlay'></div>")
+            .height(docHeight)
+            .css({
+                'opacity' : 0.6,
+                'position': 'absolute',
+                'top': 0,
+                'left': 0,
+                'background-color': 'black',
+                'width': '100%',
+                'z-index': 100       
+            });
+        var ww = $(window).width();
+        var wh = $(window).height();
+        var $commentBody = $("<div class='overlayBody'></div>")
+           .css({
+               'background-color': '#909090',
+               'position': 'fixed',
+               'top': wh * (1 - params.verticalFraction)/2,
+               'left': ww * (1 - params.horizontalFraction)/2,
+               'width': ww * params.horizontalFraction,
+               'height': wh * params.verticalFraction,
+               'z-index': 101,
+               'border-radius': '40px',
+           });
+        
+        var $closeButton = $("<div class='overlayCloseButton'>X</div>");
+        $closeButton.on('click', function () { 
+            $('.overlay').remove();
+            $('.overlayBody').remove();
+        });
+        $closeButton.css({
+            'font-size': '40px',
+            'position': 'absolute',
+            'top': '-20px',
+            'right': '-20px',
+            'background-color': 'white',
+            'padding': '20px 20px 20px 20px',
+            'border-radius': '20px',
+            'width': '20px',
+            'height': '20px',
+            'opacity': 0.9,
+            'border': '4px #333333 solid',
+            'text-align': 'center',
+            'cursor': 'pointer',
+            'z-index': 102,
+        });
+        $commentBody.append($closeButton);
+        
+        if (appendInner != undefined) {
+            var $commentInnerBody = $("<div></div>").css({
+                width: (params.innerHorizontalFraction * 100).toString() + '%',
+                height: (params.innerVerticalFraction * 100).toString() + '%',
+                'text-align': 'center',
+                'position': 'relative',
+                left: '5%',
+                top: '5%',
+                'border-radius': '10px',
+                'padding-top': '20px',
+                'background-color': 'white',
+                border: '2px #999999 solid',
+            });
+            $commentInnerBody.append(appendInner);
+            $commentBody.append($commentInnerBody);
+        }         
+        
+        if (appendOuter != undefined) {
+            $commentBody.append(appendOuter);
+        }
+        
+        $("body").append($commentOverlay);
+        $("body").append($commentBody);
+        return $commentBody;
+    };
     
     
     if (typeof m21theory != "undefined") {

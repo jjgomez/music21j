@@ -281,13 +281,12 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
         var $lastAnchor = lastNameLink(g.userInfo);        
         var $last  = $("<td style='text-align: left'></td>").append($lastAnchor);
         var $first = $("<td style='text-align: left'>" + g.userInfo.first.slice(0, 12) + "</td>");
-        var $uid = $("<td style='text-align: left'><small> (" + g.userId + ") </small></td>");
-        
+        var $uid = $("<td style='text-align: left'><small> (" + g.userId + ") </small></td>")
+            .attr('sortData', g.userId);        
         var em = g.userInfo.email;
         var $email = $("<td style='text-align: left'><a href='mailto:" + em + "'>" + em.slice(0, em.indexOf('@')) + "</a></td>");
         var $totalTime = $("<td style='text-align: right'> " + m21theory.misc.niceTimeDiff(g.startTime, g.endTime) + " </td>")
             .attr('sortData', g.endTime - g.startTime);
-        ;
         var $endTime = $("<td style='text-align: left'> " + m21theory.misc.niceTimestamp(g.endTime, false, false, true) + " </td>")
             .attr('sortData', g.endTime);
         var $link = $("<td style='text-align: left'><i><a href='../../ps051/" + g.bankId + ".html?seed=" + 

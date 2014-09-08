@@ -7,6 +7,9 @@
  <link rel="stylesheet" href="http://web.mit.edu/music21/music21j/css/m21theory.css" type="text/css" />
  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
  <script data-main="../../src/m21theory" playMotto='false' src="../../ext/require/require.js"></script>
+ <style>
+   DIV.bodywrapper { margin-right: 20px }
+ </style>
 </head>
 <body>
 <script type="text/javascript">
@@ -32,7 +35,7 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
     
     var $commands = $("<ul></ul>");
     
-    var $viewBankGrades =  $("<li><a href='#'>View Grades for Banks</a></li>").on('click', function () {
+    var $viewBankGrades =  $("<li><a href='#'>Most recent submissions</a></li>").on('click', function () {
         ajax('viewBankGrades', handleBankGrades);
     });
     $commands.append($viewBankGrades);
@@ -121,7 +124,13 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
             return;
         }                
         $viewBankGradesOut.empty();
-        $viewBankGradesOut.append($("<h1>" + bankId + "</h1>"));
+        
+        var $header = $("<h1>" + bankId + "</h1>");
+        if (section) {
+            $header.append($("<span>, Section " + section +"</span>"));
+        }
+        
+        $viewBankGradesOut.append($header);
         
         var gradesFiltered = [];
         var grades = js.grades;
@@ -140,9 +149,19 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
         var $table = makeGradeTable(gradesFiltered);
         $viewBankGradesOut.append($table);
         ajax('findUnsubmitted', 
-                function (js) { 
-                    console.log(js);
-                }, 
+                (function (js) { 
+                    var $naughty = $("<div><span>No submissions from: </span></div>")
+                        .css('margin-left', '30px');
+                    var section = $(this).data('section');
+                    for (var i = 0; i < js.unsubmitted.length; i++) {
+                        var u = js.unsubmitted[i].userInfo;
+                        if (section != undefined && u.section != section) {
+                            continue;
+                        }
+                        $naughty.append($("<span> </span>").append(lastNameLink(u)));
+                    }
+                    $viewBankGradesOut.append($naughty);            
+                }).bind(this), 
                 {'bankId': bankId})
         
     }
@@ -245,7 +264,12 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
         var $thead = $("<thead/>").append($tr);
         return $thead;        
     };
-    
+    var lastNameLink = function (userInfo) {
+        return $("<a href='#'>" + userInfo.last.slice(0, 12) + "</a>")
+            .data('userId', userInfo.id)
+            .on('click', oneStudentClickHandler);            
+    };
+
     var oneBankGrade = function (g, options) {
         var params = {
                 displayBankId: true,
@@ -254,9 +278,7 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
         music21.common.merge(params, options);
         var $tr = $("<tr></tr>");
         
-        var $lastAnchor = $("<a href='#'>" + g.userInfo.last.slice(0, 12) + "</a>")
-            .data('userId', g.userId)
-            .on('click', oneStudentClickHandler);
+        var $lastAnchor = lastNameLink(g.userInfo);        
         var $last  = $("<td style='text-align: left'></td>").append($lastAnchor);
         var $first = $("<td style='text-align: left'>" + g.userInfo.first.slice(0, 12) + "</td>");
         var $uid = $("<td style='text-align: left'><small> (" + g.userId + ") </small></td>");

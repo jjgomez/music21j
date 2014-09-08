@@ -673,7 +673,7 @@ class M21JMysql(object):
         q = self.queryJSreturn('''SELECT users.id AS userId FROM users 
                                    WHERE users.id NOT IN (SELECT userId FROM bank 
                                                           WHERE bank.bankId = '%s') 
-                                   AND users.enrolled = 'TRUE' ''' % bank)
+                                   AND users.enrolled = 'TRUE' ORDER BY users.last, users.first''' % bank)
         self.jsonReply({'unsubmitted': q,})
 
     def gradesViewBankGrades(self):
@@ -685,7 +685,8 @@ class M21JMysql(object):
         
         
     def gradesGetComments(self):
-        recentComments = self.queryJSreturn('SELECT comment, userId, lastUpdated, bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20')
+        recentComments = self.queryJSreturn('''SELECT comment, userId, lastUpdated, 
+                 bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20''')
         self.jsonReply({'password': True,
                         'comments': recentComments,
                         'error': None,

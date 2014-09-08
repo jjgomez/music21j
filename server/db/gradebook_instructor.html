@@ -110,7 +110,8 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
             return 0;
         }    
     };
-        
+    
+    /*  All grades for one bank */
     var bankGrades = function (js) {
         var bankId = $(this).data('bankId');
         var section = $(this).data('section');
@@ -138,6 +139,12 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
 
         var $table = makeGradeTable(gradesFiltered);
         $viewBankGradesOut.append($table);
+        ajax('findUnsubmitted', 
+                function (js) { 
+                    console.log(js);
+                }, 
+                {'bankId': bankId})
+        
     }
     
     var oneStudentClickHandler = function () {

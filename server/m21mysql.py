@@ -649,9 +649,11 @@ class M21JMysql(object):
                     self.gradesViewBankGrades()
                 elif jrFunc == 'listBanks':
                     self.getBanks()
+                elif jrFunc == 'findUnsubmitted':
+                    self.findUnsubmitted()
                 else:
                     self.jsonReply({'password': True,
-                                    'error': 'illegal function',
+                                    'error': 'illegal function: ' + jrFunc,
                                     })
 
     def queryJSreturn(self, query, params=None):
@@ -661,6 +663,18 @@ class M21JMysql(object):
             for r in jsq:
                 r['userInfo'] = self.getUserInfoFromId(r['userId'])
         return jsq
+
+    def findUnsubmitted(self):
+        if 'bankId' not in self.jsonForm:
+            self.jsonReply({'error': 'No bankId found in form!'
+                            })
+            return
+        bank = self.jsonForm['bankId']
+        q = self.queryJSreturn('''SELECT users.id AS userId FROM users 
+                                   WHERE users.id NOT IN (SELECT userId FROM bank 
+                                                          WHERE bank.bankId = '%s') 
+                                   AND users.enrolled = 'TRUE' ''' % bank)
+        self.jsonReply({'unsubmitted': q,})
 
     def gradesViewBankGrades(self):
         q = self.queryJSreturn('SELECT * FROM bank ORDER BY lastUpdated DESC')

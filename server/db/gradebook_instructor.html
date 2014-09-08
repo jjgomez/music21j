@@ -192,7 +192,7 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
         
         if (grades.length > 0) {
             var ui = grades[0].userInfo; // all same student
-            fullName = ui.first + " " + ui.last;
+            fullName = ui.first + " " + ui.last + " <small>(" + ui.id + ")</small>";
             email = ui.email;
             imgSrc = ui.imageURI;
             if (ui.section == 2) {

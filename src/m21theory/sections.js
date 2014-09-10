@@ -16,7 +16,9 @@ for (var i = 0; i < knownSectionTypes.length; i ++) {
 	knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
 }
 var dependencies = ['require'].concat(knownSectionTypesPrefixed);
-console.log(dependencies);
+if (typeof m21theory != 'undefined' && m21theory.debug) {
+    console.log(dependencies);
+}
 
 define(dependencies, function(require) {
 	var sectionHandler = {};
@@ -24,7 +26,9 @@ define(dependencies, function(require) {
 		var sectionModuleName = knownSectionTypes[i];
 		var sectionPrefixed = knownSectionTypesPrefixed[i];
 		sectionHandler[sectionModuleName] = require(sectionPrefixed);
-		console.log(sectionModuleName, sectionHandler, sectionPrefixed);
+		if (typeof m21theory != 'undefined' && m21theory.debug) {
+	        console.log(sectionModuleName, sectionHandler, sectionPrefixed);		    
+		}
 	}
 	sectionHandler.get = function (sectionName) {
 		// return a newly created object by test name...

@@ -841,7 +841,7 @@ class M21JMysql(object):
         if 'section' not in self.jsonForm:
             section = 2
         section = self.jsonForm['section']
-        q = self.queryJSreturn('''SELECT id AS userId FROM users WHERE enrolled = 'TRUE' ''')
+        q = self.queryJSreturn('''SELECT id AS userId FROM users WHERE enrolled = 'TRUE' AND section = %s ''' % (section, ))
         import random
         random.shuffle(q)
         self.jsonReply({'students': q})

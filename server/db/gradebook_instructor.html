@@ -56,7 +56,10 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
     $commands.append($comments);
     
     $bb.append($commands);
-    
+
+    var $randomCallOut = $('<div id="randomCall"></div>');
+    $bb.append($randomCallOut);
+
     var $listBanksOut = $('<div id="listBanks"></div>');
     $bb.append($listBanksOut);
         
@@ -182,13 +185,18 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
     }
     
     var randomCall = function (js) {
-        console.log(js);
+        $randomCallOut.empty()
+        
         for (var i = 0; i < 6; i++) {
             var ui = js.students[i].userInfo;
             fullName = ui.first + " " + ui.last + " <small>(" + ui.id + ")</small>";
             imgSrc = ui.imageURI;
-            console.log(fullName, imgSrc)
+            var $figure = $("<figure style='float: left'/>");
+            $figure.append( $("<img src='" + imgSrc + "' height='150'/>") );
+            $figure.append( $("<figcaption>" + fullName + "</figcaption>") );
+            $randomCallOut.append($figure);
         }
+        $randomCallOut.append($("<br clear='all'/>"));
         
     }
     

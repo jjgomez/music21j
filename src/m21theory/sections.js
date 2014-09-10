@@ -7,7 +7,7 @@
  * 
  */
 
-var knownSectionTypes = ['interval','chordCreation','chordIdentification','firstSpecies','keySignature',
+var knownSectionTypes = ['intervalTraining','chordCreation','chordIdentification','firstSpecies','keySignature',
                   'noteIdentification','scaleEar','scaleMajorMinorWritten', 
                   'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining'];
 
@@ -16,6 +16,7 @@ for (var i = 0; i < knownSectionTypes.length; i ++) {
 	knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
 }
 var dependencies = ['require'].concat(knownSectionTypesPrefixed);
+console.log(dependencies);
 
 define(dependencies, function(require) {
 	var sectionHandler = {};
@@ -23,6 +24,7 @@ define(dependencies, function(require) {
 		var sectionModuleName = knownSectionTypes[i];
 		var sectionPrefixed = knownSectionTypesPrefixed[i];
 		sectionHandler[sectionModuleName] = require(sectionPrefixed);
+		console.log(sectionModuleName, sectionHandler, sectionPrefixed);
 	}
 	sectionHandler.get = function (sectionName) {
 		// return a newly created object by test name...

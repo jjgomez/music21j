@@ -1,6 +1,6 @@
 define("m21theory/sections/pitchEartraining", 
-        ["m21theory/section", "m21theory/random", 'm21theory/question'], 
-        function (section, random, question) {
+        ["m21theory/section", "m21theory/random", 'm21theory/question', 'music21/interval'], 
+        function (section, random, question, interval) {
 
     var PQuestion = function (handler, index) {
         question.Question.call(this, handler, index);   
@@ -121,7 +121,7 @@ define("m21theory/sections/pitchEartraining",
 				}
 			}
 
-			var genericInterval = new music21.interval.GenericInterval(randomGeneric);
+			var genericInterval = new interval.GenericInterval(randomGeneric);
 			var diatonicSpecifier = undefined;
 
 			if (genericInterval.perfectable == false) {
@@ -133,8 +133,8 @@ define("m21theory/sections/pitchEartraining",
 				diatonicSpecifier = 'A';
 			}
 
-			var diatonicInterval = new music21.interval.DiatonicInterval(diatonicSpecifier, genericInterval);
-			var fullInterval = new music21.interval.Interval(diatonicInterval);
+			var diatonicInterval = new interval.DiatonicInterval(diatonicSpecifier, genericInterval);
+			var fullInterval = new interval.Interval(diatonicInterval);
 			return fullInterval;
 		};	
 			

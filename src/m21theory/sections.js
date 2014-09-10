@@ -9,13 +9,14 @@
 
 var knownSectionTypes = ['interval','chordCreation','chordIdentification','firstSpecies','keySignature',
                   'noteIdentification','scaleEar','scaleMajorMinorWritten', 
-                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining'];
+                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper'];
 
 var knownSectionTypesPrefixed = [];
 for (var i = 0; i < knownSectionTypes.length; i ++) {
 	knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
 }
 var dependencies = ['require'].concat(knownSectionTypesPrefixed);
+dependencies.push('./sections/pitchEartraining');
 
 define(dependencies, function(require) {
 	var sectionHandler = {};

@@ -59,7 +59,12 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
     question.GeneralQuestion.prototype.getStudentAnswer = function () {
         var sa = undefined;
         if (this.$inputBox != undefined) {
-            sa = this.$inputBox.val().replace(/^\s+|\s+$/g,'');
+            var selected = this.$inputBox.find("input[type='radio']:checked");
+            if (selected.length > 0) { // has radio boxes
+                sa = selected.val();
+            } else {
+                sa = this.$inputBox.val().replace(/^\s+|\s+$/g,'');                
+            }
         } else if (this.studentAnswer != undefined) {
             return this.studentAnswer;
         }

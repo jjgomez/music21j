@@ -17,6 +17,8 @@ import MySQLdb as mdb
 class M21JMysqlException(Exception):
     pass
 
+BankResults = collections.namedtuple('BankResults', "totalQs numRight numWrong numUnanswered numMistakes")
+
 class M21JMysql(object):
     
     def __init__(self, form=None, host='localhost', user='cuthbert', db='fundamentals'):
@@ -619,6 +621,146 @@ class M21JMysql(object):
         return userInfo
     
     
+    def numSectionsForBank(self, bankId):
+        '''
+        returns the number of sections for a bank...
+        '''
+        ui = self.queryOne('SELECT MAX(sectionIndex) AS si FROM section WHERE bankId = %s', (bankId, ))
+        if ui is not None:
+            return ui.si + 1
+        else:
+            return None
+    
+    def totalQuestionsAndWeightForSection(self, bankId, sectionIndexOrId):
+        if isinstance(sectionIndexOrId, int):
+            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
+                                    FROM section WHERE bankId = %s AND sectionIndex = %s
+                                ''', (bankId, sectionIndexOrId))
+        else:
+            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
+                                    FROM section WHERE bankId = %s AND sectionId = %s
+                                ''', (bankId, sectionIndexOrId))            
+        if ui is None:
+            return None
+        
+        if ui.weight is None:
+            ui.weight = 1
+        return ui
+    
+    def getSectionInfoForUser(self, bankId, sectionIndexOrId, userId):
+        if isinstance(sectionIndexOrId, int):
+            ui = self.query('''SELECT *
+                                    FROM section WHERE bankId = %s AND sectionIndex = %s
+                                    AND userId = %s
+                                    ORDER BY numRight DESC, numMistakes
+                                ''', (bankId, sectionIndexOrId, userId))
+        else:
+            ui = self.query('''SELECT * AS weight
+                                    FROM section WHERE bankId = %s AND sectionId = %s
+                                    AND userId = %s
+                                    ORDER BY numRight DESC, numMistakes
+                                ''', (bankId, sectionIndexOrId, userId))            
+        bestTuple = None
+        if ui is None or len(ui) == 0:
+            return None
+        
+        bestTuple = ui[0]
+        
+        return bestTuple    
+    
+
+    def getStartEndTimeForUserBank(self, userId, bankId):
+        ui = self.queryOne('''SELECT MIN(startTime) AS startTime, MAX(endTime) AS endTime
+                            FROM section WHERE bankId = %s AND userId = %s
+        ''', (bankId, userId))
+        return ui
+
+    def sectionsForUserBank(self, userId, bankId):
+        '''
+        For consolidating sections into a single grade
+        
+        select all sections, regardless of seed for a single bankId and make a statement.
+        '''
+        numSections = self.numSectionsForBank(bankId)
+        if numSections is None:
+            return
+         
+        totalQs = 0
+        totalRight = 0
+        totalWrong = 0
+        totalUnanswered = 0
+        totalMistakes = 0        
+        
+        for i in range(0, numSections):
+            sectionInfo = self.totalQuestionsAndWeightForSection(bankId, i)
+            pointsPossible = sectionInfo.totalQs * sectionInfo.weight
+            bestAttempt = self.getSectionInfoForUser(bankId, i, userId)
+            if bestAttempt:   
+                numRight = bestAttempt.numRight * sectionInfo.weight
+                numWrong = bestAttempt.numWrong * sectionInfo.weight
+                numMistakes = bestAttempt.numMistakes * sectionInfo.weight
+                numUnanswered = bestAttempt.numUnanswered * sectionInfo.weight
+            else:
+                numRight = 0
+                numWrong = 0
+                numMistakes = 0
+                numUnanswered = pointsPossible
+            
+            totalQs += pointsPossible
+            totalRight += numRight
+            totalWrong += numWrong
+            totalUnanswered += numUnanswered
+            totalMistakes += numMistakes
+                
+            print(bestAttempt, pointsPossible, numRight)
+        
+        return BankResults(totalQs, totalRight, totalWrong, totalUnanswered, totalMistakes)
+    
+    def consolidateSectionsForOneUser(self, userId, bankId):
+        '''
+        takes all the sections for one user and moves them into the bank. Run ONCE per user...
+        '''
+        res = self.sectionsForUserBank(userId, bankId)
+        if res is None:
+            return None
+        
+        timeInfo = self.getStartEndTimeForUserBank(userId, bankId)
+        if timeInfo and timeInfo.startTime is not None:
+            startTime = timeInfo.startTime
+            endTime = timeInfo.endTime
+        else:
+            startTime = datetime.datetime(2014, 1, 1, 1, 1, 1)
+            endTime = datetime.datetime(2015, 1, 1, 1, 1, 1)
+        print (startTime, endTime)
+        
+        urlInfo = self.queryOne('''SELECT DISTINCT(url) FROM bank WHERE bankId = %s AND url IS NOT NULL LIMIT 1''',
+                            (bankId, ))
+        if urlInfo:
+            url = urlInfo.url
+        else:
+            url = ""
+        
+        self.execute(
+                '''REPLACE INTO bank (bankId, userId, 
+                                    numRight, numWrong, numMistakes, numUnanswered,
+                                    totalQs, startTime, endTime, seed, url
+                                    )
+                                VALUES (%s, %s,
+                                        %s, %s, %s, %s,
+                                        %s, %s, %s, -1, %s
+                                        )
+                ''', (bankId, userId, 
+                      res.numRight, res.numWrong, res.numMistakes, res.numUnanswered,
+                      res.totalQs, startTime, endTime, url
+                        )
+                )
+    def consolidateBank(self, bankId):
+        naughty = self.query(self.unsubmittedQuery, (bankId, ))
+        for u in naughty:
+            userId = u.userId
+            self.consolidateSectionsForOneUser(userId, bankId)
+            
+    
     ####----- admin tools....
     
     
@@ -651,6 +793,8 @@ class M21JMysql(object):
                     self.getBanks()
                 elif jrFunc == 'findUnsubmitted':
                     self.findUnsubmitted()
+                elif jrFunc == 'randomCall':
+                    self.randomCall()
                 else:
                     self.jsonReply({'password': True,
                                     'error': 'illegal function: ' + jrFunc,
@@ -664,16 +808,17 @@ class M21JMysql(object):
                 r['userInfo'] = self.getUserInfoFromId(r['userId'])
         return jsq
 
+    unsubmittedQuery = '''SELECT users.id AS userId FROM users 
+                                   WHERE users.id NOT IN (SELECT userId FROM bank 
+                                                          WHERE bank.bankId = %s) 
+                                   AND users.enrolled = 'TRUE' ORDER BY users.last, users.first'''
     def findUnsubmitted(self):
         if 'bankId' not in self.jsonForm:
             self.jsonReply({'error': 'No bankId found in form!'
                             })
             return
         bank = self.jsonForm['bankId']
-        q = self.queryJSreturn('''SELECT users.id AS userId FROM users 
-                                   WHERE users.id NOT IN (SELECT userId FROM bank 
-                                                          WHERE bank.bankId = '%s') 
-                                   AND users.enrolled = 'TRUE' ORDER BY users.last, users.first''' % bank)
+        q = self.queryJSreturn(self.unsubmittedQuery, (bank, ))
         self.jsonReply({'unsubmitted': q,})
 
     def gradesViewBankGrades(self):
@@ -691,6 +836,15 @@ class M21JMysql(object):
                         'comments': recentComments,
                         'error': None,
                         })
+
+    def randomCall(self):
+        if 'section' not in self.jsonForm:
+            section = 2
+        section = self.jsonForm['section']
+        q = self.queryJSreturn('''SELECT id AS userId FROM users WHERE enrolled = 'TRUE' ''')
+        import random
+        random.shuffle(q)
+        self.jsonReply({'students': q})
 
     def retrieveAnswer(self):
         if self.verifyLogin() is False:
@@ -759,10 +913,16 @@ class M21JMysql(object):
         
 
 if (__name__ == '__main__'):
-    m = M21JMysql(db='cuthbert')
-    cur = m.con.cursor()
-    cur.execute("SELECT * FROM countries")
-    rows = cur.fetchall()
-    for row in rows:
-        print(row)
-    
+#     m = M21JMysql(db='cuthbert')
+#     cur = m.con.cursor()
+#     cur.execute("SELECT * FROM countries")
+#     rows = cur.fetchall()
+#     for row in rows:
+#         print(row)
+    m = M21JMysql(db='fundamentals', host='zachara.mit.edu')
+    print(m.numSectionsForBank('ps02a'))
+    #print(m.totalQuestionsAndWeightForSection('ps02a', 'noteMidi'))
+    print(m.sectionsForUserBank(32, 'ps01'))
+    print(m.getStartEndTimeForUserBank(32, 'ps01'))
+    m.consolidateSectionsForOneUser(9, 'ps02a')
+    #print(m.consolidateBank('ps02a'))

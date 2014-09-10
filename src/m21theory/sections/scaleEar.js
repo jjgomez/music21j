@@ -75,16 +75,32 @@ define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 
         } else {
             whichNote = 0;
         }
-        
         this.storedAnswer = whichNote.toString();
         
                         
         if (this.isPractice) {
-            $questionDiv.append( $("<div style='padding-left: 80px; position: relative; top: 0px'>Example: <b>" + this.storedAnswer + "</b></div>") );
+            var niceChoice = whichNote.toString();
+            if (whichNote == 0) {
+                niceChoice = 'No error';
+            }
+
+            $questionDiv.append( $("<div style='padding-left: 80px; position: relative; top: 0px'>Example: <b>" + niceChoice + "</b></div>") );
         } else {
-            this.$inputBox = $("<input type='text' size='5' class='unanswered'/>")
-                             .change( this.checkTrigger );
-            $questionDiv.append( $("<div style='padding-left: 80px; position: relative; top: 0px'/>")
+           var inputBox = $('<div/>').css('position', 'relative');
+           for (var j = 0; j < 9; j++) {
+                if (j == 1) { continue; }
+                var niceChoice = j.toString();
+                if (j == 0) {
+                    niceChoice = "No error";
+                }
+                var fieldInput =  $('<label><input type="radio" name="' + 
+                            this.id + this.index.toString() + '" value="' + j.toString() + '" /> ' + 
+                            niceChoice + '&nbsp;</label>');
+                fieldInput.change( this.checkTrigger );
+                inputBox.append(fieldInput);
+            }
+            this.$inputBox = inputBox;
+            $questionDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'/>")
                              .append(this.$inputBox) );
         }
         this.$questionDiv = $questionDiv;

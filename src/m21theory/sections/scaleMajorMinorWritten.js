@@ -6,17 +6,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
     };
     ScaleWriteQuestion.prototype = new question.Question();
     ScaleWriteQuestion.prototype.constructor = ScaleWriteQuestion;
-    
-    ScaleWriteQuestion.prototype.getStudentAnswer = function () {
-        var selected = this.$inputBox.find("input[type='radio']:checked");
-        var val = undefined;
-        if (selected.length > 0) {
-            val = selected.val();
-            //console.log(val);
-        } 
-        return val;
-    };
-    
+        
     ScaleWriteQuestion.prototype.render = function () {
         var sec = this.section;
         var s = new music21.stream.Stream();
@@ -124,7 +114,7 @@ define("m21theory/sections/scaleMajorMinorWritten",
                     niceAnswer + "</b></div>") );
         } else {
             
-            var inputBox = $('<div class="unanswered"/>').css('position', 'relative');
+            var inputBox = $('<div/>').css('position', 'relative');
             this.storedAnswer = scaleType;
             for (var j = 0; j < allowable.length; j++) {
                 var thisOption = allowable[j];

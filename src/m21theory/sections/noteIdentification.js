@@ -38,6 +38,9 @@ define("m21theory/sections/noteIdentification",
                     if (j > 4) {
                         p.diatonicNoteNum = p.diatonicNoteNum - ( (j - 4) * 2);
                     }
+                    if (s.clef.name == 'bass') {
+                        p.octave = p.octave - 1;                        
+                    }
                 }
                 
                 n = new music21.note.Note("C");

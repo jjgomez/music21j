@@ -1,0 +1,93 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 PS 03: Pitch in Bass Clef</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var pulseMatch = m21theory.sections.get('pulseIdentify');
+    pulseMatch.title = 'More pulse matching practice...quite fast.';
+    pulseMatch.tempo = 144;
+    
+    var ni1 = m21theory.sections.get('noteIdentification');
+    ni1.id = 'noteIdentify1';
+    ni1.instructions = 'Identify the notes by name, separating their names by spaces.';
+    ni1.allowableAccidentals = [0];
+    ni1.allowableClefs = ['bass'];
+
+    var ni3 = m21theory.sections.get('noteIdentification');
+    ni3.id = 'noteMidiScales';
+    ni3.practiceQs = 0;
+    ni3.totalQs = 7;
+    ni3.practiceScales = true;
+    ni3.numNotes = 8;
+    ni3.title = 'Practice Scales';
+    ni3.instructions = 'Use the  MIDI piano keyboard to identify the notes';
+    ni3.allowableAccidentals = [0];
+    ni3.allowableClefs = ['bass'];
+    ni3.useJazz = true;
+
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteMidi';
+    ni2.practiceQs = 0;
+    ni2.totalQs = 10;
+    ni2.title = 'MIDI Keyboard Note Identification';
+    ni2.instructions = 'Now click on a musical score and play the correct notes on the piano keyboard.';
+    ni2.allowableAccidentals = [0];
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = true;
+
+    var convert = m21theory.sections.get('doOnPaper');
+    convert.title = 'Converting between treble and bass clef.';
+    convert.id = 'convert';
+    convert.setFromId("convertSpecifics");
+    var p1 = music21.tinyNotation.TinyNotation("2/4 A8 G d c F4 G B2 c16 A8. d4");
+    p1.clef = new music21.clef.TrebleClef();
+    var p2 = music21.tinyNotation.TinyNotation("2/4 g8. f16 e8. c16 g2 f8 c B d e4 f4");
+    p2.clef = new music21.clef.BassClef();
+    p1.tempo = 80;
+    p2.tempo = 80;
+    p1.appendNewCanvas(convert.$specifics.children('#asPart1'));
+    p2.appendNewCanvas(convert.$specifics.children('#asPart2'));
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.id = 'ps02a';
+    testBank.instructions = 'This PSet requires the XKey MIDI keyboard. ' + 
+          'Use the "&lt;&lt;" and "&gt;&gt;" buttons next to the keyboard on screen ' +
+          'to shift the pitch up or down octaves. ';
+    testBank.useJazz = true;
+    testBank.keyboardOctaveShift = 0;
+    testBank.keyboardShowNames = true;
+    
+    testBank.append(pulseMatch);
+    testBank.append(ni1);
+    testBank.append(ni3);
+    testBank.append(ni2);
+    testBank.append(convert);
+
+    testBank.render();
+});
+
+</script>
+
+<div id='convertSpecifics' style='display: none'>
+
+<p>Each of these excerpts is plausible in its current clef, but better in a different clef:</p>
+
+<div id='asPart1'></div>
+<div id='asPart2'></div>
+
+<p>On paper, rewrite the first excerpt in bass clef, maintaining the octave of the current note, and
+the second excerpt in treble clef, again maintaining the octave of the current note.</p>
+
+<p>Reminder: do this in PENCIL and ERASE any mistakes thoroughly. Never, ever scratch out notes.</p>
+</div>
+</body>
+</html>

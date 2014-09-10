@@ -37,8 +37,19 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
     
     var $viewBankGrades =  $("<li><a href='#'>Most recent submissions</a></li>").on('click', function () {
         ajax('viewBankGrades', handleBankGrades);
-    });
+    });    
     $commands.append($viewBankGrades);
+    
+    var $randomCall2 =  $("<li><a href='#'>Call on someone at Random from Section 2</a></li>").on('click', function () {
+        ajax('randomCall', randomCall, {section: 2});
+    });    
+    $commands.append($randomCall2);
+    var $randomCall3 =  $("<li><a href='#'>Call on someone at Random from Section 3</a></li>").on('click', function () {
+        ajax('randomCall', randomCall, {section: 3});
+    });    
+    $commands.append($randomCall3);
+    
+    
     var $comments = $("<li><a href='#'>Get comments</a></li>").on('click', function () {
         ajax('getComments', handleComments);
     });    
@@ -168,6 +179,17 @@ require(['m21theory', 'music21'], function(m21theory, music21) {
     
     var oneStudentClickHandler = function () {
         ajax('viewBankGrades', oneStudent.bind(this));  
+    }
+    
+    var randomCall = function (js) {
+        console.log(js);
+        for (var i = 0; i < 6; i++) {
+            var ui = js.students[i].userInfo;
+            fullName = ui.first + " " + ui.last + " <small>(" + ui.id + ")</small>";
+            imgSrc = ui.imageURI;
+            console.log(fullName, imgSrc)
+        }
+        
     }
     
     var oneStudent = function (js) {

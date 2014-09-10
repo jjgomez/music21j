@@ -9,7 +9,7 @@
 
 var knownSectionTypes = ['interval','chordCreation','chordIdentification','firstSpecies','keySignature',
                   'noteIdentification','scaleEar','scaleMajorMinorWritten', 
-                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper'];
+                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining'];
 
 var knownSectionTypesPrefixed = [];
 for (var i = 0; i < knownSectionTypes.length; i ++) {

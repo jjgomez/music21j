@@ -57,6 +57,20 @@ require(['m21theory'], function() {
     p1.appendNewCanvas(convert.$specifics.children('#asPart1'));
     p2.appendNewCanvas(convert.$specifics.children('#asPart2'));
 
+    var earT0 = m21theory.sections.get('pitchEartraining');
+    earT0.id = 'earTraining0';
+    earT0.totalQs = 10;
+    earT0.instructions = earT0.instructions + "<p><b>If this is hard, please contact me and the LAs to work on strategies for practice.</b></p>";
+    earT0.numNotes = 2;
+    
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT0.id = 'earTraining1';
+    var earT2 = m21theory.sections.get('pitchEartraining');
+    earT0.id = 'earTraining2';
+    earT2.instructions = "<p>Same as above, but with more notes and faster.</p>";
+    earT2.numNotes = 5;
+    earT2.tempo = 110;
+    
     var testBank = new m21theory.bank.TestBank();
     testBank.id = 'ps02a';
     testBank.instructions = 'This PSet requires the XKey MIDI keyboard. ' + 
@@ -71,7 +85,10 @@ require(['m21theory'], function() {
     testBank.append(ni3);
     testBank.append(ni2);
     testBank.append(convert);
-
+    testBank.append(earT0);
+    testBank.append(earT1);
+    testBank.append(earT2);
+    
     testBank.render();
 });
 

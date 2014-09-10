@@ -11,8 +11,7 @@ define("m21theory/sections/pitchEartraining",
     PQuestion.prototype.render = function () {
         var _ = this.section.getRandomValidIntervalAndNotes(),
             n1 = _[0],
-            n2 = _[1],
-            fullInterval = _[2];
+            n2 = _[1];
 
         var s = new music21.stream.Stream();
         if (random.randint(0,1)) {
@@ -32,7 +31,22 @@ define("m21theory/sections/pitchEartraining",
         s.autoBeam = false;
         this.stream = s;
         
+        var direction = 'same';
+        if (n1.pitch.ps < n2.pitch.ps) {
+            direction = 'higher';
+        } else if (n1.pitch.ps > n2.pitch.ps) {
+            direction = 'lower';
+        }
+        s.tempo = this.section.tempo;
         var nc = s.createCanvas();
+        for (var i = 1; i < this.section.numNotes - 1; i++) {
+            var _ = this.section.getRandomValidIntervalAndNotes(),
+                nMiddle = _[0],
+                nInterval = _[2]; // important... keep notes similar in height            
+            nMiddle.pitch = nInterval.transposePitch(n1.pitch);
+            s.append(nMiddle);
+        }
+                
         s.append(n2);
 
         var $questionDiv = $("<div style='width: 180px; float: left;'></div>");
@@ -40,11 +54,11 @@ define("m21theory/sections/pitchEartraining",
         if (this.isPractice) {
             $questionDiv.append( 
                     $("<div style='padding-left: 50px; position: relative; top: 0px'>" + 
-                            fullInterval.name + "</div>") 
+                            direction + "</div>") 
                 );
         } else {
             var inputBox = $('<div/>').css('position', 'relative');
-            this.storedAnswer = scaleType;
+            this.storedAnswer = direction;
             var answers = ['higher', 'lower', 'same'];
             for (var j = 0; j < answers.length; j++) {
                 var thisOption = answers[j];
@@ -54,7 +68,6 @@ define("m21theory/sections/pitchEartraining",
                 fieldInput.change( this.checkTrigger );
                 inputBox.append(fieldInput);
             }
-            this.storedAnswer = fullInterval.name;
             this.$inputBox = inputBox;
             $questionDiv.append( $("<div style='padding-left: 10px; position: relative; top: 0px'/>")
                              .append(this.$inputBox) );
@@ -79,7 +92,10 @@ define("m21theory/sections/pitchEartraining",
 		this.minInterval = -3;
 		this.maxInterval = 5;
 		
+		this.numNotes = 3;
 		this.skipP1 = false;
+		this.tempo = 72;
+		this.totalQs = 20;
 			
 		this.disallowDoubleAccs = true;
 		this.disallowWhiteKeyAccidentals = true;
@@ -87,10 +103,11 @@ define("m21theory/sections/pitchEartraining",
 		this.lastRenderedNote1 = undefined;
 		this.lastRenderedNote2 = undefined;
 			
-		this.title = "Interval identification (General and Specific)";
+		this.title = "Ear Direction Identification";
 		this.instructions = "<p>Each score has a single note written. " +
 			"When you click on the score, you will hear several notes played. " + 			
-			"Determine whether the LAST note is higher, lower, or the same as the first note.</p>";
+			"Determine whether the LAST note is higher, lower, or the same as the first note.</p>" + 
+			"<p>Ungraded but important: find the first pitch on the piano and then try to find the last. It may be a black key.  Try to sing them both.</p>";
 		
 		this.getRandomInterval = function () {
 			var randomGeneric = undefined;		

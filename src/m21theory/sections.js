@@ -6,42 +6,42 @@
  * Based on music21 (=music21p), Copyright (c) 2006–14, Michael Scott Cuthbert and cuthbertLab
  * 
  */
-
 var knownSectionTypes = ['intervalTraining','chordCreation','chordIdentification','firstSpecies','keySignature',
                   'noteIdentification','scaleEar','scaleMajorMinorWritten', 
                   'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining'];
-
 var knownSectionTypesPrefixed = [];
 for (var i = 0; i < knownSectionTypes.length; i ++) {
-	knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
-}
-var dependencies = ['require'].concat(knownSectionTypesPrefixed);
-if (typeof m21theory != 'undefined' && m21theory.debug) {
-    console.log(dependencies);
+    knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);
 }
 
-define(dependencies, function(require) {
-	var sectionHandler = {};
-	for (var i = 0; i < knownSectionTypes.length; i ++) {
-		var sectionModuleName = knownSectionTypes[i];
-		var sectionPrefixed = knownSectionTypesPrefixed[i];
-		sectionHandler[sectionModuleName] = require(sectionPrefixed);
-		if (typeof m21theory != 'undefined' && m21theory.debug) {
-	        console.log(sectionModuleName, sectionHandler, sectionPrefixed);		    
-		}
+var dependencies = ['require'];
+dependencies.push.apply(dependencies, knownSectionTypesPrefixed);
+
+define(dependencies, function (require) {
+	var sections = {};
+    var sectionVariables = Array.prototype.slice.call(arguments, 1);
+	for (var i = 0; i < knownSectionTypes.length; i++) {
+	    var kst = knownSectionTypes[i];
+	    var sv = sectionVariables[i];
+	    sections[kst] = sv;
 	}
-	sectionHandler.get = function (sectionName) {
+	
+	sections.get = function (sectionName) {	    
 		// return a newly created object by test name...
-		thisSection = sectionHandler[sectionName];
-		return new thisSection();
+	    if (sections[sectionName] === undefined) {	        
+	        var sectionPrefixed = './sections/' + sectionName;
+	        var sectionObj = require(sectionPrefixed);
+	        sections[sectionName] = sectionObj;
+	    } else {
+	        //console.log('already loaded', sectionName);
+	    }
+	    thisSection = sections[sectionName];
+	    return new thisSection();
 	};
 	
 	// end of define
 	if (typeof(m21theory) != "undefined") {
-	    if (m21theory.sections === undefined) {
-	        m21theory.sections = {};
-	    }
-		m21theory.sections.get = sectionHandler.get;
+	    m21theory.sections = sections;
 	}
-	return sectionHandler;
+	return sections;
 });

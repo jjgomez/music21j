@@ -135,9 +135,21 @@ define("m21theory/sections/noteIdentification",
             p = n.pitches[0]; // take lowest pitch from a chord;
         }
         var newVal = this.$inputBox.val();
+
         if (newVal.length > 0) {
             newVal += " ";
         }
+        var oldLength = newVal.split(/\s+/).length;
+        var associatedNote = this.stream.get(oldLength - 1); // gets next note...
+        
+        if (associatedNote !== undefined && associatedNote.pitch !== undefined) {
+            console.log(associatedNote.pitch);
+            if ((associatedNote.pitch.ps % 12) ==  (p.ps % 12)) {
+                // sub with .pitchClass when available;
+                p.name = associatedNote.pitch.name; // use correct enharmonic.
+            }
+        }
+        
         newVal += p.name.replace(/\-/, 'b');
         this.$inputBox.val(newVal);
         this.lyricsChanged();

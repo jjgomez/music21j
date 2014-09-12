@@ -963,5 +963,5 @@ if (__name__ == '__main__'):
     #print(m.sectionsForUserBank(32, 'ps01'))
     #print(m.getStartEndTimeForUserBank(32, 'ps01'))
     #m.consolidateSectionsForOneUser(9, 'ps02a')
-    #print(m.consolidateBank('ps02a'))
-    print(m.activeBanks('ps'))
+    print(m.consolidateBank('ps01'))
+    #print(m.activeBanks('ps'))

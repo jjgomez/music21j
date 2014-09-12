@@ -64,15 +64,15 @@ require(['m21theory'], function() {
     earT0.numNotes = 2;
     
     var earT1 = m21theory.sections.get('pitchEartraining');
-    earT0.id = 'earTraining1';
+    earT1.id = 'earTraining1';
     var earT2 = m21theory.sections.get('pitchEartraining');
-    earT0.id = 'earTraining2';
+    earT2.id = 'earTraining2';
     earT2.instructions = "<p>Same as above, but with more notes and faster.</p>";
     earT2.numNotes = 5;
     earT2.tempo = 110;
     
     var testBank = new m21theory.bank.TestBank();
-    testBank.id = 'ps02a';
+    testBank.id = 'ps03_picc';
     testBank.instructions = 'This PSet requires the XKey MIDI keyboard. ' + 
           'Use the "&lt;&lt;" and "&gt;&gt;" buttons next to the keyboard on screen ' +
           'to shift the pitch up or down octaves. ';

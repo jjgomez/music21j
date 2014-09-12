@@ -80,7 +80,7 @@ define("m21theory/sections/pitchEartraining",
 	var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = PQuestion;
-
+		console.log('hi beth!');
 		this.id = 'pitchEartraining';
 		
 		this.noteNames = ['C','D','E','F','G','A','B'];

@@ -84,6 +84,26 @@ class M21JMysql(object):
 
         self.con = con
 
+    def getMysqlPW(self, userdir = None):
+        if userdir is None:
+            if self.userdir is not None:
+                userdir = self.userdir
+            else:
+                username = getpass.getuser()
+                userdir = os.path.expanduser("~" + username)
+                # likely to be /Library/Webserver on Mac
+        #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
+        #logging.debug(username)
+        
+        mysqlPasswordFile = userdir + os.path.sep + '.music21j_password'
+        if not os.path.exists(mysqlPasswordFile):
+            raise M21JMysqlException("Cannot read password file! put it in a file in the home directory called .music21j_password")
+        
+        with open(mysqlPasswordFile) as f:
+            pw = f.read().strip()
+        return pw
+
+    ## Queries
 
     def execute(self, query, params=None):
         if params is None:
@@ -139,6 +159,31 @@ class M21JMysql(object):
         finally:
             cursor.close()
         return result
+
+    def namedTuplesToJS(self, listOfNamedTuples):
+        listOut = []
+        for row in listOfNamedTuples:
+            listOut.append(self.namedTupleToJS(row))
+        return listOut
+
+    def namedTupleToJS(self, nt):
+        rcd = {}
+        for fn in nt._fields:
+            v = getattr(nt, fn)
+            if isinstance(v, datetime.datetime):
+                v = int(v.strftime('%s'))  # convert to epoch
+            rcd[fn] = v
+        return rcd
+
+    def queryJSreturn(self, query, params=None):
+        q = self.query(query, params)
+        jsq = self.namedTuplesToJS(q)
+        if len(jsq) > 0 and 'userId' in jsq[0]:
+            for r in jsq:
+                r['userInfo'] = self.getUserInfoFromId(r['userId'])
+        return jsq
+        
+    ## Low level communication
         
     def parseForm(self):
         if self.form is None:
@@ -156,6 +201,14 @@ class M21JMysql(object):
             
         return self.jsonForm
 
+    def printJsonHeader(self):
+        if self.useJsonP:
+            ct = 'application/javascript'
+        else:
+            ct = 'text/json'
+        print("Content-Type: " + ct)
+        print("")
+                
     def jsonReply(self, pyObj):
         self.printJsonHeader()
         jsonString = json.dumps(pyObj)
@@ -163,26 +216,9 @@ class M21JMysql(object):
             print(jsonString)
         else:
             print(self.jsonPCallFunction + "(" + jsonString + ")\n")
+    
+    ## login management...
         
-    def getMysqlPW(self, userdir = None):
-        if userdir is None:
-            if self.userdir is not None:
-                userdir = self.userdir
-            else:
-                username = getpass.getuser()
-                userdir = os.path.expanduser("~" + username)
-                # likely to be /Library/Webserver on Mac
-        #logging.basicConfig(stream=sys.stderr, level=logging.DEBUG)
-        #logging.debug(username)
-        
-        mysqlPasswordFile = userdir + os.path.sep + '.music21j_password'
-        if not os.path.exists(mysqlPasswordFile):
-            raise M21JMysqlException("Cannot read password file! put it in a file in the home directory called .music21j_password")
-        
-        with open(mysqlPasswordFile) as f:
-            pw = f.read().strip()
-        return pw
-
     def checkLogin(self):
         '''
         checks login and sends a reply to the user.
@@ -191,7 +227,6 @@ class M21JMysql(object):
         '''
         checksOut = self.verifyLogin()
         self.jsonReply(checksOut)
-
 
     def verifyLogin(self):
         '''
@@ -218,7 +253,7 @@ class M21JMysql(object):
         else:
             return False
 
-    def getUserId(self, email=None):
+    def getUserIdFromEmail(self, email=None):
         if email is None:
             studentData = self.getStudentData()
             if 'email' not in studentData:
@@ -228,21 +263,461 @@ class M21JMysql(object):
         if info is None:
             raise M21JMysqlException('Email not in database!')
         return info.id
+    
+    def verifyGetId(self):
+        '''
+        verifies the login, sends a reply if not.
         
+        if admin and 'forUser' is set, gets the info for that student instead.
+        
+        returns a proper userId or None.  If None, the calling function should immediately return
+        '''
+        if self.verifyLogin() is False:
+            self.jsonReply({'success': False,
+                            'login': False,
+                            })
+            return;
+        if 'forUser' in self.jsonForm:
+            if self.checkIfAdmin() is False:
+                self.jsonReply({'success': False,
+                            'login': False,
+                            })
+                return;
+            forStudent = self.jsonForm['forUser']
+        else:
+            forStudent = self.getStudentData()['email']
+        uid = self.getUserIdFromEmail(forStudent)
+        return uid
+    
     def getStudentData(self):
+        ## return the student data from the JSON submitted...
         if self.jsonForm is None:
             raise M21JMysqlException('No form submitted!')
         if 'studentData' not in self.jsonForm:
             raise M21JMysqlException('studentData not in jsonForm: %s' % self.jsonForm)
         return self.jsonForm['studentData']
 
+    def getUserInfoFromId(self, userId):
+        '''
+        returns a dict rather than named tuplet...
+        '''
+        ui = self.queryOne('SELECT * FROM users WHERE id = %s', (userId, ))
+        if ui is not None:
+            userInfo = self.namedTupleToJS(ui)
+            del(userInfo['password'])
+            userInfo['imageURI'] = self.imagesURI + str(userId) + '.jpg' # should this be scrubbed for students???
+        else:
+            userInfo = {}
+        return userInfo
+
+    ### Submissions
+
+    def submitQuestion(self):
+        userId = self.verifyGetId()
+        if userId is None:
+            return
+
+        j = self.jsonForm
+        if 'sectionId' not in j:
+            j['sectionId'] = "unknownSection"
+
+        for ans in ('studentAnswer', 'storedAnswer'):                
+            if ans not in j:
+                j[ans] = ''
+            if j[ans] != unicode(j[ans]):
+                j[ans] = json.dumps(j[ans])
+            
+            
+        #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+        #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+        try:
+            self.execute(
+            '''REPLACE INTO question (bankId, sectionId, sectionIndex, questionIndex, 
+                                    userId, answerStatus, studentAnswer, storedAnswer,
+                                    startTime, endTime, seed, numMistakes
+                                    )
+                            VALUES (%s, %s, %s, %s,
+                                    %s, %s, %s, %s,
+                                    FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
+                                    )
+            ''', (j['bankId'], j['sectionId'], j['sectionIndex'], j['questionIndex'],
+                  userId, j['answerStatus'], j['studentAnswer'], j['storedAnswer'],
+                  j['startTime']/1000, j['endTime']/1000, j['seed'], j['numMistakes']
+                  )
+            )
+        except Exception as e:
+            self.err(e)
+            self.jsonReply({'success': False,
+                            'login': True,
+                            'dbSuccess': False,
+                            })
+        self.jsonReply({'success': True,
+                        'login': True,
+                        'dbSuccess': True,                            
+                        })
+
+        
+    def submitSection(self):
+        userId = self.verifyGetId()
+        if userId is None:
+            return
+        j = self.jsonForm
+        if 'sectionId' not in j:
+            j['sectionId'] = "unknownSection"
+        if 'outcome' not in j:
+            j['outcome'] = 'unknown'
+        if 'sectionIndex' not in j:
+            j['sectionIndex'] = -1
+        #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+        #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
+        try:
+            self.execute(
+            '''REPLACE INTO section (bankId, sectionId, sectionIndex, 
+                                    userId, numRight, numWrong, numMistakes, numUnanswered,
+                                    totalQs, startTime, endTime, seed, outcome
+                                    )
+                            VALUES (%s, %s, '%s',
+                                    '%s', '%s', '%s', '%s', '%s',
+                                    '%s', FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), '%s', %s
+                                    )
+            ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
+                  userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
+                  j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['outcome']
+                  )
+            )
+        except Exception as e:
+            self.err(e)
+            self.jsonReply({'success': False,
+                            'login': True,
+                            'dbSuccess': False,
+                            })
+        self.jsonReply({'success': True,
+                        'login': True,
+                        'dbSuccess': True,                            
+                        })
+
+    def submitBank(self):
+        userId = self.verifyGetId()
+        if userId is None:
+            return
+        j = self.jsonForm
+        try:
+            self.execute(
+            '''REPLACE INTO bank (bankId,  
+                                    userId, numRight, numWrong, numMistakes, numUnanswered,
+                                    totalQs, startTime, endTime, seed, url
+                                    )
+                            VALUES (%s,
+                                    %s, %s, %s, %s, %s,
+                                    %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
+                                    )
+            ''', (j['bankId'],
+                  userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
+                  j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['url']
+                  )
+            )
+        except Exception as e:
+            self.err(e)
+            self.jsonReply({'success': False,
+                            'login': True,
+                            'dbSuccess': False,
+                            })
+        self.jsonReply({'success': True,
+                        'login': True,
+                        'dbSuccess': True,                            
+                        })    
+
+    def numSectionsForBank(self, bankId):
+        '''
+        returns the number of sections for a bank...
+        '''
+        ui = self.queryOne('SELECT MAX(sectionIndex) AS si FROM section WHERE bankId = %s', (bankId, ))
+        if ui is not None:
+            return ui.si + 1
+        else:
+            return None
+    
     def getBanks(self):
+        # TODO: use bankInfo...
         banks = self.queryJSreturn("SELECT bankId, url, max(lastUpdated) AS lastUpdated FROM bank WHERE url IS NOT NULL GROUP BY bankId ORDER BY lastUpdated DESC")
         self.jsonReply({'banks': banks})
         
+    
+    def getStartEndTimeForUserBank(self, userId, bankId):
+        ### TODO: BankInfo
+        ui = self.queryOne('''SELECT MIN(startTime) AS startTime, MAX(endTime) AS endTime
+                            FROM section WHERE bankId = %s AND userId = %s
+        ''', (bankId, userId))
+        return ui
+
+    
+    
+    # -- grade and question retrieval
+    
+    def activeBanks(self, bankType, includeClosed=True):        
+        qStr = "SELECT * FROM bankInfo WHERE type = %s AND startTime < NOW()"
+        if includeClosed is False:
+            qStr += " AND endTime > NOW()"
+        banks = self.query(qStr, (bankType, ))
+        return banks
+
+    def gradesByType(self):
+        userId = self.verifyGetId()
+        if userId is None:
+            return
+        bankType = 'ps'
+        if 'type' in self.jsonForm:
+            bankType = self.jsonForm['type']
+        activeBanks = self.activeBanks(bankType) 
+        for b in activeBanks:
+            pass
+             
+    
+    def totalQuestionsAndWeightForSection(self, bankId, sectionIndexOrId):
+        if isinstance(sectionIndexOrId, int):
+            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
+                                    FROM section WHERE bankId = %s AND sectionIndex = %s
+                                ''', (bankId, sectionIndexOrId))
+        else:
+            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
+                                    FROM section WHERE bankId = %s AND sectionId = %s
+                                ''', (bankId, sectionIndexOrId))            
+        if ui is None:
+            return None
+        
+        if ui.weight is None:
+            ui.weight = 1
+        return ui
+    
+    def getSectionInfoForUser(self, bankId, sectionIndexOrId, userId):
+        if isinstance(sectionIndexOrId, int):
+            ui = self.query('''SELECT *
+                                    FROM section WHERE bankId = %s AND sectionIndex = %s
+                                    AND userId = %s
+                                    ORDER BY numRight DESC, numMistakes
+                                ''', (bankId, sectionIndexOrId, userId))
+        else:
+            ui = self.query('''SELECT * AS weight
+                                    FROM section WHERE bankId = %s AND sectionId = %s
+                                    AND userId = %s
+                                    ORDER BY numRight DESC, numMistakes
+                                ''', (bankId, sectionIndexOrId, userId))            
+        bestTuple = None
+        if ui is None or len(ui) == 0:
+            return None
+        
+        bestTuple = ui[0]
+        
+        return bestTuple    
+
+    def sectionsForUserBank(self, userId, bankId):
+        '''
+        For consolidating sections into a single grade
+        
+        select all sections, regardless of seed for a single bankId and make a statement.
+        '''
+        numSections = self.numSectionsForBank(bankId)
+        if numSections is None:
+            return
+         
+        totalQs = 0
+        totalRight = 0
+        totalWrong = 0
+        totalUnanswered = 0
+        totalMistakes = 0        
+        
+        for i in range(0, numSections):
+            sectionInfo = self.totalQuestionsAndWeightForSection(bankId, i)
+            pointsPossible = sectionInfo.totalQs * sectionInfo.weight
+            bestAttempt = self.getSectionInfoForUser(bankId, i, userId)
+            if bestAttempt:   
+                numRight = bestAttempt.numRight * sectionInfo.weight
+                numWrong = bestAttempt.numWrong * sectionInfo.weight
+                numMistakes = bestAttempt.numMistakes * sectionInfo.weight
+                numUnanswered = bestAttempt.numUnanswered * sectionInfo.weight
+            else:
+                numRight = 0
+                numWrong = 0
+                numMistakes = 0
+                numUnanswered = pointsPossible
+            
+            totalQs += pointsPossible
+            totalRight += numRight
+            totalWrong += numWrong
+            totalUnanswered += numUnanswered
+            totalMistakes += numMistakes
+                
+            print(bestAttempt, pointsPossible, numRight)
+        
+        return BankResults(totalQs, totalRight, totalWrong, totalUnanswered, totalMistakes)
+
+    
+    def retrieveAnswer(self):
+        uid = self.verifyGetId()
+        if uid is None:
+            return
+        
+        if ('seed' not in self.jsonForm or 'bankId' not in self.jsonForm):
+            self.jsonReply({'success': False,
+                            'login': True,
+                            })
+            return;
+
+        
+        seed = self.jsonForm['seed']
+        bankId = self.jsonForm['bankId']
+        
+        sectionsIncluded = self.query('''SELECT DISTINCT(sectionIndex) AS si FROM question
+            WHERE seed = %s AND bankId = %s AND userId = %s ORDER BY sectionIndex
+        ''', (seed, bankId, uid))
+
+        sectionDict = {};
+
+        for r in sectionsIncluded:
+            sectionIndex = r.si                    
+            answerInfo = self.queryJSreturn('''SELECT answerStatus, storedAnswer, studentAnswer, 
+                                        questionIndex, numMistakes FROM question 
+                WHERE seed = %s AND bankId = %s AND sectionIndex = %s AND userId = %s ORDER BY questionIndex
+            ''', (seed, bankId, sectionIndex, uid))
+            sectionDict[sectionIndex] = answerInfo
+        self.jsonReply({'success': True,
+                        'login': True,
+                        'sectionDict': sectionDict,
+                        })
+
+    ####----- admin tools....
+    
+    
+    def checkIfAdmin(self):
+        if not self.verifyLogin():
+            return False
+        ud = self.getStudentData()
+        sec = self.queryOne("SELECT id, section FROM admins WHERE email = %s", (ud['email'], ))
+        if sec is None or sec == "":
+            return False
+        return sec
+
+    def gradebook(self):
+        section = self.checkIfAdmin()
+        if section is False:
+            self.jsonReply({'error': 'This user is not authorized to view the gradebook'});
+        else:
+            self.section = section
+            if 'function' not in self.jsonForm:
+                self.jsonReply({'password': True,
+                                'error': 'no function specified'
+                                })
+            else:
+                jrFunc = self.jsonForm['function']
+                if jrFunc == 'getComments':
+                    self.gradesGetComments()
+                elif jrFunc == 'viewBankGrades':
+                    self.gradesViewBankGrades()
+                elif jrFunc == 'listBanks':
+                    self.getBanks()
+                elif jrFunc == 'findUnsubmitted':
+                    self.findUnsubmitted()
+                elif jrFunc == 'randomCall':
+                    self.randomCall()
+                else:
+                    self.jsonReply({'password': True,
+                                    'error': 'illegal function: ' + jrFunc,
+                                    })
+
+
+    unsubmittedQuery = '''SELECT users.id AS userId FROM users 
+                                   WHERE users.id NOT IN (SELECT userId FROM bank 
+                                                          WHERE bank.bankId = %s) 
+                                   AND users.enrolled = 'TRUE' ORDER BY users.last, users.first'''
+    def findUnsubmitted(self):
+        if 'bankId' not in self.jsonForm:
+            self.jsonReply({'error': 'No bankId found in form!'
+                            })
+            return
+        bank = self.jsonForm['bankId']
+        q = self.queryJSreturn(self.unsubmittedQuery, (bank, ))
+        self.jsonReply({'unsubmitted': q,})
+
+    def gradesViewBankGrades(self):
+        q = self.queryJSreturn('SELECT * FROM bank ORDER BY lastUpdated DESC')
+        self.jsonReply({'password': True,
+                        'grades': q,
+                        'error': None,
+                        })
+        
+        
+    def gradesGetComments(self):
+        recentComments = self.queryJSreturn('''SELECT comment, userId, lastUpdated, 
+                 bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20''')
+        self.jsonReply({'password': True,
+                        'comments': recentComments,
+                        'error': None,
+                        })
+
+    def randomCall(self):
+        if 'section' not in self.jsonForm:
+            section = 2
+        section = self.jsonForm['section']
+        q = self.queryJSreturn('''SELECT id AS userId FROM users WHERE enrolled = 'TRUE' AND section = %s ''' % (section, ))
+        import random
+        random.shuffle(q)
+        self.jsonReply({'students': q})
+
+
+    ## commandline Tools...
+    
+    def consolidateSectionsForOneUser(self, userId, bankId):
+        '''
+        takes all the sections for one user and moves them into the bank. Run ONCE per user...
+        '''
+        res = self.sectionsForUserBank(userId, bankId)
+        if res is None:
+            return None
+        
+        timeInfo = self.getStartEndTimeForUserBank(userId, bankId)
+        if timeInfo and timeInfo.startTime is not None:
+            startTime = timeInfo.startTime
+            endTime = timeInfo.endTime
+        else:
+            startTime = datetime.datetime(2014, 1, 1, 1, 1, 1)
+            endTime = datetime.datetime(2015, 1, 1, 1, 1, 1)
+        print (startTime, endTime)
+        
+        urlInfo = self.queryOne('''SELECT DISTINCT(url) FROM bank WHERE bankId = %s AND url IS NOT NULL LIMIT 1''',
+                            (bankId, ))
+        if urlInfo:
+            url = urlInfo.url
+        else:
+            url = ""
+        
+        self.execute(
+                '''REPLACE INTO bank (bankId, userId, 
+                                    numRight, numWrong, numMistakes, numUnanswered,
+                                    totalQs, startTime, endTime, seed, url
+                                    )
+                                VALUES (%s, %s,
+                                        %s, %s, %s, %s,
+                                        %s, %s, %s, -1, %s
+                                        )
+                ''', (bankId, userId, 
+                      res.numRight, res.numWrong, res.numMistakes, res.numUnanswered,
+                      res.totalQs, startTime, endTime, url
+                        )
+                )
+        
+    def consolidateBank(self, bankId):
+        naughty = self.query(self.unsubmittedQuery, (bankId, ))
+        for u in naughty:
+            userId = u.userId
+            self.consolidateSectionsForOneUser(userId, bankId)
+            
+
+
+    ## comments
+
     def sendComment(self):
         try:
-            userId = self.getUserId()
+            userId = self.getUserIdFromEmail()
         except M21JMysqlException:
             userId = 0
             
@@ -278,132 +753,30 @@ class M21JMysql(object):
             self.sendEmail(comment, {'subject': subject, 'replyTo': replyTo })
 
 
-    ### Submissions
-
-    def submitQuestion(self):
-        if self.verifyLogin() is False:
-            self.jsonReply({'success': False,
-                            'login': False,
-                            })
-        else:
-            userId = self.getUserId()
-            j = self.jsonForm
-            if 'sectionId' not in j:
-                j['sectionId'] = "unknownSection"
-
-            for ans in ('studentAnswer', 'storedAnswer'):                
-                if ans not in j:
-                    j[ans] = ''
-                if j[ans] != unicode(j[ans]):
-                    j[ans] = json.dumps(j[ans])
-                
-                
-            #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
-            #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
-            try:
-                self.execute(
-                '''REPLACE INTO question (bankId, sectionId, sectionIndex, questionIndex, 
-                                        userId, answerStatus, studentAnswer, storedAnswer,
-                                        startTime, endTime, seed, numMistakes
-                                        )
-                                VALUES (%s, %s, %s, %s,
-                                        %s, %s, %s, %s,
-                                        FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
-                                        )
-                ''', (j['bankId'], j['sectionId'], j['sectionIndex'], j['questionIndex'],
-                      userId, j['answerStatus'], j['studentAnswer'], j['storedAnswer'],
-                      j['startTime']/1000, j['endTime']/1000, j['seed'], j['numMistakes']
-                      )
-                )
-            except Exception as e:
-                self.err(e)
-                self.jsonReply({'success': False,
-                                'login': True,
-                                'dbSuccess': False,
-                                })
-            self.jsonReply({'success': True,
-                            'login': True,
-                            'dbSuccess': True,                            
-                            })
-
+    def sendEmail(self, message="No message", options = {}):
+        from email.mime.text import MIMEText
+        import smtplib                    
+        msg = MIMEText(message.encode('utf-8'), 'plain', 'utf-8')
+        msg['To'] = ','.join(self.adminEmails)
+        msg['From'] = self.profEmail
         
-    def submitSection(self):
-        if self.verifyLogin() is False:
-            self.jsonReply({'success': False,
-                            'login': False,
-                            })
+        if 'subject' in options:
+            subject = options['subject']
         else:
-            userId = self.getUserId()
-            j = self.jsonForm
-            if 'sectionId' not in j:
-                j['sectionId'] = "unknownSection"
-            if 'outcome' not in j:
-                j['outcome'] = 'unknown'
-            if 'sectionIndex' not in j:
-                j['sectionIndex'] = -1
-            #startTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
-            #endTime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(j['startTime']/1000))
-            try:
-                self.execute(
-                '''REPLACE INTO section (bankId, sectionId, sectionIndex, 
-                                        userId, numRight, numWrong, numMistakes, numUnanswered,
-                                        totalQs, startTime, endTime, seed, outcome
-                                        )
-                                VALUES (%s, %s, '%s',
-                                        '%s', '%s', '%s', '%s', '%s',
-                                        '%s', FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), '%s', %s
-                                        )
-                ''', (j['bankId'], j['sectionId'], j['sectionIndex'],
-                      userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
-                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['outcome']
-                      )
-                )
-            except Exception as e:
-                self.err(e)
-                self.jsonReply({'success': False,
-                                'login': True,
-                                'dbSuccess': False,
-                                })
-            self.jsonReply({'success': True,
-                            'login': True,
-                            'dbSuccess': True,                            
-                            })
-
-    def submitBank(self):
-        if self.verifyLogin() is False:
-            self.jsonReply({'success': False,
-                            'login': False,
-                            })
-        else:
-            userId = self.getUserId()
-            j = self.jsonForm
-            try:
-                self.execute(
-                '''REPLACE INTO bank (bankId,  
-                                        userId, numRight, numWrong, numMistakes, numUnanswered,
-                                        totalQs, startTime, endTime, seed, url
-                                        )
-                                VALUES (%s,
-                                        %s, %s, %s, %s, %s,
-                                        %s, FROM_UNIXTIME('%s'), FROM_UNIXTIME('%s'), %s, %s
-                                        )
-                ''', (j['bankId'],
-                      userId, j['numRight'], j['numWrong'], j['numMistakes'], j['numUnanswered'],
-                      j['totalQs'], j['startTime']/1000, j['endTime']/1000, j['seed'], j['url']
-                      )
-                )
-            except Exception as e:
-                self.err(e)
-                self.jsonReply({'success': False,
-                                'login': True,
-                                'dbSuccess': False,
-                                })
-            self.jsonReply({'success': True,
-                            'login': True,
-                            'dbSuccess': True,                            
-                            })
-
-
+            subject = 'New Message'
+            
+        subject = '[21m.051 m21theory] ' + subject
+        msg['Subject'] = subject
+        
+        if 'replyTo' in options and options['replyTo'] is not None:
+            msg['Reply-To'] = options['replyTo']        
+        
+        s = smtplib.SMTP(self.smtpHost)
+        s.sendmail(self.profEmail, self.adminEmails, msg.as_string())
+        s.quit()
+        
+    ### html forms
+    
     def changePassword(self):
         self.title = 'Change Password'        
         reply = ""
@@ -573,344 +946,9 @@ class M21JMysql(object):
         print("Content-Type: text/html")
         print("")
 
-    def printJsonHeader(self):
-        if self.useJsonP:
-            ct = 'application/javascript'
-        else:
-            ct = 'text/json'
-        print("Content-Type: " + ct)
-        print("")
-                
     def printFooter(self):
         print ('''</body></html>''')
 
-#     def checkServerPassword(self):
-#         storedPW = self.getMysqlPW()
-#         submittedPW = self.jsonForm['gradebookPw']
-#         if (storedPW == submittedPW):
-#             return True
-#         else:
-#             return False
-                
-    def namedTuplesToJS(self, listOfNamedTuples):
-        listOut = []
-        for row in listOfNamedTuples:
-            listOut.append(self.namedTupleToJS(row))
-        return listOut
-
-    def namedTupleToJS(self, nt):
-        rcd = {}
-        for fn in nt._fields:
-            v = getattr(nt, fn)
-            if isinstance(v, datetime.datetime):
-                v = int(v.strftime('%s'))  # convert to epoch
-            rcd[fn] = v
-        return rcd
-
-    def getUserInfoFromId(self, userId):
-        '''
-        returns a dict rather than named tuplet...
-        '''
-        ui = self.queryOne('SELECT * FROM users WHERE id = %s', (userId, ))
-        if ui is not None:
-            userInfo = self.namedTupleToJS(ui)
-            del(userInfo['password'])
-            userInfo['imageURI'] = self.imagesURI + str(userId) + '.jpg' # should this be scrubbed for students???
-        else:
-            userInfo = {}
-        return userInfo
-    
-    
-    def numSectionsForBank(self, bankId):
-        '''
-        returns the number of sections for a bank...
-        '''
-        ui = self.queryOne('SELECT MAX(sectionIndex) AS si FROM section WHERE bankId = %s', (bankId, ))
-        if ui is not None:
-            return ui.si + 1
-        else:
-            return None
-    
-    def totalQuestionsAndWeightForSection(self, bankId, sectionIndexOrId):
-        if isinstance(sectionIndexOrId, int):
-            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
-                                    FROM section WHERE bankId = %s AND sectionIndex = %s
-                                ''', (bankId, sectionIndexOrId))
-        else:
-            ui = self.queryOne('''SELECT MAX(totalQs) AS totalQs, MAX(weight) AS weight
-                                    FROM section WHERE bankId = %s AND sectionId = %s
-                                ''', (bankId, sectionIndexOrId))            
-        if ui is None:
-            return None
-        
-        if ui.weight is None:
-            ui.weight = 1
-        return ui
-    
-    def getSectionInfoForUser(self, bankId, sectionIndexOrId, userId):
-        if isinstance(sectionIndexOrId, int):
-            ui = self.query('''SELECT *
-                                    FROM section WHERE bankId = %s AND sectionIndex = %s
-                                    AND userId = %s
-                                    ORDER BY numRight DESC, numMistakes
-                                ''', (bankId, sectionIndexOrId, userId))
-        else:
-            ui = self.query('''SELECT * AS weight
-                                    FROM section WHERE bankId = %s AND sectionId = %s
-                                    AND userId = %s
-                                    ORDER BY numRight DESC, numMistakes
-                                ''', (bankId, sectionIndexOrId, userId))            
-        bestTuple = None
-        if ui is None or len(ui) == 0:
-            return None
-        
-        bestTuple = ui[0]
-        
-        return bestTuple    
-    
-
-    def getStartEndTimeForUserBank(self, userId, bankId):
-        ui = self.queryOne('''SELECT MIN(startTime) AS startTime, MAX(endTime) AS endTime
-                            FROM section WHERE bankId = %s AND userId = %s
-        ''', (bankId, userId))
-        return ui
-
-    def sectionsForUserBank(self, userId, bankId):
-        '''
-        For consolidating sections into a single grade
-        
-        select all sections, regardless of seed for a single bankId and make a statement.
-        '''
-        numSections = self.numSectionsForBank(bankId)
-        if numSections is None:
-            return
-         
-        totalQs = 0
-        totalRight = 0
-        totalWrong = 0
-        totalUnanswered = 0
-        totalMistakes = 0        
-        
-        for i in range(0, numSections):
-            sectionInfo = self.totalQuestionsAndWeightForSection(bankId, i)
-            pointsPossible = sectionInfo.totalQs * sectionInfo.weight
-            bestAttempt = self.getSectionInfoForUser(bankId, i, userId)
-            if bestAttempt:   
-                numRight = bestAttempt.numRight * sectionInfo.weight
-                numWrong = bestAttempt.numWrong * sectionInfo.weight
-                numMistakes = bestAttempt.numMistakes * sectionInfo.weight
-                numUnanswered = bestAttempt.numUnanswered * sectionInfo.weight
-            else:
-                numRight = 0
-                numWrong = 0
-                numMistakes = 0
-                numUnanswered = pointsPossible
-            
-            totalQs += pointsPossible
-            totalRight += numRight
-            totalWrong += numWrong
-            totalUnanswered += numUnanswered
-            totalMistakes += numMistakes
-                
-            print(bestAttempt, pointsPossible, numRight)
-        
-        return BankResults(totalQs, totalRight, totalWrong, totalUnanswered, totalMistakes)
-    
-    def consolidateSectionsForOneUser(self, userId, bankId):
-        '''
-        takes all the sections for one user and moves them into the bank. Run ONCE per user...
-        '''
-        res = self.sectionsForUserBank(userId, bankId)
-        if res is None:
-            return None
-        
-        timeInfo = self.getStartEndTimeForUserBank(userId, bankId)
-        if timeInfo and timeInfo.startTime is not None:
-            startTime = timeInfo.startTime
-            endTime = timeInfo.endTime
-        else:
-            startTime = datetime.datetime(2014, 1, 1, 1, 1, 1)
-            endTime = datetime.datetime(2015, 1, 1, 1, 1, 1)
-        print (startTime, endTime)
-        
-        urlInfo = self.queryOne('''SELECT DISTINCT(url) FROM bank WHERE bankId = %s AND url IS NOT NULL LIMIT 1''',
-                            (bankId, ))
-        if urlInfo:
-            url = urlInfo.url
-        else:
-            url = ""
-        
-        self.execute(
-                '''REPLACE INTO bank (bankId, userId, 
-                                    numRight, numWrong, numMistakes, numUnanswered,
-                                    totalQs, startTime, endTime, seed, url
-                                    )
-                                VALUES (%s, %s,
-                                        %s, %s, %s, %s,
-                                        %s, %s, %s, -1, %s
-                                        )
-                ''', (bankId, userId, 
-                      res.numRight, res.numWrong, res.numMistakes, res.numUnanswered,
-                      res.totalQs, startTime, endTime, url
-                        )
-                )
-    def consolidateBank(self, bankId):
-        naughty = self.query(self.unsubmittedQuery, (bankId, ))
-        for u in naughty:
-            userId = u.userId
-            self.consolidateSectionsForOneUser(userId, bankId)
-            
-    
-    ####----- admin tools....
-    
-    
-    def checkIfAdmin(self):
-        if not self.verifyLogin():
-            return False
-        ud = self.getStudentData()
-        sec = self.queryOne("SELECT id, section FROM admins WHERE email = %s", (ud['email'], ))
-        if sec is None or sec == "":
-            return False
-        return sec
-
-    def gradebook(self):
-        section = self.checkIfAdmin()
-        if section is False:
-            self.jsonReply({'error': 'This user is not authorized to view the gradebook'});
-        else:
-            self.section = section
-            if 'function' not in self.jsonForm:
-                self.jsonReply({'password': True,
-                                'error': 'no function specified'
-                                })
-            else:
-                jrFunc = self.jsonForm['function']
-                if jrFunc == 'getComments':
-                    self.gradesGetComments()
-                elif jrFunc == 'viewBankGrades':
-                    self.gradesViewBankGrades()
-                elif jrFunc == 'listBanks':
-                    self.getBanks()
-                elif jrFunc == 'findUnsubmitted':
-                    self.findUnsubmitted()
-                elif jrFunc == 'randomCall':
-                    self.randomCall()
-                else:
-                    self.jsonReply({'password': True,
-                                    'error': 'illegal function: ' + jrFunc,
-                                    })
-
-    def queryJSreturn(self, query, params=None):
-        q = self.query(query, params)
-        jsq = self.namedTuplesToJS(q)
-        if len(jsq) > 0 and 'userId' in jsq[0]:
-            for r in jsq:
-                r['userInfo'] = self.getUserInfoFromId(r['userId'])
-        return jsq
-
-    unsubmittedQuery = '''SELECT users.id AS userId FROM users 
-                                   WHERE users.id NOT IN (SELECT userId FROM bank 
-                                                          WHERE bank.bankId = %s) 
-                                   AND users.enrolled = 'TRUE' ORDER BY users.last, users.first'''
-    def findUnsubmitted(self):
-        if 'bankId' not in self.jsonForm:
-            self.jsonReply({'error': 'No bankId found in form!'
-                            })
-            return
-        bank = self.jsonForm['bankId']
-        q = self.queryJSreturn(self.unsubmittedQuery, (bank, ))
-        self.jsonReply({'unsubmitted': q,})
-
-    def gradesViewBankGrades(self):
-        q = self.queryJSreturn('SELECT * FROM bank ORDER BY lastUpdated DESC')
-        self.jsonReply({'password': True,
-                        'grades': q,
-                        'error': None,
-                        })
-        
-        
-    def gradesGetComments(self):
-        recentComments = self.queryJSreturn('''SELECT comment, userId, lastUpdated, 
-                 bankId, sectionId FROM comments ORDER BY lastUpdated DESC limit 20''')
-        self.jsonReply({'password': True,
-                        'comments': recentComments,
-                        'error': None,
-                        })
-
-    def randomCall(self):
-        if 'section' not in self.jsonForm:
-            section = 2
-        section = self.jsonForm['section']
-        q = self.queryJSreturn('''SELECT id AS userId FROM users WHERE enrolled = 'TRUE' AND section = %s ''' % (section, ))
-        import random
-        random.shuffle(q)
-        self.jsonReply({'students': q})
-
-    def retrieveAnswer(self):
-        if self.verifyLogin() is False:
-            self.jsonReply({'success': False,
-                            'login': False,
-                            })
-            return;
-        if 'forUser' in self.jsonForm:
-            if self.checkIfAdmin() is False:
-                self.jsonReply({'success': False,
-                            'login': False,
-                            })
-                return;
-            forStudent = self.jsonForm['forUser']
-        else:
-            forStudent = self.getStudentData()['email']
-            
-        if ('seed' not in self.jsonForm or 'bankId' not in self.jsonForm):
-            self.jsonReply({'success': False,
-                            'login': True,
-                            })
-            return;
-        seed = self.jsonForm['seed']
-        bankId = self.jsonForm['bankId']
-        
-        uid = self.getUserId(forStudent)
-        sectionsIncluded = self.query('''SELECT DISTINCT(sectionIndex) AS si FROM question
-            WHERE seed = %s AND bankId = %s AND userId = %s ORDER BY sectionIndex
-        ''', (seed, bankId, uid))
-
-        sectionDict = {};
-
-        for r in sectionsIncluded:
-            sectionIndex = r.si                    
-            answerInfo = self.queryJSreturn('''SELECT answerStatus, storedAnswer, studentAnswer, 
-                                        questionIndex, numMistakes FROM question 
-                WHERE seed = %s AND bankId = %s AND sectionIndex = %s AND userId = %s ORDER BY questionIndex
-            ''', (seed, bankId, sectionIndex, uid))
-            sectionDict[sectionIndex] = answerInfo
-        self.jsonReply({'success': True,
-                        'login': True,
-                        'sectionDict': sectionDict,
-                        })
-
-    def sendEmail(self, message="No message", options = {}):
-        from email.mime.text import MIMEText
-        import smtplib                    
-        msg = MIMEText(message.encode('utf-8'), 'plain', 'utf-8')
-        msg['To'] = ','.join(self.adminEmails)
-        msg['From'] = self.profEmail
-        
-        if 'subject' in options:
-            subject = options['subject']
-        else:
-            subject = 'New Message'
-            
-        subject = '[21m.051 m21theory] ' + subject
-        msg['Subject'] = subject
-        
-        if 'replyTo' in options and options['replyTo'] is not None:
-            msg['Reply-To'] = options['replyTo']        
-        
-        s = smtplib.SMTP(self.smtpHost)
-        s.sendmail(self.profEmail, self.adminEmails, msg.as_string())
-        s.quit()
-        
 
 if (__name__ == '__main__'):
 #     m = M21JMysql(db='cuthbert')
@@ -920,9 +958,10 @@ if (__name__ == '__main__'):
 #     for row in rows:
 #         print(row)
     m = M21JMysql(db='fundamentals', host='zachara.mit.edu')
-    print(m.numSectionsForBank('ps02a'))
+    #print(m.numSectionsForBank('ps02a'))
     #print(m.totalQuestionsAndWeightForSection('ps02a', 'noteMidi'))
-    print(m.sectionsForUserBank(32, 'ps01'))
-    print(m.getStartEndTimeForUserBank(32, 'ps01'))
-    m.consolidateSectionsForOneUser(9, 'ps02a')
+    #print(m.sectionsForUserBank(32, 'ps01'))
+    #print(m.getStartEndTimeForUserBank(32, 'ps01'))
+    #m.consolidateSectionsForOneUser(9, 'ps02a')
     #print(m.consolidateBank('ps02a'))
+    print(m.activeBanks('ps'))

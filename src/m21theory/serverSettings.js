@@ -26,6 +26,8 @@ define(['jquery', './feedback', 'music21/common', './userData'],
         this.submitSection = this.host + '/server/cgi-bin/submit_section.cgi';        
         this.submitBank = this.host + '/server/cgi-bin/submit_bank.cgi';        
         
+        this.getGradesByType = this.host + '/server/cgi-bin/grades_by_type.cgi';
+        
         this.retrieveAnswer = this.host + '/server/cgi-bin/retrieve_answer.cgi';
     };
     

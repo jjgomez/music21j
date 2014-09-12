@@ -212,7 +212,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
                         m21theory.misc.playMotto(MIDI, true);
                     }
                     if (this.studentFeedback == 'onSubmit') {
-                        feedback.alert('You got ' + this.lastScore.numRight + ' points out of ' + 
+                        feedback.alert('You got ' + this.lastScore.right + ' points out of ' + 
                                 this.lastScore.totalQs + ' total.', 'update', {top: '0px'});
                     }
                 }).bind(this),

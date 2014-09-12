@@ -113,7 +113,7 @@ define(['jquery', './feedback', './serverSettings'],
             }).bind(this),	        
 	    });
 	};
-	
+		
 	// end of define
 	if (typeof(m21theory) != "undefined") {
 		m21theory.userData = userData;

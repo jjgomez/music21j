@@ -63,7 +63,7 @@ m21theory.playMotto = (getM21attribute('playMotto') != 'false') ? true : false;
 
 require.config({
     paths: {
-        'jquery': ['//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js', 'ext/jquery/jquery-2.1.1.min'],
+        'jquery': 'ext/jquery/jquery-2.1.1.min',
         'jquery-ui': 'ext/jqueryPlugins/jqueryUI/jquery-ui.min',
         'jqueryTableSorter': 'ext/jqueryPlugins/tablesorter/jquery.tablesorter.min',
         'vexflow': 'ext/vexflow/vexflow-min',

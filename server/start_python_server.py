@@ -15,6 +15,7 @@ import cgitb;
 cgitb.enable()  # Error reporting
 
 from CGIHTTPServer import _url_collapse_path
+
 class MykeCGIHTTPServer(CGIHTTPServer.CGIHTTPRequestHandler):
     
     def is_cgi(self):

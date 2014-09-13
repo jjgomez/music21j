@@ -13,18 +13,18 @@ require(['m21theory'], function() {
     m21theory.style.apply();
     
     var ni2 = m21theory.sections.get('noteIdentification');
-    ni2.id = 'noteMidi';
+    ni2.id = 'noteNoMidi';
     ni2.practiceQs = 1;
     ni2.totalQs = 4;
-    ni2.title = 'MIDI Keyboard Note Identification';
+    ni2.title = 'Written Note w/ Accidentals Identification';
     ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = false;
     ni2.allowableAccidentals = [0, 0, 0, 0, 1, -1];
 
-    ni2.useJazz = true;
     
     var testBank = new m21theory.bank.TestBank();
-    testBank.id = 'cl04_02';
-    testBank.useJazz = true;
+    testBank.id = 'cl05_03';
+    testBank.useJazz = false;
     testBank.keyboardOctaveShift = 0;
     testBank.append(ni2);
 

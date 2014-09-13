@@ -459,6 +459,12 @@ class M21JMysql(object):
         if includeClosed is False:
             qStr += " AND endTime > NOW()"
         banks = self.query(qStr, (bankType, ))
+        # whoops, named tuple
+#         for b in banks:
+#             if b.url is None:
+#                 url = b.bankId
+#                 url = url.rstrip('.html')
+#                 b.url = url
         return banks
 
     def gradesByType(self):

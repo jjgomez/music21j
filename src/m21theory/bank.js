@@ -17,7 +17,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 		this.addStudentData = true;
 		this.startTime = Date.now();
 		this.submissionBox = true;
-		this.id = 'unknownTestBank';
+		this._id = undefined;
 		this.title = $('title').text() || "Exercise";
 		this.instructions = "";
 		this.testBankSelector = "#testBank";	
@@ -36,6 +36,29 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 		this.keyboardObj = undefined;
 		this.keyboardOctaveShift = 0;
 		this.keyboardShowNames = false;
+		
+		Object.defineProperties(this, {
+			'id': {
+				enumerable: true,
+				get: function () {
+					if (this._id !== undefined) {
+						return this._id;
+					} else {
+						if (window !== undefined && window.location !== undefined) {
+				            var h = window.location.pathname;
+				            h = h.substring(h.lastIndexOf('/') + 1);
+				            h = h.substring(0, h.indexOf('.html'));
+				            return h;
+						} else {
+							return "unknownBank";
+						}
+					}
+				},
+				set: function (newId) {
+					this._id = newId;
+				}
+			}
+		});
 		
 		this.render = function () {
 		    random.setSeedFromGeneratorType();

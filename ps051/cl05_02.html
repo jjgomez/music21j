@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
- <title>21m.051 In-Class 04: Pitch with Accidentals</title>
+ <title>21m.051 In-Class 05: Pitch with Accidentals</title>
  <!-- for MSIE 10 on Windows 8 -->
  <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -13,21 +13,19 @@ require(['m21theory'], function() {
     m21theory.style.apply();
     
     var ni2 = m21theory.sections.get('noteIdentification');
-    ni2.id = 'noteNoMidi';
+    ni2.id = 'noteMidi';
     ni2.practiceQs = 1;
     ni2.totalQs = 4;
-    ni2.title = 'Written Note w/ Accidentals Identification';
+    ni2.title = 'MIDI Keyboard Note Identification';
     ni2.allowableClefs = ['treble', 'bass'];
-    ni2.useJazz = false;
     ni2.allowableAccidentals = [0, 0, 0, 0, 1, -1];
 
+    ni2.useJazz = true;
     
     var testBank = new m21theory.bank.TestBank();
-    testBank.id = 'cl04_03';
-    testBank.useJazz = false;
+    testBank.useJazz = true;
     testBank.keyboardOctaveShift = 0;
     testBank.append(ni2);
-
     testBank.render();
 });
 

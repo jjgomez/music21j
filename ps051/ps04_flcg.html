@@ -1,0 +1,81 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 PS 04: Review and More Practice</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var ni1 = m21theory.sections.get('noteIdentification');
+    ni1.id = 'noteIdentify1';
+    ni1.instructions = 'Identify the notes by name, separating their names by spaces.';
+    ni1.totalQs = 15;
+    ni1.allowableAccidentals = [0];
+    ni1.allowableLedgerLines = 2;
+    ni1.autoBeam = false;
+    ni1.allowableClefs = ['treble','bass'];
+
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteMidi';
+    ni2.practiceQs = 0;
+    ni2.totalQs = 15;
+    ni2.title = 'MIDI Keyboard Note Identification';
+    ni2.instructions = 'Now click on a musical score and play the correct notes on the piano keyboard.';
+    ni2.allowableAccidentals = [0];
+    ni2.allowableLedgerLines = 2;
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.autoBeam = false;
+    ni2.useJazz = true;
+    
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT1.id = 'earTraining1';
+    earT1.totalQs = 30;
+    earT1.numNotes = 4;
+    earT1.tempo = 100;
+    
+    var pulseMatch = m21theory.sections.get('pulseIdentify');
+    pulseMatch.title = 'More pulse matching practice...quite fast.';
+    pulseMatch.tempo = 144;
+    pulseMatch.totalQs = 8;
+
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.instructions = '<p>There is nothing on this problem set you have not done before and ' + 
+    'done well. But these are the tasks from the quiz that needed the most extra practice. So, like ' + 
+    'you may have done with multiplication tables in your youth, this is just the practice until it ' + 
+    'becomes absolutely instinctive. If it is tiring to do this, it means that more work is needed. ' + 
+    '</p>';
+    testBank.useJazz = true;
+    testBank.keyboardOctaveShift = 0;
+    testBank.keyboardShowNames = true;
+    
+    testBank.append(ni1);
+    testBank.append(ni2);
+    testBank.append(earT1);
+    testBank.append(pulseMatch);
+    
+    testBank.render();
+});
+
+</script>
+
+<div id='convertSpecifics' style='display: none'>
+
+<p>Each of these excerpts is plausible in its current clef, but better in a different clef:</p>
+
+<div id='asPart1'></div>
+<div id='asPart2'></div>
+
+<p>On paper, rewrite the first excerpt in bass clef, maintaining the octave of the current note, and
+the second excerpt in treble clef, again maintaining the octave of the current note.</p>
+
+<p>Reminder: do this in PENCIL and ERASE any mistakes thoroughly. Never, ever scratch out notes.</p>
+</div>
+</body>
+</html>

@@ -13,7 +13,7 @@ define("m21theory/sections/noteIdentification",
     };
     NoteQuestion.prototype.lyricsChanged = function () {
         misc.lyricsFromValue(this.$inputBox, this.stream);
-        this.canvas = this.stream.replaceCanvas(this.canvas);
+        this.canvas = this.stream.replaceCanvas(this.canvas, true); // preserve canvas size...
         //console.log(lyricsSplit);
     };
     
@@ -85,7 +85,7 @@ define("m21theory/sections/noteIdentification",
         s.makeAccidentals();
         var streamAnswer = answerList.join(' ');
         s.renderOptions.events['click'] = undefined;
-        var nc = s.createCanvas(400);
+        var nc = s.createCanvas(400, 125);
         this.canvas = nc;
         
         var $questionDiv = $("<div style='width: 420px; float: left; padding-bottom: 20px'></div>");
@@ -188,6 +188,7 @@ define("m21theory/sections/noteIdentification",
 			"</p>";
 		this.lastPs = 0.0;
 		this.numNotes = 7;
+		this.autoBeam = true;
         
 		this.practiceScales = false;
 		
@@ -195,7 +196,7 @@ define("m21theory/sections/noteIdentification",
 	        var s = new music21.stream.Stream();
 	        s.renderOptions.scaleFactor.x = 0.9;
 	        s.renderOptions.scaleFactor.y = 0.9;
-	        s.autoBeam = true;
+	        s.autoBeam = this.autoBeam;
 	        s.clef = new music21.clef.Clef( random.choice(this.allowableClefs) );
 	        s.timeSignature = '4/4';
 	        return s;

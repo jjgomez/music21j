@@ -10,23 +10,16 @@
 <body>
 <script type="text/javascript">
 require(['m21theory'], function() {
-    m21theory.userData.checkLoginCallbacks.push( function (successCall) { 
-        if (successCall == true) {
-            m21theory.grades.getByType()
-        }
-    });
-    m21theory.userData.fillNameDiv('loginSection');
     m21theory.style.apply();
     $("#testSound").on('click', function () { m21theory.misc.playMotto(music21.MIDI) } );
     $("#testBank").append($("#mainText"));
-    
+//    var testBank = new m21theory.bank.TestBank();
+//    testBank.render();
 });
 
 </script>
 <div id="mainText">
 <h1>21M.051: Fundamentals of Music.</h1>
-
-<div id='loginSection'></div>
 
 <h2>Quick links:</h2>
 
@@ -43,19 +36,24 @@ require(['m21theory'], function() {
     </ul></li>
 </ul>
 
-<div id='noGradesSection'>
-    Log in to view quizzes/exams, in class exercises, problem sets, and grades.
-</div>
-<div id='gradesSection' style='display: none'>
-    <h1>Assignments and Grades</h1>
-    <div>These scores do not yet count the written components. Do not panic if the totals for PS4 are
-    not yet accurate. This will be updated on Wednesday.</div>
-	<div id='assign_quiz'><h2>Quizzes/Exams</h2></div>
-	<div id='assign_cl'><h2>In Class Exercises</h2></div>
-	<div id='assign_ps'><h2>Problem Sets</h2></div>
-</div>
+<h2>In class exercises</h2>
+<ul>
+<li><a href="cl05_02.html"><b>Class 5, No. 2</b></a> (uses Xkey)</li>
+<li><a href="cl05_03.html"><b>Class 5, No. 3</b></a> (no Xkey)</li>
+</ul>
+<h2>Problem Sets:</h2>
 
+<p>All problem sets are due at <b>9:59AM</b> the day of the following class, unless otherwise noted. 
+You may do them late for half credit. You may also keep doing them again and again for more practice.
+Doing it again partially or worse will not affect your class grade negatively.
+Plug in the Xkey before starting. </p>
 
+<ul>
+<li><a href="ps04_flcg.html">Problem Set 4: Review</a> (due 9/17)</li>
+<li><s><a href="ps03_picc.html">Problem Set 3: Pitch in Bass Clef</a> (due 9/12)</s></li>
+<li><s><a href="ps02a.html">Problem Set 2: Pitch in Treble Clef</a> (due 9/10)</s></li>
+<li><s><a href="ps01.html">Problem Set 1: Rhythm</a> (due 9/5)</s></li>
+</ul>
 
 <h3>zachara.mit.edu?</h3>
 <img src="http://zachara.mit.edu/img/zacara_cropped.jpg" width="200" alt="portrait of Zachara" style="float: right"/>

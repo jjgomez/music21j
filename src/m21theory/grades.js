@@ -30,7 +30,7 @@ define(['jquery', './feedback', './serverSettings', './userData', './random'],
                          var thisBank = js.grades[i];
                          var bankType = thisBank.type;
                          if (bankType == 'cl' && thisBank.active == false) {
-                             // continue;
+                             continue;
                          }
                          var $appendTo = $("#assign_" + bankType);
                          if ($appendTo) {         
@@ -86,15 +86,22 @@ define(['jquery', './feedback', './serverSettings', './userData', './random'],
                                          .css('display', 'none');                                     
 
                                      var foundSeed = false;
-                                     if (this.sections !== undefined && this.sections.length > 0) {
-                                         for (var k = 0; k < this.sections.length; k++) {
-                                             var sec = this.sections[k];
+                                     console.log(thisBank.sections);
+                                     if (thisBank.sections !== undefined && thisBank.sections.length > 0) {
+                                         for (var k = 0; k < thisBank.sections.length; k++) {
+                                             var sec = thisBank.sections[k];
                                              console.log(sec);
                                              if (sec.seed != submission.seed) {
                                                  continue;
                                              }
                                              foundSeed = true;
-                                             $seconds.append($("<div>" + sec.sectionId + "</div>"));
+                                             var $oneSection = $("<div></div>").css('padding-left', '20px');
+                                             $oneSection.append($("<span>" + sec.sectionId +
+                                                     " <span style='color: #00aa00'>" + sec.numRight + " </span>/ " +
+                                                     "<span style='color: #aa0000'>" + sec.numWrong + " </span>/ " +
+                                                     "<span style='color: #0000aa'>" + sec.numUnanswered + " </span>" +
+                                                     + " </span>"));
+                                             $sections.append($oneSection);
                                          }
                                      } 
                                      if (foundSeed === false) {

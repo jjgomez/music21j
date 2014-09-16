@@ -473,7 +473,7 @@ class M21JMysql(object):
         for b in banks:
             if b['url'] is None:
                 url = b['bankId']
-                url = url.rstrip('.html')
+                url += '.html'
                 b['url'] = url
             if b['active'] == 1:
                 b['active'] = True

@@ -499,7 +499,7 @@ class M21JMysql(object):
                 submitted = self.queryJSreturn('SELECT * FROM bank WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
                                                (b['bankId'], userId), getUserInfo=False)
                 b['submitted'] = submitted
-                sections = self.queryJSreturn('SELECT * FROM section WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
+                sections = self.queryJSreturn('SELECT * FROM section WHERE bankId = %s AND userId = %s ORDER BY sectionIndex, numRight DESC', 
                                               (b['bankId'], userId), getUserInfo=False)
                 b['sections'] = sections 
                 gradeList.append(b)

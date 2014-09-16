@@ -20,7 +20,7 @@ define(['jquery', './feedback', './serverSettings', './userData'],
             type = 'all';
         }
         serverSettings.makeAjax(
-               { bankType: type},
+               { bankType: type },
                { url: serverSettings.getGradesByType,
                  success: function (js) {
                      console.log(js);

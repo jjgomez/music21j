@@ -10,16 +10,23 @@
 <body>
 <script type="text/javascript">
 require(['m21theory'], function() {
+    m21theory.userData.checkLoginCallbacks.push( function (successCall) { 
+        if (successCall == true) {
+            m21theory.grades.getByType()
+        }
+    });
+    m21theory.userData.fillNameDiv('loginSection');
     m21theory.style.apply();
     $("#testSound").on('click', function () { m21theory.misc.playMotto(music21.MIDI) } );
     $("#testBank").append($("#mainText"));
     
-
 });
 
 </script>
 <div id="mainText">
 <h1>21M.051: Fundamentals of Music.</h1>
+
+<div id='loginSection'></div>
 
 <h2>Quick links:</h2>
 
@@ -36,10 +43,14 @@ require(['m21theory'], function() {
     </ul></li>
 </ul>
 
-<div id='assign_quiz'><h1>Quizzes/Exams</h1></div>
-<div id='assign_cl'><h1>In Class Exercises</h1></div>
-<div id='assign_ps'><h1>Problem Sets</h1></div>
-
+<div id='noGradesSection'>
+    Log in to view quizzes/exams, in class exercises, problem sets, and grades.
+</div>
+<div id='gradesSection'>
+	<div id='assign_quiz'><h1>Quizzes/Exams</h1></div>
+	<div id='assign_cl'><h1>In Class Exercises</h1></div>
+	<div id='assign_ps'><h1>Problem Sets</h1></div>
+</div>
 
 
 

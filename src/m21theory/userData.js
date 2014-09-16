@@ -95,20 +95,29 @@ define(['jquery', './feedback', './serverSettings'],
 	        userData.checkLogin(silent);	        
 	    }
 	};
-
+	
+	userData.feedbackCallback = function (successCall, silent) {
+        if (silent != true) {            
+            if (successCall === null) {
+                feedback.alert("Your email cannot be found in the database","alert");
+            } else if (successCall == false) {
+                feedback.alert("Your password did not match the stored password", "alert");                    
+            } else {
+                feedback.alert("Login successful.", "update");
+            }                                   
+        }	
+	};
+	
+	userData.checkLoginCallbacks = [userData.feedbackCallback];
+	
 	userData.checkLogin = function (silent) {
 	    var ud = {'studentData': userData.studentData};
 	    serverSettings.makeAjax(ud, { 
 	        url: serverSettings.checkLogin,
-	        success: (function (successCall) { 
-	            if (silent != true) {
-	                if (successCall === null) {
-	                    feedback.alert("Your email cannot be found in the database","alert");
-	                } else if (successCall == false) {
-	                    feedback.alert("Your password did not match the stored password", "alert");                    
-	                } else {
-	                    feedback.alert("Login successful.", "update");
-	                }                	                
+	        success: (function (successCall, silent) { 
+	            for (var i = 0; i < userData.checkLoginCallbacks.length; i++) {
+	                var callbackFn = userData.checkLoginCallbacks[i];
+	                (callbackFn.bind(this))(successCall, silent);
 	            }
             }).bind(this),	        
 	    });

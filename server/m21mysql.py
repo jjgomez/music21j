@@ -175,10 +175,10 @@ class M21JMysql(object):
             rcd[fn] = v
         return rcd
 
-    def queryJSreturn(self, query, params=None):
+    def queryJSreturn(self, query, params=None, getUserInfo=True):
         q = self.query(query, params)
         jsq = self.namedTuplesToJS(q)
-        if len(jsq) > 0 and 'userId' in jsq[0]:
+        if len(jsq) > 0 and 'userId' in jsq[0] and getUserInfo is True:
             for r in jsq:
                 r['userInfo'] = self.getUserInfoFromId(r['userId'])
         return jsq
@@ -454,29 +454,67 @@ class M21JMysql(object):
     
     # -- grade and question retrieval
     
-    def activeBanks(self, bankType, includeClosed=True):        
-        qStr = "SELECT * FROM bankInfo WHERE type = %s AND startTime < NOW()"
+    def activeBanks(self, bankType=None, includeClosed=True):  
+        ''' returns dict '''     
+        qStr = "SELECT * " 
+        
+        qStr += ", startTime < NOW() "
         if includeClosed is False:
-            qStr += " AND endTime > NOW()"
-        banks = self.query(qStr, (bankType, ))
+            qStr += "AND endTime > NOW() "
+        qStr += "AS active "
+                
+        qStr += "FROM bankInfo WHERE startTime < NOW() "
+        if bankType is not None:
+            qStr += "AND type = '%s' " % bankType        
+        if includeClosed is False:
+            qStr += "AND endTime > NOW() "
+        qStr += "ORDER BY endTime DESC "
+        banks = self.queryJSreturn(qStr)
         # whoops, named tuple
-#         for b in banks:
-#             if b.url is None:
-#                 url = b.bankId
-#                 url = url.rstrip('.html')
-#                 b.url = url
+        for b in banks:
+            if b['url'] is None:
+                url = b['bankId']
+                url = url.rstrip('.html')
+                b['url'] = url
+            if b['active'] == 1:
+                b['active'] = True
+            else:
+                b['active'] = False
         return banks
 
-    def gradesByType(self):
-        userId = self.verifyGetId()
+    def gradesByType(self, userId = None):
+        '''
+        return all grades or links by type.
+        '''
+        if userId is None:
+            userId = self.verifyGetId()
         if userId is None:
             return
-        bankType = 'ps'
-        if 'type' in self.jsonForm:
+        bankType = 'all'
+        if self.jsonForm is not None and 'type' in self.jsonForm:
             bankType = self.jsonForm['type']
         activeBanks = self.activeBanks(bankType) 
+        
+        gradeList = []
         for b in activeBanks:
-            pass
+            if bankType == 'all' or b['type'] == bankType:
+                submitted = self.queryJSreturn('SELECT * FROM bank WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
+                                               (b['bankId'], userId), getUserInfo=False)
+                b['submitted'] = submitted;
+                sections = self.queryJSreturn('SELECT * FROM section WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
+                                              (b['bankId'], userId), getUserInfo=False)
+                sectionsOut = []
+                for s in sections:
+                    alreadySubmitted = False
+                    for b in submitted:
+                        if s['seed'] == b['seed']:
+                            alreadySubmitted = True
+                            break
+                    if alreadySubmitted is False:
+                        sectionsOut.append(s)
+                b['sections'] = sectionsOut                                 
+                gradeList.append(b)
+        return gradeList
              
     
     def totalQuestionsAndWeightForSection(self, bankId, sectionIndexOrId):
@@ -969,5 +1007,7 @@ if (__name__ == '__main__'):
     #print(m.sectionsForUserBank(32, 'ps01'))
     #print(m.getStartEndTimeForUserBank(32, 'ps01'))
     #m.consolidateSectionsForOneUser(9, 'ps02a')
-    print(m.consolidateBank('ps01'))
+    #print(m.consolidateBank('ps01'))
     #print(m.activeBanks('ps'))
+    print("Starting...")
+    print(m.activeBanks(includeClosed=True))

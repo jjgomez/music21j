@@ -16,9 +16,17 @@ define(['jquery', './feedback', './serverSettings', './userData'],
     var grades = {};
     
     grades.getByType = function (type) {
-       serverSettings.makeAjax({bankType: type},
-               {url: serverSettings.getGradesByType, }       
-       );  
+        if (type === undefined) {
+            type = 'all';
+        }
+        serverSettings.makeAjax(
+               { bankType: type},
+               { url: serverSettings.getGradesByType,
+                 success: function (js) {
+                     console.log(js);
+                 }               
+               }
+        );  
     };
      
     // end of define

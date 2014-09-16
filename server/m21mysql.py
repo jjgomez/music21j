@@ -514,6 +514,7 @@ class M21JMysql(object):
                         sectionsOut.append(s)
                 b['sections'] = sectionsOut                                 
                 gradeList.append(b)
+        self.jsonReply({'grades': activeBanks})
         return gradeList
              
     

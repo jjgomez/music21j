@@ -459,8 +459,7 @@ class M21JMysql(object):
         qStr = "SELECT * " 
         
         qStr += ", startTime < NOW() "
-        if includeClosed is False:
-            qStr += "AND endTime > NOW() "
+        qStr += "AND endTime > NOW() "
         qStr += "AS active "
                 
         qStr += "FROM bankInfo WHERE startTime < NOW() "

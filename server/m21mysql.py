@@ -498,19 +498,10 @@ class M21JMysql(object):
             if bankType == 'all' or b['type'] == bankType:
                 submitted = self.queryJSreturn('SELECT * FROM bank WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
                                                (b['bankId'], userId), getUserInfo=False)
-                b['submitted'] = submitted;
+                b['submitted'] = submitted
                 sections = self.queryJSreturn('SELECT * FROM section WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
                                               (b['bankId'], userId), getUserInfo=False)
-                sectionsOut = []
-                for s in sections:
-                    alreadySubmitted = False
-                    for b in submitted:
-                        if s['seed'] == b['seed']:
-                            alreadySubmitted = True
-                            break
-                    if alreadySubmitted is False:
-                        sectionsOut.append(s)
-                b['sections'] = sectionsOut                                 
+                b['sections'] = sections 
                 gradeList.append(b)
         self.jsonReply({'grades': activeBanks})
         return gradeList
@@ -1009,4 +1000,4 @@ if (__name__ == '__main__'):
     #print(m.consolidateBank('ps01'))
     #print(m.activeBanks('ps'))
     print("Starting...")
-    print(m.activeBanks(includeClosed=True))
+    print(m.gradesByType(3))

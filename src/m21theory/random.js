@@ -40,6 +40,9 @@ define(['music21/common'], function(common) {
 	random.generatorType = 'random';
 	random.index = 1;
 	random.seed = 1;
+	random.getRandomSeed = function () {
+	    return Math.floor(Math.random() * 65535);
+	};
 	random.setSeedFromGeneratorType = function (generatorType) {
 	    if (generatorType == undefined) {
 	        var urlSeed = common.urlParam('seed');
@@ -57,7 +60,7 @@ define(['music21/common'], function(common) {
 	    var d = new Date();
 	    var seed = random.seed;
 	    if (generatorType == 'random') {
-	        seed = Math.floor(Math.random() * 65535);
+	        seed = random.getRandomSeed();
 	    } else if (generatorType == 'fixed') {
 	        // do nothing -- seed needs to be set elsewhere.
 	    } else if (generatorType == 'day') {

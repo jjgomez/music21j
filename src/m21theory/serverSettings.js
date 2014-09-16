@@ -68,6 +68,9 @@ define(['jquery', './feedback', 'music21/common', './userData'],
             // userData alone was giving problems...
             objToMakeJSON.studentData = m21theory.userData.studentData;
         }
+        if (common.urlParam('forUser') != '') {
+            objToMakeJSON.forUser = common.urlParam('forUser');
+        }
         var jsonObj = JSON.stringify(objToMakeJSON);
         var params = {
                 type: "POST",

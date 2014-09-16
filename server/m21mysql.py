@@ -464,8 +464,8 @@ class M21JMysql(object):
         qStr += "AS active "
                 
         qStr += "FROM bankInfo WHERE startTime < NOW() "
-        if bankType is not None:
-            qStr += "AND type = '%s' " % bankType        
+        if bankType is not None and bankType != 'all':
+            qStr += "AND type = '%s' " % bankType    
         if includeClosed is False:
             qStr += "AND endTime > NOW() "
         qStr += "ORDER BY endTime DESC "
@@ -494,7 +494,6 @@ class M21JMysql(object):
         if self.jsonForm is not None and 'type' in self.jsonForm:
             bankType = self.jsonForm['type']
         activeBanks = self.activeBanks(bankType) 
-        
         gradeList = []
         for b in activeBanks:
             if bankType == 'all' or b['type'] == bankType:

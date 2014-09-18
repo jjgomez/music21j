@@ -284,6 +284,8 @@ class M21JMysql(object):
                             })
                 return;
             forStudent = self.jsonForm['forUser']
+            if '@' not in forStudent:
+                forStudent += '@mit.edu'                
         else:
             forStudent = self.getStudentData()['email']
         uid = self.getUserIdFromEmail(forStudent)
@@ -997,7 +999,7 @@ if (__name__ == '__main__'):
     #print(m.sectionsForUserBank(32, 'ps01'))
     #print(m.getStartEndTimeForUserBank(32, 'ps01'))
     #m.consolidateSectionsForOneUser(9, 'ps02a')
-    #print(m.consolidateBank('ps01'))
+    print(m.consolidateBank('ps04_flcg'))
     #print(m.activeBanks('ps'))
-    print("Starting...")
-    print(m.gradesByType(3))
+    #print("Starting...")
+    #print(m.gradesByType(3))

@@ -24,6 +24,8 @@ class M21JMysql(object):
     def __init__(self, form=None, host=None, user=None, database=None):
         self.form = form
         self.jsonForm = None
+        self.userdir = None
+        
         pwDict = self.readMusic21jPasswordFile()
         
         print(pwDict)
@@ -47,8 +49,6 @@ class M21JMysql(object):
             self.db = pwDict['database']
         else:
             self.db = "" 
-
-        self.userdir = None
 
         self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
         self.smtpHost = 'outgoing.mit.edu'

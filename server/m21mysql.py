@@ -74,14 +74,16 @@ class M21JMysql(object):
         self.mysqlVersion = None
         
         self.useJsonP = False  # Cross-domain scripting adds an additional form field, jsonp or callback
-        self.jsonPCallFunction = None  # which specifies a callback function in the reply.
-    
+        self.jsonPCallFunction = None  # which specifies a callback function in the reply.    
         self.parseForm() # self.jsonForm from self.form
         try:
             self.connect()
         except M21JMysqlException as e:
-            raise(e) # okay at this point; maybe the user intended to connect later
-    
+            if ('REQUEST_URI' in os.environ):
+                raise(e) # okay at this point; maybe the user intended to connect later
+            else:
+                pass
+            
     def __del__(self):
         if self.con:
             self.con.close()

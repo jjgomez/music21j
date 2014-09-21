@@ -24,12 +24,8 @@ class M21JMysql(object):
     def __init__(self, form=None, host=None, user=None, database=None):
         self.form = form
         self.jsonForm = None
-        pwDict = {}
+        pwDict = self.readMusic21jPasswordFile()
         
-        try:
-            pwDict = self.readMusic21jPasswordFile()
-        except:
-            pass
         print(pwDict)
         if host is not None:        
             self.host = host

@@ -28,7 +28,6 @@ class M21JMysql(object):
         
         pwDict = self.readMusic21jPasswordFile()
         
-        print(pwDict)
         if host is not None:        
             self.host = host
         elif 'host' in pwDict:

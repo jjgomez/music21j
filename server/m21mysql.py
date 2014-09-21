@@ -21,13 +21,37 @@ BankResults = collections.namedtuple('BankResults', "totalQs numRight numWrong n
 
 class M21JMysql(object):
     
-    def __init__(self, form=None, host='localhost', user='cuthbert', db='fundamentals'):
+    def __init__(self, form=None, host=None, user=None, database=None):
         self.form = form
         self.jsonForm = None
         
-        self.host = host
-        self.user = user
-        self.db = db
+        try:
+            pwDict = self.readMusic21jPasswordFile()
+        except:
+            pwDict = {}
+            
+            
+        if host is not None:        
+            self.host = host
+        elif 'host' in pwDict:
+            self.host = pwDict['host']
+        else:
+            self.host = None
+
+        if user is not None:            
+            self.user = user
+        elif 'user' in pwDict:
+            self.user = pwDict['user']
+        else:
+            self.user = None
+        
+        if database is not None:
+            self.db = database
+        elif 'database' in pwDict:
+            self.db = pwDict['database']
+        else:
+            self.db = None 
+
         self.userdir = None
 
         self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
@@ -85,6 +109,10 @@ class M21JMysql(object):
         self.con = con
 
     def getMysqlPW(self, userdir = None):
+        pwDict = self.readMusic21jPasswordFile(userdir)
+        return pwDict['password']
+    
+    def readMusic21jPasswordFile(self, userdir = None):
         if userdir is None:
             if self.userdir is not None:
                 userdir = self.userdir
@@ -100,8 +128,21 @@ class M21JMysql(object):
             raise M21JMysqlException("Cannot read password file! put it in a file in the home directory called .music21j_password. Home directory is: " + userdir)
         
         with open(mysqlPasswordFile) as f:
-            pw = f.read().strip()
-        return pw
+            pwContents = f.readlines()
+        
+        pwDict = {'password': None,
+                  'host': 'localhost',
+                  'username': 'cuthbert',
+                  'database': 'fundamentals'}
+        for i,p in enumerate(pwContents):
+            p = p.strip()
+            if '=' in p:
+                key, value = p.split('=', 1)
+                pwDict[key] = value
+            else:
+                pwDict['password'] = p
+        
+        return pwDict
 
     ## Queries
 

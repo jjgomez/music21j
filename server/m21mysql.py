@@ -97,7 +97,7 @@ class M21JMysql(object):
         
         mysqlPasswordFile = userdir + os.path.sep + '.music21j_password'
         if not os.path.exists(mysqlPasswordFile):
-            raise M21JMysqlException("Cannot read password file! put it in a file in the home directory called .music21j_password")
+            raise M21JMysqlException("Cannot read password file! put it in a file in the home directory called .music21j_password. Home directory is: " + userdir)
         
         with open(mysqlPasswordFile) as f:
             pw = f.read().strip()

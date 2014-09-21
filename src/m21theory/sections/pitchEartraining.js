@@ -63,7 +63,7 @@ define("m21theory/sections/pitchEartraining",
             for (var j = 0; j < answers.length; j++) {
                 var thisOption = answers[j];
                 var fieldInput =  $('<label><input type="radio" name="' + 
-                            this.id + this.index.toString() + '" value="' + thisOption + '" /> ' + 
+                            this.section.id + '_' + this.section.bankIndex + '_' + this.index.toString() + '" value="' + thisOption + '" /> ' + 
                             thisOption + '<br/></label>');
                 fieldInput.change( this.checkTrigger );
                 inputBox.append(fieldInput);

@@ -36,21 +36,21 @@ class M21JMysql(object):
         elif 'host' in pwDict:
             self.host = pwDict['host']
         else:
-            self.host = None
+            self.host = 'localhost'
 
         if user is not None:            
             self.user = user
         elif 'user' in pwDict:
             self.user = pwDict['user']
         else:
-            self.user = None
+            self.user = ""
         
         if database is not None:
             self.db = database
         elif 'database' in pwDict:
             self.db = pwDict['database']
         else:
-            self.db = None 
+            self.db = "" 
 
         self.userdir = None
 

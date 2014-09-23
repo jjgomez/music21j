@@ -21,7 +21,7 @@ BankResults = collections.namedtuple('BankResults', "totalQs numRight numWrong n
 
 class M21JMysql(object):
     
-    def __init__(self, form=None, host=None, user=None, database=None):
+    def __init__(self, form=None, host=None, user=None, database=None, password=None):
         self.form = form
         self.jsonForm = None
         self.userdir = None
@@ -48,6 +48,13 @@ class M21JMysql(object):
             self.db = pwDict['database']
         else:
             self.db = "" 
+
+        if password is not None:
+            self.password = password
+        elif 'password' in pwDict:
+            self.password = pwDict['password']
+        else:
+            self.password = ""
 
         self.imagesURI = 'http://zachara.mit.edu/051_non_git/student_images/'
         self.smtpHost = 'outgoing.mit.edu'
@@ -92,7 +99,7 @@ class M21JMysql(object):
             return
         
         try:
-            con = mdb.connect(self.host, self.user, self.getMysqlPW(), self.db)
+            con = mdb.connect(self.host, self.user, self.password, self.db)
             
             cur = con.cursor()
             cur.execute("SELECT VERSION()")
@@ -1031,13 +1038,16 @@ if (__name__ == '__main__'):
 #     rows = cur.fetchall()
 #     for row in rows:
 #         print(row)
-    m = M21JMysql(db='fundamentals', host='zachara.mit.edu')
+    m = M21JMysql()
+    #m = M21JMysql(host='localhost', user='cuthbert', database='fundamentals',
+    #               password='youWish')
+    #print(m.host)
     #print(m.numSectionsForBank('ps02a'))
     #print(m.totalQuestionsAndWeightForSection('ps02a', 'noteMidi'))
-    #print(m.sectionsForUserBank(32, 'ps01'))
+    #print(m.sectionsForUserBank(48, 'ps04_flcg'))
     #print(m.getStartEndTimeForUserBank(32, 'ps01'))
-    #m.consolidateSectionsForOneUser(9, 'ps02a')
-    print(m.consolidateBank('ps04_flcg'))
+    #m.consolidateSectionsForOneUser(48, 'ps04_flcg')
+    #print(m.consolidateBank('ps04_flcg'))
     #print(m.activeBanks('ps'))
     #print("Starting...")
     #print(m.gradesByType(3))

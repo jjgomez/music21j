@@ -108,6 +108,7 @@ define("m21theory/sections/intervalTraining",
 			
 		this.minInterval = -3;
 		this.maxInterval = 5;
+		this.filterIntervals = undefined; // can be a list of generic intervals... for ear training.
 		
 		this.skipP1 = false;
 		this.intervalWritten = 'melodic'; // can be harmonic
@@ -120,6 +121,7 @@ define("m21theory/sections/intervalTraining",
 		
 		this.lastRenderedNote1 = undefined;
 		this.lastRenderedNote2 = undefined;
+		
 			
 		this.title = "Interval identification (General and Specific)";
 		this.instructions = "<p>" +
@@ -143,6 +145,11 @@ define("m21theory/sections/intervalTraining",
 			var randomGeneric = undefined;		
 			do {
 				randomGeneric = random.randint(this.minInterval, this.maxInterval);
+				if (this.filterIntervals !== undefined) {
+				    if (this.filterIntervals.indexOf(randomGeneric) == -1) {
+				        randomGeneric = -1;
+				    }
+				}
 			} while (randomGeneric == 0 || randomGeneric == -1);
 
 			if (this.skipP1) {

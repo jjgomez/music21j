@@ -34,32 +34,58 @@ define("m21theory/sections/intervalTraining",
             console.log("name2: " + n2.pitch.name);
             console.log("octave: " + n2.pitch.octave);
         }
-        s.append(n1);
-        if (this.section.showSecondNote != false) {
-            s.append(n2);            
-        }
-        s.autoBeam = false;
         this.stream = s;
+        s.autoBeam = false;
+        
+        var c1 = undefined; // chord for harmonic intervals...
+        
+        if (this.section.intervalWritten == 'melodic') {
+            s.append(n1);
+            if (this.section.showSecondNote != false) {
+                s.append(n2);            
+            }            
+        } else if (this.section.intervalWritten == 'harmonic') {            
+            if (this.section.showSecondNote != false) {
+                c1 = new music21.chord.Chord([n1, n2]);                
+            } else {
+                // show only lower...
+                var lower = (n1.pitch.ps <= n2.pitch.ps) ? n1 : n2;
+                c1 = new music21.chord.Chord([lower]);                
+            }                        
+            c1.duration.type = 'whole';
+            s.append(c1);
+        }
+        
         
         var nc = s.createCanvas();
         if (this.section.showSecondNote == false) {
-            s.append(n2);            
+            if (this.section.intervalWritten == 'melodic') {
+                s.append(n2);
+            } else if (this.section.intervalWritten == 'harmonic') { 
+                var higher = (n1.pitch.ps > n2.pitch.ps) ? n1 : n2;
+                c1.add(higher);
+            }
+            
         }
         
         
         var $questionDiv = $("<div style='width: 180px; float: left;'></div>");
         $questionDiv.append(nc);
-        if (this.isPractice) {
+        var intervalName = fullInterval.name;
+        if (this.section.genericOnly === true) {
+            intervalName = fullInterval.generic.undirected.toString();
+        }
+        if (this.isPractice) {           
             $questionDiv.append( 
                     $("<div style='padding-left: 50px; position: relative; top: 0px'>" + 
-                            fullInterval.name + "</div>") 
+                            intervalName + "</div>") 
                 );
         } else {
             this.$inputBox = $("<input type='text' size='5' class='unanswered'/>")
                              .change( this.checkTrigger )
                              .focus( (function () { this.stream.playStream(); }).bind(this) )
                              ;
-            this.storedAnswer = fullInterval.name;
+            this.storedAnswer = intervalName;
             $questionDiv.append( $("<div style='padding-left: 30px; position: relative; top: 0px'/>")
                              .append(this.$inputBox) );
         }
@@ -84,6 +110,8 @@ define("m21theory/sections/intervalTraining",
 		this.maxInterval = 5;
 		
 		this.skipP1 = false;
+		this.intervalWritten = 'melodic'; // can be harmonic
+		this.genericOnly = false;
 			
 		this.disallowDoubleAccs = true;
 		this.disallowWhiteKeyAccidentals = true;

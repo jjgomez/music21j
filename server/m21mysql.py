@@ -542,6 +542,8 @@ class M21JMysql(object):
         activeBanks = self.activeBanks(bankType) 
         gradeList = []
         for b in activeBanks:
+            if not self.bankIsActiveForSection(b, userId):
+                continue
             if bankType == 'all' or b['type'] == bankType:
                 submitted = self.queryJSreturn('SELECT * FROM bank WHERE bankId = %s AND userId = %s ORDER BY numRight DESC', 
                                                (b['bankId'], userId), getUserInfo=False)
@@ -550,9 +552,33 @@ class M21JMysql(object):
                                               (b['bankId'], userId), getUserInfo=False)
                 b['sections'] = sections 
                 gradeList.append(b)
-        self.jsonReply({'grades': activeBanks})
+        self.jsonReply({'grades': gradeList})
         return gradeList
-             
+     
+    def bankIsActiveForSection(self, bankIdOrDict, userId):
+        '''
+        returns bool whether, given a bankId or bankDict (from self.activeBanks() )
+        and a userId, the bank is active for a student in this lecture section 
+        '''
+        if isinstance(bankIdOrDict, dict):
+            bankDict = bankIdOrDict
+        else:
+            allBanksThatMatch = self.queryJSreturn('SELECT * FROM bankInfo WHERE bankId = %s', (bankIdOrDict, ))
+            if (len(allBanksThatMatch) == 0):
+                raise M21MysqlException("Cannot find a bank that matches")
+            else:
+                bankDict = allBanksThatMatch[0]
+        
+        if bankDict['classSections'] == '*':
+            return True 
+        userInfo = self.getUserInfoFromId(userId)
+        if userInfo['section'] == '*':
+            return True
+        sectionsApplicable = bankDict['classSections'].split(',')
+        for s in sectionsApplicable:
+            if userInfo['section'] == s:
+                return True
+        return False
     
     def totalQuestionsAndWeightForSection(self, bankId, sectionIndexOrId):
         if isinstance(sectionIndexOrId, int):
@@ -1039,6 +1065,7 @@ if (__name__ == '__main__'):
 #     for row in rows:
 #         print(row)
     m = M21JMysql()
+    #print(m.bankIsActiveForSection('cl01_01', 25))
     #m = M21JMysql(host='localhost', user='cuthbert', database='fundamentals',
     #               password='youWish')
     #print(m.host)
@@ -1050,4 +1077,4 @@ if (__name__ == '__main__'):
     #print(m.consolidateBank('ps04_flcg'))
     #print(m.activeBanks('ps'))
     #print("Starting...")
-    #print(m.gradesByType(3))
+    #print(m.gradesByType(15))

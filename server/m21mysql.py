@@ -1074,7 +1074,7 @@ if (__name__ == '__main__'):
     #print(m.sectionsForUserBank(48, 'ps04_flcg'))
     #print(m.getStartEndTimeForUserBank(32, 'ps01'))
     #m.consolidateSectionsForOneUser(48, 'ps04_flcg')
-    #print(m.consolidateBank('ps04_flcg'))
+    print(m.consolidateBank('ps04_flcg'))
     #print(m.activeBanks('ps'))
     #print("Starting...")
     #print(m.gradesByType(15))

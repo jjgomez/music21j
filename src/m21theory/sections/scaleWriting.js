@@ -18,67 +18,63 @@ define("m21theory/sections/scaleWriting",
     };
     
     ScaleQuestion.prototype.render = function () {
-        var s = this.section.getStream();
-        var minDiatonicNoteNum = s.clef.firstLine - 1 - (2 * this.section.allowableLedgerLines);
-        var maxDiatonicNoteNum = s.clef.firstLine + 9 + (2 * this.section.allowableLedgerLines);
-        var answerList = [];
-        for (var j = 0; j < this.section.numNotes; j++) {
-            var n;
-            do {
-                var chosenDiatonicNoteNum = random.randint(minDiatonicNoteNum,
-                                                                maxDiatonicNoteNum);
-                var p = new music21.pitch.Pitch("C");
-                p.diatonicNoteNum = chosenDiatonicNoteNum;
-                var newAlter = random.choice(this.section.allowableAccidentals);
-                p.accidental = new music21.pitch.Accidental( newAlter );
-                
-                if (this.section.practiceScales == true) {
-                    // override -- ignore all that...                    
-                    p.diatonicNoteNum = 30 + this.index + j;
-                    if (j > 4) {
-                        p.diatonicNoteNum = p.diatonicNoteNum - ( (j - 4) * 2);
-                    }
-                    if (s.clef.name == 'bass') {
-                        p.octave = p.octave - 1;                        
-                    }
-                }
-                
-                n = new music21.note.Note("C");
-                n.duration.quarterLength = 0.5; // Not Working: type = 'eighth';
-                n.pitch = p;
-            } while ( (n.pitch.name == 'B#') ||
-                      (n.pitch.name == 'E#') ||
-                      (n.pitch.name == 'F-') ||
-                      (n.pitch.name == 'C-') );
-            s.append(n);
-            answerList.push(n.pitch.name.replace(/\-/, 'b'));
+        var sec = this.section;
+        var s = sec.getStream();
+        s.clef = new music21.clef.Clef( random.choice(sec.allowableClefs) );
+        var direction = random.choice(sec.allowableDirections);
+        var allowable;
+        if (direction == 'ascending') {
+            allowable = sec.allowableScales; 
+        } else {
+            allowable = sec.allowableScalesDescending; 
         }
+        var scaleType = random.choice(allowable);
         
-        if (this.section.practiceScales != true) {
-            // last answer is always an earlier note with same accidental
-            var foundPitch = undefined;
-            for (var j = 0; j < this.section.numNotes; j++) {
-                var p = s.get(j).pitch;
-                if (p.accidental.alter != 0) {
-                    foundPitch = p;
-                    break;
+        if (sec.usedKeySignatures.length == sec.maxSharps - sec.minSharps) {
+            sec.usedKeySignatures = []; // clear for new work.
+        }
+        var keySignatureSharps = undefined;
+        while (keySignatureSharps == undefined) {
+            keySignatureSharps = random.randint(sec.minSharps, sec.maxSharps);
+            for (var j = 0; j < sec.usedKeySignatures.length; j++) {
+                if (sec.usedKeySignatures[j] == keySignatureSharps) {
+                    keySignatureSharps = undefined;
                 }
             }
-            if (foundPitch == undefined) {
-                // default
-                var chosenDiatonicNoteNum = random.randint(minDiatonicNoteNum,
-                                                                maxDiatonicNoteNum);
-                foundPitch = new music21.pitch.Pitch("C");
-                foundPitch.diatonicNoteNum = chosenDiatonicNoteNum;
-                var newAlter = random.choice(this.section.allowableAccidentals);
-                foundPitch.accidental = new music21.pitch.Accidental( newAlter );
+        }
+        sec.usedKeySignatures.push(keySignatureSharps);
+        
+        var ks = new music21.key.KeySignature(keySignatureSharps);
+        var tonic;
+        if (scaleType == 'major') {
+            tonic = ks.majorName(); 
+        } else {
+            tonic = ks.minorName();
+        }
+        var tonicPitch = new music21.pitch.Pitch(tonic);
+        if (s.clef.name == 'bass') {
+            if (tonicPitch.step == 'B' || tonicPitch.step == 'A' || tonicPitch.step == 'G') {
+                tonicPitch.octave = 2;
+            } else {
+                tonicPitch.octave = 3;      
             }
-            var n = new music21.note.Note("C");
-            n.duration.quarterLength = 0.5; // Not Working: type = 'eighth';
-            n.pitch.diatonicNoteNum = foundPitch.diatonicNoteNum;
-            n.pitch.accidental = new music21.pitch.Accidental(foundPitch.accidental.alter);
-            s.append(n);
-            answerList.push(n.pitch.name.replace(/\-/, 'b'));            
+        }
+        var scalePitches = undefined;
+        if (scaleType == 'major') {
+            scalePitches = music21.scale.ScaleSimpleMajor(tonicPitch); // no new needed yet...
+        } else {
+            scalePitches = music21.scale.ScaleSimpleMinor(tonicPitch, scaleType);
+        }
+        if (direction == 'descending' ) {
+            scalePitches.reverse();
+        }
+        var tonic = new music21.note.Note(scalePitches[0]);        
+        s.append(tonic);        
+        s.autoBeam = false;
+
+        var answerList = [];
+        for (var i = 0 ; i < scalePitches.length; i++) {
+            answerList.push(scalePitches[i].name.replace(/\-/, 'b'));            
         }
         
         // done adding pitches
@@ -189,7 +185,7 @@ define("m21theory/sections/scaleWriting",
         this.instructions = "<p>" +
             "Write the indicated scale in the boxes below. Use <b>#</b> and <b>b</b> " +
             "for sharp and flat.  You may write in uppercase or lowercase.  Place a space " +
-            "after each note." +
+            "after each note. The first note is given." +
             "</p>";
         this.lastPs = 0.0;
         this.numNotes = 7;

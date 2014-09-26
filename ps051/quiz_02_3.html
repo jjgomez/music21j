@@ -1,0 +1,78 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 Quiz 2</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    m21theory.random.generatorType = 'month';
+    //m21theory.random.generatorType = 'day';
+    
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteNoMidi';
+    ni2.practiceQs = 1;
+    ni2.totalQs = 4;
+    ni2.title = 'Written Note w/ Accidentals Identification';
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = false;
+    ni2.allowableAccidentals = [0, 0, 0, 0, 1, -1];
+
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT1.id = 'earTraining1';
+    earT1.totalQs = 5;
+    earT1.practiceQs = 1;
+    earT1.numNotes = 3;
+
+    var it1 = m21theory.sections.get('intervalTraining');
+    it1.practiceQs = 1;
+    it1.totalQs = 4;
+    it1.minInterval = 2;
+    it1.maxInterval = 9;    
+    it1.skipP1 = false;
+    it1.genericOnly = true;
+    it1.intervalWritten = 'harmonic';
+    it1.id = 'genericIntervals1';
+    it1.title = 'Harmonic Generic Interval Identification';
+    it1.instructions = "<p>Enter by number (1-10 etc.) the <b>Generic Interval</b> shown <b>Harmonically</b>. Click any score fragment to hear the intervals played.</p>";
+
+    var it3 = m21theory.sections.get('intervalTraining');
+    it3.totalQs = 5;
+    it3.practiceQs = 1;
+    it3.minInterval = 2;
+    it3.maxInterval = 8;    
+    it3.filterIntervals = [2, 5, 8];
+    it3.maxMistakes = 5;
+    it3.skipP1 = false;
+    it3.genericOnly = true;
+    it3.showSecondNote = false;
+    it3.intervalWritten = 'harmonic';
+    it3.id = 'genericIntervals3';
+    it3.title = 'Ear Generic Intervals: Seconds, Fifths, or Octaves';
+    it3.instructions = "<p>Enter by number <b>(2, 5, or 8)</b> the <b>Generic Interval</b> most likely to have been played. The second note is not shown. Click any score fragment to hear the intervals played. <b>Harmonic octaves might sound like Unisons!</b></p>";
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.instructions = 'This quiz will test your knowledge of the types of material we have done up to problem set six and in class.';
+    testBank.useJazz = false;
+    testBank.keyboardOctaveShift = 0;
+    testBank.keyboardShowNames = false;
+    testBank.studentFeedback = false;
+    testBank.allowEarlySubmit = true;
+
+    testBank.append(ni2);
+    testBank.append(earT1);
+    testBank.append(it1);
+    testBank.append(it3);
+    
+    testBank.render();
+});
+
+</script>
+
+</body>
+</html>

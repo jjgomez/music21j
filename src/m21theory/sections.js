@@ -8,7 +8,8 @@
  */
 var knownSectionTypes = ['intervalTraining','chordCreation','chordIdentification','firstSpecies','keySignature',
                   'noteIdentification','scaleEar','scaleMajorMinorWritten', 
-                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining'];
+                  'rhythmMatch', 'pulseIdentify', 'noteLength', 'doOnPaper', 'pitchEartraining',
+                  'scaleWriting'];
 var knownSectionTypesPrefixed = [];
 for (var i = 0; i < knownSectionTypes.length; i ++) {
     knownSectionTypesPrefixed.push("./sections/" + knownSectionTypes[i]);

@@ -8,6 +8,43 @@ define("m21theory/sections/chordCreation",
     };
     CCQuestion.prototype = new question.Question();
     CCQuestion.prototype.constructor = CCQuestion;
+    CCQuestion.prototype.studentAnswerForStorage = function () {
+        var sa = this.getStudentAnswer(); // a list of pitch.Pitch objects
+        console.log(sa);
+        var outNotes = [];
+        for (var i = 0; i < sa.length; i++) {
+            outNotes.push(sa[i].nameWithOctave);
+        }
+        return outNotes; // a list of nameWithOctave strings
+    };
+    CCQuestion.prototype.storedAnswerForStorage = function () {
+        var sa = this.getStoredAnswer(); // a list of pitch.Pitch objects
+        var outNotes = [];
+        for (var i = 0; i < sa.length; i++) {
+            outNotes.push(sa[i].nameWithOctave);
+        }
+        return outNotes; // a list of nameWithOctave strings
+    };
+    CCQuestion.prototype.restoreStudentAnswer = function (dbAnswer) {
+        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
+            dbAnswerArr = JSON.parse(dbAnswer);
+            for (var i = 0; i < dbAnswerArr.length; i++) {
+                var dba = dbAnswerArr[i];
+                this.stream.get(i).pitch.nameWithOctave = dba;
+            }
+        }
+    };
+
+    CCQuestion.prototype.restoreStoredAnswer = function (dbAnswer) {
+        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
+            dbAnswerArr = JSON.parse(dbAnswer);
+            var chordPitches = [];
+            for (var i = 0; i < dbAnswerArr.length; i++) {
+                chordPitches.push( new music21.pitch.Pitch(dbAnswerArr[i]));
+            }
+            this.storedAnswer = chordPitches;
+        }
+    };
     
     CCQuestion.prototype.checkAnswer = function (studentAnswer, storedAnswer) {
         //m21theory.debug = true;
@@ -55,6 +92,9 @@ define("m21theory/sections/chordCreation",
         return givenAnswer;
     };
     
+    CCQuestion.prototype.postAnswerRestore = function () {
+        this.stream.replaceCanvas(this.$questionDiv);        
+    };
     
     CCQuestion.prototype.render = function () {
         var section = this.section;

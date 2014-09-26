@@ -223,8 +223,10 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
     };
     
     question.GeneralQuestion.prototype.restoreAnswers = function (dbAnswer) {
+        var callPostAnswer = false;
         if (dbAnswer.studentAnswer !== undefined) {
             this.restoreStudentAnswer(dbAnswer.studentAnswer);            
+            callPostAnswer = true;
         }
         if (dbAnswer.storedAnswer !== undefined) {
             this.restoreStoredAnswer(dbAnswer.storedAnswer);            
@@ -234,11 +236,22 @@ define(['./random', './userData', 'jquery', './feedback', './serverSettings'],
         }
         if (dbAnswer.answerStatus !== undefined) {
             this.answerStatus = dbAnswer.answerStatus;
+            callPostAnswer = true;
             if (dbAnswer.answerStatus == 'correct' || dbAnswer.answerStatus == 'incorrect') {
                 var isCorrect = (dbAnswer.answerStatus == 'correct') ? true : false;
                 this.changeStatusClass(isCorrect);
             }            
         }
+        if (callPostAnswer) {
+            this.postAnswerRestore();
+        }
+    };
+    
+    /**
+     * Triggered when a stored answer status has been found.
+     */
+    question.GeneralQuestion.prototype.postAnswerRestore = function () {
+        // do nothing...subclass...
     };
         
     question.PracticeQuestion = function (section, index) {

@@ -8,6 +8,11 @@ define("m21theory/sections/pitchEartraining",
     PQuestion.prototype = new question.Question();
     PQuestion.prototype.constructor = PQuestion;
     
+    PQuestion.prototype.postAnswerRestore = function () {
+        var $radio = this.$inputBox.find("input[value='" + this.studentAnswer + "']");
+        $radio.prop("checked", true);
+    };
+    
     PQuestion.prototype.render = function () {
         var _ = this.section.getRandomValidIntervalAndNotes(),
             n1 = _[0],
@@ -80,7 +85,6 @@ define("m21theory/sections/pitchEartraining",
 	var ThisSection = function () {
 		section.Generic.call(this);
 		this.questionClass = PQuestion;
-		console.log('hi beth!');
 		this.id = 'pitchEartraining';
 		
 		this.noteNames = ['C','D','E','F','G','A','B'];

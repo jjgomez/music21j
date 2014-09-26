@@ -83,14 +83,8 @@ define("m21theory/sections/noteLength",
         return sa;
     };    
 
-    NL.prototype.restoreStudentAnswer = function (dbAnswer) {
-        if (dbAnswer !== undefined && dbAnswer !== null && dbAnswer != "") {
-            if (this.$inputBox != undefined) {
-                this.$inputBox.val(dbAnswer);
-            }
-            this.studentAnswer = dbAnswer;
-            this.lyricsChanged();
-        }
+    NL.prototype.postAnswerRestore = function () {
+        this.lyricsChanged();
     };
 
     NL.prototype.checkAnswer = function (studentAnswer, storedAnswer) {

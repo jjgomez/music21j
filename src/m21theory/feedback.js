@@ -36,6 +36,11 @@ define(['./random', './userData', 'jquery', './misc', 'music21/common'],
         
         for (var i = 0; i < this.bank.sections.length; i++) {            
             var $subPB = this.getProgressBar(20, this.bank.sections[i].studentFeedback);
+            $subPB.data('sectionNumber', i);
+            $subPB.on('click', function () {
+                var aTag = $("a[name='section"+ $(this).data('sectionNumber') +"']");
+                $('html,body').animate({scrollTop: aTag.offset().top - 100 },'slow');
+            });
             this.pbSubparts.push( $subPB );
             $d.append($subPB);
         }

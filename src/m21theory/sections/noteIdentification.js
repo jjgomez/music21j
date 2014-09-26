@@ -11,6 +11,11 @@ define("m21theory/sections/noteIdentification",
         return (storedAnswer.toLowerCase().replace(/\s*/g, "") == 
             studentAnswer.toLowerCase().replace(/\s*/g, "").replace(/n/g, "") );
     };
+    NoteQuestion.prototype.postAnswerRestore = function () {
+        this.lyricsChanged();
+    };
+
+    
     NoteQuestion.prototype.lyricsChanged = function () {
         misc.lyricsFromValue(this.$inputBox, this.stream);
         this.canvas = this.stream.replaceCanvas(this.canvas, true); // preserve canvas size...

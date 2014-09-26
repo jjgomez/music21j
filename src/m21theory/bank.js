@@ -107,6 +107,7 @@ define(['./misc', './userData', './feedback', './random', 'jquery', 'music21/com
 			
 			
 			for (var i = 0; i < this.sections.length; i ++) {
+			    $testBank.append( $("<a name='section" + i.toString() + "'/>"));
 				var thisTest = this.sections[i];
 				thisTest.render(this.testBankSelector);
 			}

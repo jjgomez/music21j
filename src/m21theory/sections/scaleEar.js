@@ -6,6 +6,10 @@ define("m21theory/sections/scaleEar", ["m21theory/section", "m21theory/random", 
     };
     ScaleQuestion.prototype = new question.Question();
     ScaleQuestion.prototype.constructor = ScaleQuestion;
+    ScaleQuestion.prototype.postAnswerRestore = function () {
+        var $radio = this.$inputBox.find("input[value='" + this.studentAnswer + "']");
+        $radio.prop("checked", true);
+    };
     
     ScaleQuestion.prototype.render = function () {
         i = this.index;

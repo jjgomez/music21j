@@ -9,8 +9,7 @@ define("m21theory/sections/chordCreation",
     CCQuestion.prototype = new question.Question();
     CCQuestion.prototype.constructor = CCQuestion;
     CCQuestion.prototype.studentAnswerForStorage = function () {
-        var sa = this.getStudentAnswer(); // a list of pitch.Pitch objects
-        console.log(sa);
+        var sa = this.getStudentAnswer(); // a list of pitch.Pitch objects        
         var outNotes = [];
         for (var i = 0; i < sa.length; i++) {
             outNotes.push(sa[i].nameWithOctave);
@@ -101,8 +100,10 @@ define("m21theory/sections/chordCreation",
         var chordRN = section.getRomanNumeral();
         var $infoDiv = section.getDisplayForRN(chordRN);            
         var chordPitches = chordRN.pitches;
-        var s = section.getStream(chordPitches.length);
+        var clefChoice = random.choice(this.section.clefChoices);
+        var s = section.getStream(chordPitches.length, clefChoice);
 
+        
         this.stream = s;
         this.storedAnswer = new chord.Chord(chordPitches).pitches;
     
@@ -151,9 +152,10 @@ define("m21theory/sections/chordCreation",
 		this.minSharps = -4;
 		this.maxSharps = 4;
 		this.inversionChoices = undefined;
-		this.displayChoices = ['roman','degreeName'];
-		this.chordChoices = ['Tonic', 'Dominant','Subdominant', 'Submediant', 'Supertonic', 'Mediant', 'Leading-tone'];
+		this.displayChoices = ['roman','degreeName']; // or nameOnly -- use with Tonic only...
+		this.chordChoices = ['Tonic', 'Dominant', 'Subdominant', 'Submediant', 'Supertonic', 'Mediant', 'Leading-tone'];
 		this.modeChoices = ['major','minor'];
+		this.clefChoices = ['treble','bass'];
 		this.chordChoicesMode = {
 				'major': ['I','ii','iii','IV','V','vi','viio'],
 				'minor': ['i','iio','III','iv','V','VI','viio']
@@ -264,8 +266,14 @@ define("m21theory/sections/chordCreation",
                 }
             }
             var fullChordName;
+            var connector = ' in ';
+            var suffix = '';
             if (displayType == 'roman') {
                 fullChordName = chordRN.figure;
+            } else if (displayType == 'nameOnly') { // use only with only choice being TONIC
+                fullChordName = "";
+                connector = '';
+                suffix = ' triad';
             } else {
                 fullChordName = chordRN.degreeName;
                 if (chordRN.numbers != undefined) {
@@ -277,16 +285,24 @@ define("m21theory/sections/chordCreation",
                 tonicDisplay = tonicDisplay.toLowerCase();
             }
             var $infoDiv = $("<div style='padding-left: 20px; margin-top: -18px; margin-bottom: 50px'>" +
-                    fullChordName + inversionName + " in " + tonicDisplay + " " + mode + "</div>");
+                    fullChordName + inversionName + connector + tonicDisplay + " " + mode + suffix + "</div>");
             return $infoDiv;
 	    };
-        this.getStream = function(len) {
+        this.getStream = function(len, clefChoice) {
+            if (clefChoice === undefined) {
+                clefChoice = 'bass';
+            }
             var s = new music21.stream.Measure();
+            s.clef = new music21.clef.Clef(clefChoice);
             for (var j =0; j < len; j++ ) {
-                var gPitch = new music21.note.Note("G2");
+                pn = 'G2';
+                if (clefChoice == 'treble') {
+                    pn = 'E4';
+                }
+                console.log(pn);
+                var gPitch = new music21.note.Note(pn);
                 s.append(gPitch);
             }
-            s.clef = new music21.clef.Clef('bass');
             s.renderOptions.events['click'] = s.canvasChangerFunction;
             s.renderOptions.scaleFactor.x = 1.0;
             s.renderOptions.scaleFactor.y = 1.0;            

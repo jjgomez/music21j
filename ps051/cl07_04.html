@@ -13,6 +13,7 @@ require(['m21theory'], function() {
     m21theory.style.apply();
 
     var it1 = m21theory.sections.get('scaleWriting');
+    it1.totalQs = 4;
     it1.allowableScales = ['major'];
     it1.allowableScalesDescending = ['major'];
     it1.allowableDirections = ['ascending', 'descending'];
@@ -23,7 +24,7 @@ require(['m21theory'], function() {
     it1.title = 'Scales (Ascending/Descending) in Remote Keys';
     
     var testBank = new m21theory.bank.TestBank();
-    testBank.useJazz = true;
+    testBank.useJazz = false;
     testBank.keyboardOctaveShift = 0;
     testBank.append(it1);
 

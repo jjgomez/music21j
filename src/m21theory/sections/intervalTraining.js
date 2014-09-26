@@ -135,14 +135,7 @@ define("m21theory/sections/intervalTraining",
 			"from m2 to P5.  The first four are done for you.<p>" +
 			"<p><b>Click any score fragment to hear the intervals played</b>.  Practice " +
 			"learning the sounds of these intervals." +
-			"</p>	<p>" +
-			"When you have entered your response, the box will turn green on" +
-			"correct answers or red for incorrect answers. You must have <b>all boxes " +
-			"green</b> to submit this problem set and you may not have more than eight " +
-			"incorrect answers <b>in one session</b>; if you have gotten than eight " +
-			"incorrect, hit <b>Reload</b> " +
-			"to get another set of intervals.</p>" +
-			"<p>When you enter in an interval you can hit tab to move to the next field.</p>";
+			"</p>";
 		
 		this.getRandomInterval = function () {
 			var randomGeneric = undefined;		

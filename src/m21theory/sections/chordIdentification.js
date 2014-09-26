@@ -68,7 +68,7 @@ define("m21theory/sections/chordIdentification",
 			"Identify the following chords as <b>Major</b>, <b>Minor</b>, or something else. " +
 			"<b>Double click</b> on the chord to listen to it, then drag it to the appropriate space." +
 			"</p>";
-		this.subtype = 'majorMinor';
+		this.subtype = 'majorMinor'; // or inversions
 	    this.chords = random.shuffle(["C3 E3 G3", "C2 E-3 G3", "C2 G3 E4", "C3 G#3 E4",
 	                                           "F#2 C#3 A3", "B2 F3 D#4", "G2 D3 B-3",
 	                                           "E-2 G2 B-2", "E2 B2 G3", "A2 C3 E3", "A2 E3 C#4",

@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 Problem Set 07: Major Scales, Specific Intervals, Triads</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var it1 = m21theory.sections.get('scaleWriting');
+    it1.totalQs = 8;
+    it1.allowableScales = ['major'];
+    it1.allowableScalesDescending = ['major'];
+    it1.allowableDirections = ['ascending'];
+    it1.id = 'ascending'
+    
+    var it2 = m21theory.sections.get('scaleWriting');
+    it2.totalQs = 6;
+    it2.allowableScales = ['major'];
+    it2.allowableScalesDescending = ['major'];
+    it2.allowableDirections = ['descending'];
+    it2.id = 'ascending'
+    
+    var it3 = m21theory.sections.get('scaleWriting');
+    it3.totalQs = 12;
+    it3.allowableScales = ['major'];
+    it3.allowableScalesDescending = ['major'];
+    it3.allowableDirections = ['ascending', 'descending'];
+    it3.useJazz = true;
+    it3.title = 'Scales (Ascending/Descending) with Keyboard';
+    it3.id = 'keyboard'
+    
+    var it4 = m21theory.sections.get('scaleWriting');
+    it4.totalQs = 8;
+    it4.allowableScales = ['major'];
+    it4.allowableScalesDescending = ['major'];
+    it4.allowableDirections = ['ascending', 'descending'];
+    it4.minSharps = -6;
+    it4.maxSharps = 6;
+    it4.usedKeySignatures = [0, 1, 2, 3, -1, -2, -3];    
+    it4.title = 'Scales (Ascending/Descending) in Remote Keys';
+    it4.id = 'remote'
+
+    var it5 = m21theory.sections.get('intervalTraining');
+    it5.totalQs = 15;
+    it5.minInterval = -3;
+    it5.maxInterval = 8;    
+    it5.maxMistakes = 6;
+    it5.skipP1 = false;
+    it5.intervalWritten = 'melodic';
+    it5.id = 'multipartIntervals1';
+
+    var it6 = m21theory.sections.get('intervalTraining');
+    it6.totalQs = 15;
+    it6.minInterval = -3;
+    it6.maxInterval = 8;    
+    it6.maxMistakes = 6;
+    it6.skipP1 = false;
+    it6.intervalWritten = 'harmonic';
+    it6.id = 'multipartIntervals2';
+
+    var itE = m21theory.sections.get('intervalTraining');
+    itE.title = 'Ear Interval Indentification, Seconds';
+    itE.showSecondNote = false;    
+    itE.totalQs = 15;
+    itE.minInterval = -2;
+    itE.maxInterval = 2;    
+    itE.maxMistakes = 5;    
+    itE.skipP1 = true;
+    itE.id = 'multipartIntervalsEar';
+    itE.intervalWritten = 'melodic';
+    itE.instructions = "<p>Identify these Major (M) or minor (m) <b>Seconds</b> by Ear. Remember, you can click the score to hear it again.</p>"; 
+
+    var itE2 = m21theory.sections.get('intervalTraining');
+    itE2.title = 'Ear Interval Indentification, Thirds';
+    itE2.showSecondNote = false;    
+    itE2.totalQs = 15;
+    itE2.minInterval = 3;
+    itE2.maxInterval = 3;    
+    itE2.maxMistakes = 5;
+    itE2.skipP1 = true;
+    itE2.id = 'multipartIntervalsEar';
+    itE2.intervalWritten = 'harmonic';
+    itE2.instructions = "<p>Identify these Major (M) or minor (m) <b>Thirds</b> by Ear. Remember, you can click the score to hear it again.</p>"; 
+
+    
+    var cc = m21theory.sections.get('chordCreation');
+    cc.totalQs = 10;
+    cc.id = 'chordCreation';
+    cc.displayChoices = ['nameOnly']; 
+    cc.chordChoices = ['Tonic'];
+    cc.modeChoices = ['major', 'minor'];
+    cc.chordChoicesMode = {
+            'major': ['I'],
+            'minor': ['i']        
+    };
+
+    var ci = m21theory.sections.get('chordIdentification');
+    ci.maxMistakes = 3;
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.useJazz = true;
+    testBank.keyboardOctaveShift = 0;
+    testBank.append(it1);
+    testBank.append(it2);
+    testBank.append(it3);
+    testBank.append(it4);
+    testBank.append(it5);
+    testBank.append(it6);
+    testBank.append(itE);
+    testBank.append(itE2);
+    testBank.append(ci);
+    testBank.append(cc);
+
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

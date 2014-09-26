@@ -1,7 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
- <title>21m.051 In-Class 07: Major Scales, Ascending</title>
+ <title>21m.051 In-Class 07: Specific Intervals</title>
  <!-- for MSIE 10 on Windows 8 -->
  <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
@@ -12,18 +12,16 @@
 require(['m21theory'], function() {
     m21theory.style.apply();
 
-    var it1 = m21theory.sections.get('scaleWriting');
-    it1.totalQs = 4;
-    it1.allowableScales = ['major'];
-    it1.allowableScalesDescending = ['major'];
-    it1.allowableDirections = ['ascending'];
+    var ci = m21theory.sections.get('chordIdentification');
+    ci.totalQs = 6;
+    ci.maxMistakes = 3;
+    ci.chords = ["C3 E3 G3", "C3 E-3 G3", "C3 G3 B3", "C2 G3 E4", "C3 G-3 E-4",
+                                  "G2 D3 B-3"
+                                  ];
 
     
     var testBank = new m21theory.bank.TestBank();
-    testBank.useJazz = false;
-    testBank.keyboardOctaveShift = 0;
-    testBank.append(it1);
-
+    testBank.append(ci);
     testBank.render();
 });
 

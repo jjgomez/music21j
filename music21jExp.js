@@ -335,7 +335,6 @@ Music21.GeneralNote = function () {
 	Music21.Music21Object.call(this);
 	this.classes.push('GeneralNote');
     this.activeVexflowNote = undefined;
-	this.articulations = [];
 	this.vexflowAccidentalsAndDisplay = function (vfn) {
         if (this.duration.dots == 1) {
             vfn.addDotToAll();
@@ -356,6 +355,7 @@ Music21.NotRest = function () {
 	Music21.GeneralNote.call(this);
 	this.classes.push('NotRest');
     this.stemDirection = undefined; // ['up','down','noStem', undefined] -- 'double' not supported
+    this.articulations = [];
 };
 
 Music21.NotRest.prototype = new Music21.GeneralNote();
@@ -3042,7 +3042,7 @@ Music21.Dynamic = function (value) {
 Music21.Articulation = function(){
     this.name = undefined;
     this.placement = 'above';
-    this.vexflowModifier = undefined;
+    this.vexflow = undefined;
 };
 
 Music21.LengthArticulation = function(){
@@ -3064,6 +3064,7 @@ Music21.TimbreArticulation.prototype = new Music21.Articulation();
 Music21.Accent = function(){
     this.name = 'accent';
     this.vexflowModifier = "a>";
+    this.vexflow = new Vex.Flow.Articulation("a>");
 };
 Music21.Accent.prototype = new Music21.DynamicArticulation();
 

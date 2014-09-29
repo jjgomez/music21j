@@ -165,7 +165,9 @@ test( "Music21.Dynamic", function() {
 
 test( "Music21.Articulation", function() {
     var acc = new Music21.Accent();
+    var vex = new Vex.Flow.Articulation("a>");
     equal (acc.name, 'accent', 'matching names for accent');
+    equal (acc.vexflow, vex, 'matching vexflow');
     var ten = new Music21.Tenuto();
     equal (ten.name, 'tenuto', 'matching names for tenuto');
     var n = new Music21.Note("C");

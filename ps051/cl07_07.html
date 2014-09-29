@@ -1,0 +1,33 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 In-Class 07: Construct Major Triad</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var cc = m21theory.sections.get('chordCreation');
+    cc.totalQs = 4;
+    cc.id = 'chordCreation';
+    cc.displayChoices = ['nameOnly']; 
+    cc.chordChoices = ['Tonic'];
+    cc.modeChoices = ['major', 'minor'];
+    cc.chordChoicesMode = {
+            'major': ['I'],
+            'minor': ['i']        
+    };
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.append(cc);    
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 In-Class 07: Specific Intervals</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var it1 = m21theory.sections.get('intervalTraining');
+    it1.totalQs = 8;
+    it1.minInterval = 6; 
+    it1.maxInterval = 7;    
+    it1.maxMistakes = 3;
+    it1.skipP1 = true;
+    
+    it1.intervalWritten = 'harmonic';
+    it1.id = 'multipartIntervals1';
+    it1.instructions = "<p>Large intervals: Major (M) and minor (m) sixths and sevenths.</p>";
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.append(it1);
+
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

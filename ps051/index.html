@@ -1,0 +1,71 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 Course Home</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.userData.checkLoginCallbacks.push( function (successCall) { 
+        if (successCall == true) {
+            m21theory.grades.getByType()
+        }
+    });
+    m21theory.userData.fillNameDiv('loginSection');
+    m21theory.style.apply();
+    $("#testSound").on('click', function () { m21theory.misc.playMotto(music21.MIDI) } );
+    $("#testBank").append($("#mainText"));
+    
+});
+
+</script>
+<div id="mainText">
+<h1>21M.051: Fundamentals of Music.</h1>
+
+<div id='loginSection'></div>
+
+<h2>Quick links:</h2>
+
+<ul>
+<li><a href="https://piazza.com/mit/fall2014/21m051/home"><b>Discussion board at Piazza.com</b></a>, Post Questions Here.</li>
+<li><a href="https://stellar.mit.edu/S/course/21M/fa14/21M.051/">Stellar site (not much there)</a></li>
+<!--  <li><a href="cl_current.html"><b>Current In-Class Exercise</b></a></li> -->
+<li>Other links:<ul>
+    <li><a href="../server/cgi-bin/add_user.cgi">Register for a class account</a></li>
+    <li><a href="../server/cgi-bin/change_pw.cgi">Change Password</a></li>
+    <li><a href="http://jazz-soft.net">Download Jazz Plugin (for MIDI in Browser)</a></li>
+    <li><a href="../testHTML/showKeyboard.html">Test Your Keyboard</a></li>
+    <li><a href="#" id='testSound'>Test Your Sound</a></li>
+    </ul></li>
+</ul>
+
+<div id='noGradesSection'>
+    Log in to view quizzes/exams, in class exercises, problem sets, and grades.
+</div>
+<div id='gradesSection' style='display: none'>
+    <h1>Assignments and Grades</h1>
+    <div>These scores do not yet count the written components. Do not panic if the totals for PS4 are
+    not yet accurate. This will be updated on Wednesday.</div>
+	<div id='assign_quiz'><h2>Quizzes/Exams</h2></div>
+	<div id='assign_cl'><h2>In Class Exercises</h2></div>
+	<div id='assign_ps'><h2>Problem Sets</h2></div>
+</div>
+
+
+
+<h3>zachara.mit.edu?</h3>
+<img src="http://zachara.mit.edu/img/zacara_cropped.jpg" width="200" alt="portrait of Zachara" style="float: right"/>
+<p>Antonio Zachara da Teramo (often spelled "Zacara" today) was a composer active around 1400 whose
+strange but beautiful compositions captivated all of Europe for 40 years. The name of the server
+is dedicated to the notion that we can all create amazing music if we're willing to step a bit out
+of our comfort zones. See <a href="http://www.youtube.com/embed/M5hx39PA6b0/">this link for some music</a></p>
+<br/>
+&nbsp;
+<br/>
+</div>
+</body>
+</html>

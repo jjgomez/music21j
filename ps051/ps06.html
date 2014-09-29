@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 Problem Set 06: Generic Intervals</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteNoMidi';
+    ni2.practiceQs = 1;
+    ni2.totalQs = 12;
+    ni2.title = 'Written Note w/ Accidentals Identification (Review)';
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = false;
+    ni2.allowableAccidentals = [0, 0, 0, 0, 1, -1];
+
+    
+    var it1 = m21theory.sections.get('intervalTraining');
+    it1.totalQs = 30;
+    it1.minInterval = -4;
+    it1.maxInterval = 10;    
+    it1.maxMistakes = 5;
+    it1.skipP1 = false;
+    it1.genericOnly = true;
+    it1.intervalWritten = 'harmonic';
+    it1.id = 'genericIntervals1';
+    it1.title = 'Harmonic Generic Interval Identification';
+    it1.instructions = "<p>Enter by number (1-10 etc.) the <b>Generic Interval</b> shown <b>Harmonically</b>. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+
+    var it2 = m21theory.sections.get('intervalTraining');
+    it2.totalQs = 30;
+    it2.minInterval = -4;
+    it2.maxInterval = 10;    
+    it2.maxMistakes = 5;
+    it2.skipP1 = false;
+    it2.genericOnly = true;
+    it2.intervalWritten = 'melodic';
+    it2.id = 'genericIntervals2';
+    it2.title = 'Melodic Generic Interval Identification';
+    it2.instructions = "<p>Enter by number (1-10 etc.) the <b>Generic Interval</b> shown <b>Melodically</b>. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+
+    
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT1.id = 'earTraining1';
+    earT1.title = 'Pitch Ear Training (review)';
+    earT1.totalQs = 30;
+    earT1.numNotes = 4;
+    earT1.tempo = 100;
+
+    var it3 = m21theory.sections.get('intervalTraining');
+    it3.totalQs = 20;
+    it3.minInterval = 2;
+    it3.maxInterval = 5;    
+    it3.filterIntervals = [2, 5];
+    it3.maxMistakes = 5;
+    it3.skipP1 = true;
+    it3.genericOnly = true;
+    it3.showSecondNote = false;
+    it3.intervalWritten = 'harmonic';
+    it3.id = 'genericIntervals3';
+    it3.title = 'Ear Generic Intervals: Seconds or Fifths';
+    it3.instructions = "<p>Enter by number <b>(2 or 5)</b> the <b>Generic Interval</b> most likely to have been played. The second note is not shown. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+
+    var it4 = m21theory.sections.get('intervalTraining');
+    it4.totalQs = 20;
+    it4.minInterval = 3;
+    it4.maxInterval = 7;    
+    it4.filterIntervals = [3, 7];
+    it4.maxMistakes = 5;
+    it4.skipP1 = true;
+    it4.genericOnly = true;
+    it4.showSecondNote = false;
+    it4.intervalWritten = 'harmonic';
+    it4.id = 'genericIntervals4';
+    it4.title = 'Ear Generic Intervals: Thirds or Sevenths';
+    it4.instructions = "<p>Enter by number <b>(3 or 7)</b> the <b>Generic Interval</b> most likely to have been played. The second note is not shown. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+    
+    var it5 = m21theory.sections.get('intervalTraining');
+    it5.totalQs = 20;
+    it5.minInterval = 4;
+    it5.maxInterval = 6;    
+    it5.filterIntervals = [4, 6];
+    it5.maxMistakes = 5;
+    it5.skipP1 = true;
+    it5.genericOnly = true;
+    it5.showSecondNote = false;
+    it5.intervalWritten = 'harmonic';
+    it5.id = 'genericIntervals5';
+    it5.title = 'Ear Generic Intervals: Fourths or Sixths';
+    it5.instructions = "<p>Enter by number <b>(4 or 6)</b> the <b>Generic Interval</b> most likely to have been played. The second note is not shown. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+
+    var it6 = m21theory.sections.get('intervalTraining');
+    it6.totalQs = 20;
+    it6.minInterval = 1;
+    it6.maxInterval = 5;    
+    it6.filterIntervals = [1, 3, 5];
+    it6.maxMistakes = 5;
+    it6.skipP1 = false;
+    it6.genericOnly = true;
+    it6.showSecondNote = false;
+    it6.intervalWritten = 'harmonic';
+    it6.id = 'genericIntervals6';
+    it6.title = 'Ear Generic Intervals: Unison, Third, or Fifth';
+    it6.instructions = "<p>Enter by number <b>(1, 3, or 5)</b> the <b>Generic Interval</b> most likely to have been played. The second note is not shown. Click any score fragment to hear the intervals played. Practice learning the sounds of these intervals.</p>";
+    
+    var convert = m21theory.sections.get('doOnPaper');
+    convert.title = 'Beaming';
+    convert.id = 'beaming';
+    convert.setFromId("beamingSpecifics");
+
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.useJazz = false;
+    testBank.keyboardOctaveShift = 0;
+    testBank.append(ni2);
+    testBank.append(it1);
+    testBank.append(it2);
+    testBank.append(earT1);
+    testBank.append(it3);
+    testBank.append(it4);
+    testBank.append(it5);
+    testBank.append(it6);
+    testBank.append(convert);
+
+    testBank.render();
+});
+
+</script>
+<div id='beamingSpecifics' style='display: none'>
+Be sure that you've done the beaming exercise distributed in class (it is also on the outline from
+last Wednesday.  <a href="https://piazza.com/mit/fall2014/21m051/resources">Check Piazza</a> 
+for Week 3 Lecture Notes, under resources if you do not have it).  
+Click here to acknowledge
+this message and then do it! :-)
+</div>
+</body>
+</html>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 Quiz 1</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    m21theory.random.generatorType = 'month';
+    //m21theory.random.generatorType = 'day';
+    
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteMidi';
+    ni2.practiceQs = 0;
+    ni2.totalQs = 4;
+    ni2.practiceQs = 0;
+    ni2.title = 'MIDI Keyboard Note Identification';
+    ni2.instructions = 'Click on a musical score and play the correct notes on the piano keyboard.';
+    ni2.allowableAccidentals = [0];
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = true;
+
+    var noteLength3 = m21theory.sections.get('noteLength');
+    noteLength3.instructions = '<p><b>You may put your MIDI keyboard away now...</b></p>' + noteLength3.instructions;
+    noteLength3.randomizeNotesAndRests = true;
+    noteLength3.practiceQs = 0;
+    noteLength3.totalQs = 2;
+    noteLength3.possibleRhythms = {
+            '4/4': [
+                '8 4 8 2 8~ 8~ 8~ 8 2',
+                '16. 2.. 32 2. 4',
+                '2~ 4 4 4~ 2 4',
+                '8 16 16 4 16 8 16 4 1',
+            ],
+        };
+
+            
+    var ni1 = m21theory.sections.get('noteIdentification');
+    ni1.id = 'noteIdentify1';
+    ni1.instructions = 'Identify the notes by name, separating their names by spaces.';
+    ni1.allowableAccidentals = [0];
+    ni1.allowableClefs = ['treble','bass'];
+    ni1.totalQs = 3;
+    ni1.practiceQs = 1;
+    
+    var earT0 = m21theory.sections.get('pitchEartraining');
+    earT0.id = 'earTraining0';
+    earT0.totalQs = 5;
+    earT0.practiceQs = 1;
+    earT0.numNotes = 2;
+    
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT1.id = 'earTraining1';
+    earT1.totalQs = 5;
+    earT1.practiceQs = 1;
+    earT1.numNotes = 3;
+
+    var rhythmMatch1 = m21theory.sections.get('rhythmMatch');
+    rhythmMatch1.allowableMeters = ['4/4'];
+    rhythmMatch1.totalQs = 1;
+    rhythmMatch1.practiceQs = 0;
+    
+    var pulseMatch = m21theory.sections.get('pulseIdentify');
+    pulseMatch.tempo = 86;
+    pulseMatch.totalQs = 1;
+    pulseMatch.practiceQs = 0;
+    pulseMatch.allowableMeters = ['4/4'];
+    pulseMatch.possibleRhythms = {
+        '4/4': ['2 2 4 4 4 4 2. 4 1',
+                ],
+    };
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.id = 'quiz_01_fl';
+    testBank.instructions = 'This quiz will test your knowledge of the types of material we have done in the first three problem sets and in class.';
+    testBank.useJazz = true;
+    testBank.keyboardOctaveShift = 0;
+    testBank.keyboardShowNames = false;
+    testBank.studentFeedback = false;
+    testBank.allowEarlySubmit = true;
+
+    testBank.append(ni2);
+    testBank.append(noteLength3);
+    testBank.append(ni1);
+    testBank.append(earT0);
+    testBank.append(earT1);
+    testBank.append(rhythmMatch1);
+    testBank.append(pulseMatch);
+    
+    testBank.render();
+});
+
+</script>
+
+</body>
+</html>

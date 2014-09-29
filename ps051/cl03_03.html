@@ -1,0 +1,37 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 In-Class 03: Ear test</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory"  src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var earT0 = m21theory.sections.get('pitchEartraining');
+    earT0.id = 'earTraining0';
+    earT0.totalQs = 10;
+    earT0.instructions = earT0.instructions + "<p><b>If this is hard, please contact me and the LAs to work on strategies for practice.</b></p>";
+    earT0.numNotes = 2;
+    
+    var earT1 = m21theory.sections.get('pitchEartraining');
+    earT1.id = 'earTraining1';
+    earT1.totalQs = 12;
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.id = 'cl03_03';
+    testBank.useJazz = false;
+    testBank.keyboardOctaveShift = 0;
+    testBank.append(earT0);
+    testBank.append(earT1);
+
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

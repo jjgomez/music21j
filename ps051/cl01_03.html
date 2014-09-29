@@ -1,0 +1,35 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>In Class 01 #3: Dictation</title>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.addKeyboard = false;
+    testBank.id = "cl01_03";
+    m21theory.random.seed = 1;
+    m21theory.random.generatorType = "fixed";
+    
+    testBank.instructions = "<p>Understanding note lengths with dots and ties</p>";
+    testBank.allowEarlySubmit = true;
+    
+    var d = m21theory.sections.get('rhythmMatch');
+    d.allowableMeters = ['4/4'];
+    d.totalQs = 1;
+    d.practiceQs = 0;
+    d.possibleRhythms = {
+            '4/4': ['2 4 4 2 2 1',] 
+    };
+    testBank.append(d);
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

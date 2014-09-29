@@ -1,4 +1,18 @@
 *.py[cod]
+.buildpath
+
+# emacs
+.*~
+*~
+
+# vim
+*.swp
+
+#Eclipse
+.settings
+.project
+.pydevproject
+
 
 # OSX
 .DS_Store
@@ -10,8 +24,6 @@
 *.egg
 *.egg-info
 dist
-build
-eggs
 parts
 bin
 var

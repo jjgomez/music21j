@@ -1,0 +1,28 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Problem Set 7: Intervals</title>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    var it = m21theory.sections.get('intervalTraining');
+    it.noteNames = ['C','D','E','F','G','A','B','C','C','C','F','F'];
+    it.accidentals = ["", "", "", "", "", "", "#", "-"];
+    it.skipP1 = true; // Forgot to teach P1!!! oops...
+    it.minInterval = -5;
+    it.maxInterval = 5;
+    
+    var tb = new m21theory.bank.TestBank();
+    tb.append(it);
+    tb.render();
+
+});
+</script>
+<body>
+
+</body>
+</html>

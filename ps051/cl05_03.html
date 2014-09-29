@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 In-Class 05: Pitch with Accidentals</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteNoMidi';
+    ni2.practiceQs = 1;
+    ni2.totalQs = 4;
+    ni2.title = 'Written Note w/ Accidentals Identification';
+    ni2.allowableClefs = ['treble', 'bass'];
+    ni2.useJazz = false;
+    ni2.allowableAccidentals = [0, 0, 0, 0, 1, -1];
+
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.id = 'cl05_03';
+    testBank.useJazz = false;
+    testBank.keyboardOctaveShift = 0;
+    testBank.append(ni2);
+
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

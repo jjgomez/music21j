@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>21m.051 In-Class 02: Pitch in Treble Clef</title>
+ <!-- for MSIE 10 on Windows 8 -->
+ <meta http-equiv="X-UA-Compatible" content="requiresActiveX=true"/>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+    
+    var ni2 = m21theory.sections.get('noteIdentification');
+    ni2.id = 'noteMidi';
+    ni2.practiceQs = 0;
+    ni2.totalQs = 10;
+    ni2.title = 'MIDI Keyboard Note Identification';
+    ni2.instructions = 'Now click on a musical score and play the correct notes on the piano keyboard.';
+    ni2.allowableAccidentals = [0];
+    ni2.allowableClefs = ['treble'];
+    ni2.useJazz = true;
+    
+    var testBank = new m21theory.bank.TestBank();
+    testBank.id = 'cl02_02';
+    testBank.useJazz = true;
+    testBank.keyboardOctaveShift = 1;
+    testBank.append(ni2);
+
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

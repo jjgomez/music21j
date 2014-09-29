@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>In Class 01 #2: Note Lengths</title>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" playMotto="false" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.addKeyboard = false;
+    testBank.id = "cl01_02";
+    m21theory.random.seed = 1;
+    m21theory.random.generatorType = "fixed";
+    
+    testBank.instructions = "<p>Understanding note lengths with dots and ties</p>";
+    testBank.allowEarlySubmit = true;
+    
+    var noteLength = m21theory.sections.get('noteLength');
+    noteLength.totalQs = 3;
+    noteLength.practiceQs = 0;
+    noteLength.possibleRhythms = {
+            '4/4': [
+                '2. 4 8. 16 4~ 8 4.',
+                '4.. 16 32 8.. 4 1',
+                '8. 16 4~ 8 8 4 1',
+                ],
+        };
+    testBank.append(noteLength);
+    testBank.render();
+});
+
+</script>
+</body>
+</html>

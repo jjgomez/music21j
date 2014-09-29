@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+ <title>Problem Set 1: Rhythmic Exercises</title>
+ <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+ <script data-main="../src/m21theory" src="../ext/require/require.js"></script>
+</head>
+<body>
+<script type="text/javascript">
+require(['m21theory'], function() {
+    m21theory.style.apply();
+
+    var testBank = new m21theory.bank.TestBank();
+    testBank.addKeyboard = false;
+    testBank.id = "ps01";
+    testBank.instructions = "<p>These exercises will help you solidify your knowledge of the rhythms used in music and musical notation.</p>";
+    testBank.allowEarlySubmit = true;
+    
+    var onPaper = m21theory.sections.get('doOnPaper');
+    onPaper.title = 'Terms and Conditions';
+    onPaper.id = 'agreedToSyllabus'
+    onPaper.$specifics = $("<div><b>Read the syllabus</b>, mark down important " + 
+            "dates on your calendar, and agree to the conditions of the syllabus. You " +
+            "must accept the conditions to be in 21m.051; Prof. Cuthbert also agrees " +
+            "to do his absolute best to teach as well as he can according to his ability. <ul>" +
+            "<li> I agree to follow the terms of the syllabus.</li>" +
+            "<li> I agree to report any problems with the online questions in a timely manner.</li>" +
+            "<li> I agree <b>not</b> to solve any problems through hacking, Javascript, etc., but " +
+            "through the provided interface and according to academic honesty.</li>" +
+            "</ul></div>");
+    
+    onPaper.checkboxInstructions = 'If you agree to these conditions... ';
+    
+    var noteLength = m21theory.sections.get('noteLength');
+    var noteLength2 = m21theory.sections.get('noteLength');
+    noteLength2.displayTNName = 'r';
+    noteLength2.title = 'Rest Lengths';
+    noteLength2.instructions = '<p>Now do the same things with rests (note that rests cannot be tied).</p>';
+    
+    var noteLength3 = m21theory.sections.get('noteLength');
+    noteLength3.randomizeNotesAndRests = true;
+    noteLength3.title = 'Note and Rest Lengths';
+    noteLength3.instructions = '<p>Now do the same things with a mixture of notes and rests.</p>';
+      
+    var pulseMatch = m21theory.sections.get('pulseIdentify');
+    var pulseMatch2 = m21theory.sections.get('pulseIdentify');
+    pulseMatch2.instructions = '<p>Same thing, but now at a faster tempo.</p>';
+    pulseMatch2.tempo = 136;
+    
+    var rhythmMatch1 = m21theory.sections.get('rhythmMatch');
+    rhythmMatch1.allowableMeters = ['4/4'];
+
+    var rhythmMatch2 = m21theory.sections.get('rhythmMatch');
+    rhythmMatch2.instructions = '<p>Now the examples will be in 3/4 time.</p>';
+    rhythmMatch2.allowableMeters = ['3/4'];
+    rhythmMatch2.rhythmChooserValues = ['half','quarter', 'dot'];
+
+    var noteLengthBeams = m21theory.sections.get('noteLength');
+    noteLengthBeams.title = 'Beamed Note Lengths';
+    noteLengthBeams.autoBeam = true;
+    noteLengthBeams.instructions = '<p>As above, but the length, in number of quarter notes, below each note. Here most of the notes will be beamed; .</p>';
+    noteLengthBeams.totalQs = 3;
+    noteLengthBeams.practiceQs = 0;
+    noteLengthBeams.possibleRhythms = {
+            '4/4': [
+                '2. 16 16 16 16 4 4 32 32 32 32 8 4',
+                '8 16 16 4 16 8 16 4 1',
+                '2 2 4 16 8 16 16 16 16 16~ 16 8 16',
+                '4 8 8 8 4 8 4 4~ 8 8 4',
+            ],
+    };
+    
+    var alignment = m21theory.sections.get('doOnPaper');
+    alignment.title = 'Multiple Part Alignment';
+    alignment.id = 'alignment';
+    alignment.setFromId("alignmentSpecifics");
+    var p1 = music21.tinyNotation.TinyNotation("2/4 a8 a a a a4 a a2 a16 a8. r4");
+    var p2 = music21.tinyNotation.TinyNotation("2/4 f8. f16 f8. f16 f2 f8 f f f r4 f4");
+    var p3 = music21.tinyNotation.TinyNotation("2/4 d4 d d8. d16 d4  d4. d8 d2");
+    p1.tempo = 80;
+    p2.tempo = 80;
+    p3.tempo = 80;
+    p1.appendNewCanvas(alignment.$specifics.children('#asPart1'));
+    p2.appendNewCanvas(alignment.$specifics.children('#asPart2'));
+    p3.appendNewCanvas(alignment.$specifics.children('#asPart3'));    
+    var s = new music21.stream.Score();
+    s.insert(0, p1);
+    s.insert(0, p2);
+    s.insert(0, p3);
+    s.appendNewCanvas(alignment.$specifics.children('#asScore1'));    
+
+    var a1 = music21.tinyNotation.TinyNotation("3/4 a4 a a a4. a8 a4 a2 a4");
+    var a2 = music21.tinyNotation.TinyNotation("3/4 f4 f2 f8 f f4 f8 f f f2 f8");
+    var a3 = music21.tinyNotation.TinyNotation("3/4 d2 d4 d d d d8. d16 d4 d4");
+    a1.tempo = 100;
+    a2.tempo = 100;
+    a3.tempo = 100;
+    a1.appendNewCanvas(alignment.$specifics.children('#asAssign1'));
+    a2.appendNewCanvas(alignment.$specifics.children('#asAssign2'));
+    a3.appendNewCanvas(alignment.$specifics.children('#asAssign3'));    
+
+    
+    
+    testBank.append(onPaper);
+    testBank.append(noteLength);
+    testBank.append(noteLength2);
+    testBank.append(noteLength3);
+    testBank.append(pulseMatch);
+    testBank.append(pulseMatch2);
+    testBank.append(rhythmMatch1);
+    testBank.append(rhythmMatch2);
+    testBank.append(noteLengthBeams);
+    testBank.append(alignment);
+    testBank.render();
+});
+
+</script>
+<div id='alignmentSpecifics' style='display: none'>
+<p>
+When working with multiple parts that are to be played simultaneously, it is very important
+to ensure that all of the notes that will be played at the same time are vertically aligned,
+along with clefs, time signatures, barlines (that divide measures), etc. Exact spacing between
+notes--for example, having a half note take up twice the space of a quarter note--is not extremely
+important (and in fact can be ridiculous or impossible if a piece sometimes uses very long notes
+and sometimes very short notes); but the general principle that longer notes get more space than
+shorter notes is a good one that you should follow.</p>
+
+<p>For instance, consider this piece made up of three different parts.  Click each of them to hear
+it. (Each part is on one note, but I've written them on different notes so you can hear them separately):</p>
+
+<div id='asPart1'></div>
+<div id='asPart2'></div>
+<div id='asPart3'></div>
+
+<p>The parts don't look like they belong together because each of the parts is unaligned with the
+others. When the parts are aligned, they look like they belong to the same piece. Click this to hear
+what that sounds like:
+</p>
+
+<div id='asScore1'></div>
+
+<p>When parts that are meant to be heard together are written together, not only are they aligned
+but their left-most barline is drawn connected to each other. We often also put a bracket or fancy
+curly brace between the different parts to show that they will be played together. (This is optional,
+but the connecting barline is <b>not</b>!)</p>
+
+<p>Most good software will automatically do this sort of alignment for you, but it is still a
+very important skill to learn. <b>On staff paper, by hand</b>, neatly recopy the three parts below
+so that they line up with each other. Pay close attention to making sure that all notes that play
+together are perfectly aligned and that no measure has a lot of extra space or feels cramped.
+</p>
+
+<div id='asAssign1'></div>
+<div id='asAssign2'></div>
+<div id='asAssign3'></div>
+
+<p>Reminder: do this in PENCIL and ERASE any mistakes thoroughly. Never, ever scratch out notes.</p>
+</div>
+</body>
+</html>

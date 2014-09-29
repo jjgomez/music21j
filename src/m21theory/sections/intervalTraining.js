@@ -56,9 +56,11 @@ define("m21theory/sections/intervalTraining",
             s.append(c1);
         }
         
-        s.renderOptions.events['click'] = (function () { 
-            this.$inputBox.focus(); // will play stream... 
-        }).bind(this);
+        if (this.isPractice == false) {
+            s.renderOptions.events['click'] = (function () { 
+                this.$inputBox.focus(); // will play stream... 
+            }).bind(this);            
+        }
         
         var nc = s.createCanvas();
         if (this.section.showSecondNote == false) {
